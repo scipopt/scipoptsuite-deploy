@@ -1,0 +1,25 @@
+name: build-binaries
+
+on:
+    workflow_dispatch:
+        inputs:
+            scip_hash:
+                type: string
+                description: Commit hash for SCIP
+                required: true
+            soplex_version:
+                type: string
+                description: Soplex version to use
+                required: true
+            ipopt_version:
+                type: string
+                description: IPOPT version to use
+
+jobs:
+  linux-build-binaries:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v3
+        - name: Build binaries
+          run:
+            echo ${{ inputs.scip_hash }} ${{inputs.soplex_version}} ${{inputs.ipopt_version}}
