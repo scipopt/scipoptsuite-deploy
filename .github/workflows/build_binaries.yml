@@ -36,13 +36,13 @@ jobs:
                 enable_java=no
                 enable_sipopt=no
                 with_pic=yes
-                with_metis_cflags="-I/Users/adm_timo/pyscipopt-install/metis/include"
-                with_metis_lflags="-L/Users/adm_timo/pyscipopt-install/metis/lib -lmetis"' > scip_install/share/config.site
+                with_metis_cflags="-I~/pyscipopt-install/metis/include"
+                with_metis_lflags="-L~/pyscipopt-install/metis/lib -lmetis"' > scip_install/share/config.site
 
                 wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
                 tar xvf gmp-6.3.0.tar.xz
                 cd gmp-6.3.0
-                ./configure --with-pic --disable-shared --enable-cxx --prefix=/Users/adm_timo/pyscipopt-install/scip_install
+                ./configure --with-pic --disable-shared --enable-cxx --prefix=~/pyscipopt-install/scip_install
                 make install -j
                 cd ..
 
@@ -52,13 +52,13 @@ jobs:
                 tar -xvf METIS-v5.1.1-DistDGL-0.5.tar.gz
                 mkdir metis
                 cd GKlib-METIS-v5.1.1-DistDGL-0.5
-                make config prefix=/Users/adm_timo/pyscipopt-install/GKlib-METIS-v5.1.1-DistDGL-0.5
+                make config prefix=~/pyscipopt-install/GKlib-METIS-v5.1.1-DistDGL-0.5
                 make
                 make install
                 sed -i'' -e 's/set(GKlib_COPTIONS "${GKlib_COPTIONS} -Werror -Wall -pedantic -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unknown-pragmas -Wno-unused-label")/set(GKlib_COPTIONS "${GKlib_COPTIONS} -Wall -pedantic -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unknown-pragmas -Wno-unused-label")/g' GKlibSystem.cmake
                 cd ..
                 cd METIS-5.1.1-DistDGL-v0.5
-                make config prefix=/Users/adm_timo/pyscipopt-install/metis/ gklib_path=/Users/adm_timo/pyscipopt-install/GKlib-METIS-v5.1.1-DistDGL-0.5
+                make config prefix=~/pyscipopt-install/metis/ gklib_path=~/pyscipopt-install/GKlib-METIS-v5.1.1-DistDGL-0.5
                 make
                 make install
                 cd ..
@@ -66,7 +66,7 @@ jobs:
                 git clone https://github.com/coin-or-tools/ThirdParty-Mumps.git
                 cd ThirdParty-Mumps
                 ./get.Mumps
-                ./configure --enable-shared=no --enable-static=yes --prefix=/Users/adm_timo/pyscipopt-install/scip_install
+                ./configure --enable-shared=no --enable-static=yes --prefix=~/pyscipopt-install/scip_install
                 make
                 make install
                 cd ..
@@ -74,7 +74,7 @@ jobs:
                 cd Ipopt-releases-3.14.12
                 mkdir build
                 cd build
-                ../configure --prefix=/Users/adm_timo/pyscipopt-install/scip_install/
+                ../configure --prefix=~/pyscipopt-install/scip_install/
                 make -j$(nproc)
                 make test
                 make install
