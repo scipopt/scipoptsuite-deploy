@@ -79,7 +79,6 @@ jobs:
           run: |
             wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/3.14.12.zip
             unzip 3.14.12.zip
-            mkdir $GITHUB_WORKSPACE/scip_install
             mkdir $GITHUB_WORKSPACE/scip_install/share
             echo 'enable_shared=no
             enable_java=no
@@ -87,7 +86,7 @@ jobs:
             with_pic=yes
             with_metis_cflags="-I$GITHUB_WORKSPACE/metis/include"
             with_metis_lflags="-L$GITHUB_WORKSPACE/metis/lib -lmetis"' > $GITHUB_WORKSPACE/scip_install/share/config.site
-            
+
         - name: Install IPOPT
           run: |
             export CC=/usr/local/bin/gcc-13
