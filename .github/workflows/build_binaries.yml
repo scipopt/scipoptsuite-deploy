@@ -22,26 +22,26 @@ name: build-binaries
 on: [push]
 
 jobs: 
-    build-binaries:
-        strategy:
-            matrix:
-              include:
-                - os: macos-14
-                  bash_script: macos_arm.bash
-                  id: macos-arm
-                - os: macos-latest
-                  bash_script: macos.bash
-                  id: macos
+    # build-binaries:
+    #     strategy:
+    #         matrix:
+    #           include:
+    #             - os: macos-14
+    #               bash_script: macos_arm.bash
+    #               id: macos-arm
+    #             - os: macos-latest
+    #               bash_script: macos.bash
+    #               id: macos
 
-        runs-on: ${{ matrix.os }}
-        steps:
-            - uses: actions/checkout@v3
-            - name: Build and install SCIP
-              run: bash .github/workflows/scripts/${{ matrix.bash_script }}
+    #     runs-on: ${{ matrix.os }}
+    #     steps:
+    #         - uses: actions/checkout@v3
+    #         - name: Build and install SCIP
+    #           run: bash .github/workflows/scripts/${{ matrix.bash_script }}
         
-            - uses: actions/upload-artifact@v3
-              with:
-                path: ${{ github.workspace }}/libscip-${{matrix.id}}.zip
+    #         - uses: actions/upload-artifact@v3
+    #           with:
+    #             path: ${{ github.workspace }}/libscip-${{matrix.id}}.zip
 
     linux-build-binaries:
         runs-on: ubuntu-latest
