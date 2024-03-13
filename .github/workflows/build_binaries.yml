@@ -21,29 +21,25 @@ name: build-binaries
 
 on: [push]
 
-jobs:
-    macos-arm-build-binaries:
-        runs-on: macos-14
+jobs: 
+    build-binaries:
+        strategy:
+            matrix:
+              include:
+                - os: macos-14
+                  bash_script: macos_arm.bash
+                - os: macos-latest
+                  bash_script: macos.bash
+
+        runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v3
-            - name: Build and install
-              run: bash .github/workflows/scripts/macos_arm.bash
+            - name: Build and install SCIP
+              run: bash .github/workflows/scripts/${{ matrix.bash_script }}
             
-            - &zip-scip
-              name: ZIP SCIP for MacOS ARM
+            - name: ZIP SCIP
               run: zip -r ${{ github.workspace }}/upload.zip scip_install/lib scip_install/include scip_install/bin
             
-            - &upload-artifact
-              uses: actions/upload-artifact@v3
+            - uses: actions/upload-artifact@v3
               with:
                 path: ${{ github.workspace }}/upload.zip
-
-
-    macos-build-binaries:
-        runs-on: macos-latest
-        steps:
-            - uses: actions/checkout@v3
-            - name: Build and install
-              run: bash .github/workflows/scripts/macos.bash
-            - *zip-scip
-            - *upload-artifact
