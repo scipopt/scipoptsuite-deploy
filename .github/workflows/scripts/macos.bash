@@ -84,3 +84,5 @@ make install
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DSHARED=false
 make -j$(nproc)
 make install
+cd ../..
+zip -r $GITHUB_WORKSPACE/libscip-macos.zip scip_install/lib scip_install/include scip_install/bin

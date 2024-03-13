@@ -83,3 +83,4 @@ make -j$(nproc) VERBOSE=true
 make install
 cd ../..
 mv scip_install/lib64/* scip_install/lib/.
+zip -r $GITHUB_WORKSPACE/upload.zip scip_install/lib scip_install/include scip_install/bin
