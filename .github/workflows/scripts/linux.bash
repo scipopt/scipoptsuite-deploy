@@ -81,6 +81,9 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DGMP_DIR=../../scip_install
 make -j$(nproc) VERBOSE=true
 make install
+cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DGMP_DIR=../../scip_install -DSHARED=false
+make -j$(nproc) VERBOSE=true
+make install
 cd ../..
 mkdir scip_install/lib
 mv scip_install/lib64/* scip_install/lib/.
