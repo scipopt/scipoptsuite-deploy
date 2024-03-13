@@ -18,3 +18,8 @@ on:
 jobs:
   linux-build-binaries:
     runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v3
+        - name: Build binaries
+          run:
+            echo ${{ inputs.scip-hash }} ${{inputs.soplex-version}} ${{inputs.ipopt-version}}
