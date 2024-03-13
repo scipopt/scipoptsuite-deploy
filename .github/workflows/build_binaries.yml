@@ -1,20 +1,23 @@
 name: build-binaries
 
-on:
-    workflow_dispatch:
-        inputs:
-            scip_hash:
-                type: string
-                description: Commit hash for SCIP
-                required: true
-            soplex_version:
-                type: string
-                description: Soplex version to use
-                required: true
-            ipopt_version:
-                type: string
-                description: IPOPT version to use
-                required: true
+# TODO: uncomment this before merging
+# on:
+#     workflow_dispatch:
+#         inputs:
+#             scip_hash:
+#                 type: string
+#                 description: Commit hash for SCIP
+#                 required: true
+#             soplex_version:
+#                 type: string
+#                 description: Soplex version to use
+#                 required: true
+#             ipopt_version:
+#                 type: string
+#                 description: IPOPT version to use
+#                 required: true
+
+on: [push]
 
 jobs:
   macos-build-binaries:
