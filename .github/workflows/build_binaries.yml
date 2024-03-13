@@ -29,10 +29,12 @@ jobs:
             - name: Build and install
               run: bash .github/workflows/scripts/macos_arm.bash
             
-            - name: ZIP SCIP for MacOS ARM
+            - &zip-scip
+              name: ZIP SCIP for MacOS ARM
               run: zip -r ${{ github.workspace }}/upload.zip scip_install/lib scip_install/include scip_install/bin
             
-            - uses: actions/upload-artifact@v3
+            - &upload-artifact
+              uses: actions/upload-artifact@v3
               with:
                 path: ${{ github.workspace }}/upload.zip
 
@@ -44,9 +46,5 @@ jobs:
             - name: Build and install
               run: bash .github/workflows/scripts/macos.bash
       
-            - name: ZIP SCIP for MacOS
-              run: zip -r ${{ github.workspace }}/upload.zip scip_install/lib scip_install/include scip_install/bin
-
-            - uses: actions/upload-artifact@v3
-              with:
-                path: ${{ github.workspace }}/upload.zip
+            - *zip-scip
+            - *upload-artifact
