@@ -1,3 +1,4 @@
+cd /
 yum install gcc gcc-c++ libgfortran git patch wget lapack-static unzip zip make glibc-static -y
 rm -f /usr/lib64/liblapack.s*
 rm -f /usr/lib64/libblas.*
@@ -71,8 +72,7 @@ cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -D
 make -j$(nproc)
 make test
 make install
-cd ..
-cd ..
+cd ../..
 wget https://github.com/scipopt/scip/archive/refs/tags/v900.zip
 unzip v900.zip
 cd scip-900
@@ -82,5 +82,6 @@ cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -D
 make -j$(nproc) VERBOSE=true
 make install
 cd ../..
+mkdir scip_install/lib
 mv scip_install/lib64/* scip_install/lib/.
-zip -r $GITHUB_WORKSPACE/upload.zip scip_install/lib scip_install/include scip_install/bin
+zip -r $GITHUB_WORKSPACE/libscip-linux.zip scip_install/lib scip_install/include scip_install/bin
