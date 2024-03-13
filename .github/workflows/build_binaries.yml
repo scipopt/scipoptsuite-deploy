@@ -79,7 +79,6 @@ jobs:
           run: |
             wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/3.14.12.zip
             unzip 3.14.12.zip
-            mkdir $GITHUB_WORKSPACE/scip_install/share
             echo 'enable_shared=no
             enable_java=no
             enable_sipopt=no
