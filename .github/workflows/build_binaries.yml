@@ -54,8 +54,10 @@ jobs:
     #           with:
     #             path: ${{ github.workspace }}/libscip-linux.zip
 
+
+    # TODO: linux arm build
     linux-arm-build-binaries:
-        runs-on: macos-14
+        runs-on: ubuntu-latest
         container: quay.io/pypa/manylinux_2_28_aarch64
         steps:
             - uses: actions/checkout@v3
@@ -66,4 +68,4 @@ jobs:
                 path: ${{ github.workspace }}/libscip-linux.zip
 
     # TODO: windows x86_64 build
-    # TODO: linux arm build
+    
