@@ -27,7 +27,7 @@ jobs:
         steps:
             - uses: actions/checkout@v3
             - name: Build and install
-              run: bash .github/workflows/scripts/macos_arm.sh
+              run: bash .github/workflows/scripts/macos_arm.bash
 
 
 # jobs:
