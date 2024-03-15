@@ -5,6 +5,11 @@ name: build-binaries
 on:
     workflow_dispatch:
         inputs:
+            gcg_version:
+               type: string
+               description: GCG version to use
+               required: false
+               default: "3.6.0"
             scip_version:
                 type: string
                 description: SCIP version to use
