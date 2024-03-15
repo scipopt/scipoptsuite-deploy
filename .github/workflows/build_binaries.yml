@@ -43,28 +43,28 @@ jobs:
     #           with:
     #             path: ${{ github.workspace }}/libscip-${{matrix.id}}.zip
 
-    # linux-build-binaries:
-    #     runs-on: ubuntu-latest
-    #     container: quay.io/pypa/manylinux2014_x86_64
-    #     steps:
-    #         - uses: actions/checkout@v3
-    #         - name: Build and install SCIP
-    #           run: bash -x .github/workflows/scripts/linux.bash
-    #         - uses: actions/upload-artifact@v3
-    #           with:
-    #             path: ${{ github.workspace }}/libscip-linux.zip
-
-    windows-build-binaries:
-        runs-on: windows-latest
+    linux-build-binaries:
+        runs-on: ubuntu-latest
+        container: quay.io/pypa/manylinux2014_x86_64
         steps:
-          - uses: actions/checkout@v3
-          - uses: msys2/setup-msys2@v2      
+            - uses: actions/checkout@v3
+            - name: Build and install SCIP
+              run: bash -x .github/workflows/scripts/linux.bash
+            - uses: actions/upload-artifact@v3
+              with:
+                path: ${{ github.workspace }}/libscip-linux.zip
+
+    # windows-build-binaries:
+    #     runs-on: windows-latest
+    #     steps:
+    #       - uses: actions/checkout@v3
+    #       - uses: msys2/setup-msys2@v2      
       
-          - name: Build and install SCIP
-            run: bash -x .github/workflows/scripts/windows.bash
-            shell: msys2 {0}
+    #       - name: Build and install SCIP
+    #         run: bash -x .github/workflows/scripts/windows.bash
+    #         shell: msys2 {0}
           
-          - uses: actions/upload-artifact@v3
-            with:
-              path: ${{ github.workspace }}/libscip-windows.zip
+    #       - uses: actions/upload-artifact@v3
+    #         with:
+    #           path: ${{ github.workspace }}/libscip-windows.zip
 
