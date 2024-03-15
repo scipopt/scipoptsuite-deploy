@@ -1,15 +1,15 @@
 pacman -S --noconfirm unzip git mingw-w64-x86_64-cmake cmake mingw-w64-x86_64-zlib zip
             
 cd $GITHUB_WORKSPACE
-wget https://github.com/coin-or/Ipopt/releases/download/releases%2F3.14.12/Ipopt-3.14.12-win64-msvs2019-md.zip
-unzip Ipopt-3.14.12-win64-msvs2019-md.zip
-mv Ipopt-3.14.12-win64-msvs2019-md/ scip_install
+wget https://github.com/coin-or/Ipopt/releases/download/releases%2F$IPOPT_VERSION/Ipopt-$IPOPT_VERSION-win64-msvs2019-md.zip
+unzip Ipopt-$IPOPT_VERSION-win64-msvs2019-md.zip
+mv Ipopt-$IPOPT_VERSION-win64-msvs2019-md/ scip_install
 mv scip_install/lib/ipopt.dll.lib scip_install/lib/ipopt.lib
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/soplex/archive/refs/tags/release-700.zip
-unzip release-700.zip
-cd soplex-release-700
+wget https://github.com/scipopt/soplex/archive/refs/tags/release-$SOPLEX_VERSION.zip
+unzip release-$SOPLEX_VERSION.zip
+cd soplex-release-$SOPLEX_VERSION
 mkdir soplex_build
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
@@ -21,9 +21,9 @@ cmake --install soplex_build
 
 cd $GITHUB_WORKSPACE
 mkdir $GITHUB_WORKSPACE/scip_build
-wget https://github.com/scipopt/scip/archive/refs/tags/v900.zip
-unzip v900.zip
-cd scip-900
+wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION.zip
+unzip v$SCIP_VERSION.zip
+cd scip-$SCIP_VERSION
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"

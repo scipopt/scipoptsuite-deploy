@@ -1,5 +1,5 @@
-wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/3.14.12.zip
-unzip 3.14.12.zip
+wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/$IPOPT_VERSION.zip
+unzip $IPOPT_VERSION.zip
 mkdir scip_install
 mkdir scip_install/share
 echo 'enable_shared=no
@@ -41,7 +41,7 @@ make
 make install
 cd ..
 
-cd Ipopt-releases-3.14.12
+cd Ipopt-releases-$IPOPT_VERSION
 mkdir build
 cd build
 ../configure --prefix=$GITHUB_WORKSPACE/pyscipopt-install/scip_install/
@@ -50,9 +50,9 @@ make test
 make install
 cd ../..
 
-wget https://github.com/scipopt/soplex/archive/refs/tags/release-700.zip
-unzip release-700.zip
-cd soplex-release-700
+wget https://github.com/scipopt/soplex/archive/refs/tags/release-$SOPLEX_VERSION.zip
+unzip release-$SOPLEX_VERSION.zip
+cd soplex-release-$SOPLEX_VERSION
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DBOOST=false -DGMP_DIR=../../scip_install -DWITH_SHARED_LIBS=off
@@ -61,9 +61,9 @@ make test
 make install
 cd ../..
 
-wget https://github.com/scipopt/scip/archive/refs/tags/v900.zip
-unzip v900.zip
-cd scip-900
+wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION.zip
+unzip v$SCIP_VERSION.zip
+cd scip-$SCIP_VERSION
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install
