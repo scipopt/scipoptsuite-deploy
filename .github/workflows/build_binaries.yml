@@ -9,14 +9,17 @@ on:
                 type: string
                 description: SCIP version to use
                 required: true
+                default: "9.0.0"
             soplex_version:
                 type: string
                 description: Soplex version to use
                 required: true
+                default: "7.0.0"
             ipopt_version:
                 type: string
                 description: IPOPT version to use
                 required: true
+                default: "3.14.12"
 
 jobs:
     print-inputs:
@@ -26,7 +29,8 @@ jobs:
             run: |
               echo "SCIP version: ${{github.event.inputs.scip_version}}"
               echo "Soplex version: ${{github.event.inputs.soplex_version}}"
-              echo "IPOPT version: ${{github.event.inputs.ipopt_version}}" 
+              echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
+
     build-binaries:
         strategy:
             matrix:
