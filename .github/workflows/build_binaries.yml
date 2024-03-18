@@ -1,6 +1,32 @@
 name: build-binaries
 
-# TODO: disclaimer to give credit to script authors
+
+# Authors: 
+# Mark Turner
+# Mohammed Ghannam 
+# Stefan Vigerske
+# Franziska Schloesser
+# Julian Manns
+# Michael Winkler
+#
+# This is the base workflow script for generating SCIP libraries.
+# These libraries intended purpose is to be shipped with the various 
+# SCIP interfaces for different programming languages (e.g. Python and Rust).
+# These libraries enable users of those interfaces to not have to install SCIP themselves outside of
+# the traditional package managers of their preferred programming languages.
+# For example, pip install pyscipopt will now install SCIP on the users machine directly.
+#
+# A major issue with the development of these scripts was to statically generate
+# as many dependencies as possible. This way users require a minimal amount
+# of system libraries to actually install via their preferred programming language.
+# Any extensions to this script should keep this design philosophy in mind.
+#
+# Current support:
+# Linux x86-64
+# MacOS x86-64
+# MacOS ARM64
+# Windows x86-64
+#
 
 on:
     workflow_dispatch:
