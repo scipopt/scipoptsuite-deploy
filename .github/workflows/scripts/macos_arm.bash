@@ -77,4 +77,27 @@ make -j$(nproc)
 make install
 
 cd $GITHUB_WORKSPACE
+wget https://github.com/ds4dm/Bliss/archive/refs/tags/v0.77.zip
+unzip v0.77.zip
+cd Bliss-0.77
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DUSE_GMP=ON
+make -j$(nproc)
+make install
+
+cd $GITHUB_WORKSPACE
+wget -O gcg.zip https://github.com/scipopt/gcg/archive/v36-bugfix.zip
+unzip gcg.zip
+cd gcg-36-bugfix
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=../../scip_install -DGMP_DIR=../../scip_install -DGMP=true
+make -j$(nproc)
+make install
+cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=../../scip_install -DGMP_DIR=../../scip_install -DGMP=true -DSHARED=false
+make -j$(nproc)
+make install
+
+cd $GITHUB_WORKSPACE
 zip -r $GITHUB_WORKSPACE/libscip-macos-arm.zip scip_install/lib scip_install/include scip_install/bin
