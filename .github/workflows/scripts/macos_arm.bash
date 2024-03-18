@@ -76,13 +76,14 @@ cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -D
 make -j$(nproc)
 make install
 
+
 cd $GITHUB_WORKSPACE
 wget https://github.com/ds4dm/Bliss/archive/refs/tags/v0.77.zip
 unzip v0.77.zip
 cd Bliss-0.77
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DUSE_GMP=ON
+cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release
 make -j$(nproc)
 make install
 
