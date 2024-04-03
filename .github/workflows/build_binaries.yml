@@ -38,9 +38,9 @@ jobs:
                 - os: macos-14
                   bash_script: macos_arm.bash
                   id: macos-arm
-                - os: macos-latest
-                  bash_script: macos.bash
-                  id: macos
+                # - os: macos-latest
+                #   bash_script: macos.bash
+                #   id: macos
 
         runs-on: ${{ matrix.os }}
         steps:
@@ -56,36 +56,36 @@ jobs:
               with:
                 path: ${{ github.workspace }}/libscip-${{matrix.id}}.zip
 
-    linux-build-binaries:
-        runs-on: ubuntu-latest
-        container: quay.io/pypa/manylinux2014_x86_64
-        steps:
-            - uses: actions/checkout@v3
-            - name: Build and install SCIP
-              run: |
-                export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
-                export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-                export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                bash -x .github/workflows/scripts/linux.bash
-            - uses: actions/upload-artifact@v3
-              with:
-                path: ${{ github.workspace }}/libscip-linux.zip
+    # linux-build-binaries:
+    #     runs-on: ubuntu-latest
+    #     container: quay.io/pypa/manylinux2014_x86_64
+    #     steps:
+    #         - uses: actions/checkout@v3
+    #         - name: Build and install SCIP
+    #           run: |
+    #             export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+    #             export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
+    #             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
+    #             bash -x .github/workflows/scripts/linux.bash
+    #         - uses: actions/upload-artifact@v3
+    #           with:
+    #             path: ${{ github.workspace }}/libscip-linux.zip
 
-    windows-build-binaries:
-        runs-on: windows-latest
-        steps:
-          - uses: actions/checkout@v3
-          - uses: msys2/setup-msys2@v2      
+    # windows-build-binaries:
+    #     runs-on: windows-latest
+    #     steps:
+    #       - uses: actions/checkout@v3
+    #       - uses: msys2/setup-msys2@v2      
       
-          - name: Build and install SCIP
-            run:  |
-              export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
-              export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-              export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-              bash -x .github/workflows/scripts/windows.bash
-            shell: msys2 {0}
+    #       - name: Build and install SCIP
+    #         run:  |
+    #           export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+    #           export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
+    #           export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
+    #           bash -x .github/workflows/scripts/windows.bash
+    #         shell: msys2 {0}
           
-          - uses: actions/upload-artifact@v3
-            with:
-              path: ${{ github.workspace }}/libscip-windows.zip
+    #       - uses: actions/upload-artifact@v3
+    #         with:
+    #           path: ${{ github.workspace }}/libscip-windows.zip
 
