@@ -92,6 +92,7 @@ mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DSHARED=false
 make -j$(nproc) VERBOSE=true
+make test
 make install
 cd $GITHUB_WORKSPACE
 mkdir scip_install/lib
