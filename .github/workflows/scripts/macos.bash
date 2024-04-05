@@ -2,12 +2,19 @@
 brew install bash
 brew upgrade cmake
 brew install unzip
-brew install boost
 
 export CC=/usr/local/bin/gcc-13
 export CXX=/usr/local/bin/g++-13
 export FC=/usr/local/bin/gfortran-13
 export MACOSX_DEPLOYMENT_TARGET=11.0
+
+rm -rf /usr/local/include/boost
+mkdir /usr/local/include/boost
+
+wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
+tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
+mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/local/include/boost/.
+
 wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
 tar xvf gmp-6.3.0.tar.xz
 cd gmp-6.3.0
