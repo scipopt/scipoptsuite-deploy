@@ -7,6 +7,15 @@ export CC=/usr/local/bin/gcc-13
 export CXX=/usr/local/bin/g++-13
 export FC=/usr/local/bin/gfortran-13
 export MACOSX_DEPLOYMENT_TARGET=11.0
+
+rm -rf /usr/local/include/boost
+mkdir /usr/local/include/boost
+
+wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
+tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
+mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/local/include/boost/.
+
+rm -f /usr/local/lib/libgmp*
 wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
 tar xvf gmp-6.3.0.tar.xz
 cd gmp-6.3.0
@@ -66,8 +75,8 @@ unzip release-$SOPLEX_VERSION.zip
 cd soplex-release-$SOPLEX_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DBOOST=false -DGMP_DIR=../../scip_install
-make -j$(nproc)
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DMPFR=false
+make -j 
 make test
 make install
 
@@ -78,11 +87,9 @@ unzip v$SCIP_VERSION.zip
 cd scip-$SCIP_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DSHARED=false
 make -j$(nproc)
-make install
-cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DSHARED=false
-make -j$(nproc)
+make test
 make install
 cd ../..
 zip -r $GITHUB_WORKSPACE/libscip-macos.zip scip_install/lib scip_install/include scip_install/bin

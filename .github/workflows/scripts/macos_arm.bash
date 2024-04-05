@@ -1,3 +1,10 @@
+rm -rf /usr/local/include/boost
+mkdir /usr/local/include/boost
+
+wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
+tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
+mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/local/include/boost/.
+
 wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/$IPOPT_VERSION.zip
 unzip $IPOPT_VERSION.zip
 mkdir scip_install
@@ -9,6 +16,7 @@ with_pic=yes
 with_metis_cflags="-I$GITHUB_WORKSPACE/metis/include"
 with_metis_lflags="-L$GITHUB_WORKSPACE/metis/lib -lmetis"' > scip_install/share/config.site
 
+rm -f /usr/local/lib/libgmp*
 wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
 tar xvf gmp-6.3.0.tar.xz
 cd gmp-6.3.0
@@ -58,7 +66,7 @@ unzip release-$SOPLEX_VERSION.zip
 cd soplex-release-$SOPLEX_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DBOOST=false -DGMP_DIR=../../scip_install -DWITH_SHARED_LIBS=off
+cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DGMP_DIR=../../scip_install -DMPFR=false
 make -j$(nproc)
 make test
 make install
@@ -69,11 +77,12 @@ unzip v$SCIP_VERSION.zip
 cd scip-$SCIP_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install
+cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install
 make -j$(nproc)
 make install
-cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DSHARED=false
+cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DSHARED=false
 make -j$(nproc)
+make test
 make install
 
 cd $GITHUB_WORKSPACE
