@@ -55,10 +55,10 @@ export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Comm
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"
 mkdir gcg_build
-cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/gcg_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=../../scip_install -DGMP_DIR=../../scip_install -DGMP=true -DCMAKE_GENERATOR_PLATFORM=x64
+cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/gcg_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=../scip_install -DGMP=false -DZLIB=false -DCMAKE_GENERATOR_PLATFORM=x64
 cmake --build $GITHUB_WORKSPACE/gcg_build --config Release
 cmake --install $GITHUB_WORKSPACE/gcg_build
-cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/gcg_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=../../scip_install -DGMP_DIR=../../scip_install -DGMP=true -DCMAKE_GENERATOR_PLATFORM=x64 -DSHARED=false
+cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/gcg_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=../scip_install -DGMP=false -DZLIB=false -DCMAKE_GENERATOR_PLATFORM=x64 -DSHARED=false
 cmake --build $GITHUB_WORKSPACE/gcg_build --config Release
 cmake --install $GITHUB_WORKSPACE/gcg_build
 
