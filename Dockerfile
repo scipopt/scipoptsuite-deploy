@@ -6,6 +6,7 @@ ARG TAG
 
 RUN apt-get update && apt-get -y install \
     build-essential \
+    zlib1g \
     libcliquer1 \
     gfortran \
     liblapack3 \
