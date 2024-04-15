@@ -107,10 +107,10 @@ unzip gcg.zip
 cd gcg-36-bugfix
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=$GITHUB_WORKSPACE/scip_install -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DGMP=true -DZLIB=false
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=$GITHUB_WORKSPACE/scip_install -DGMP=true -DZLIB=false
 make -j$(nproc)
 make install
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=$GITHUB_WORKSPACE/scip_install -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DGMP=true -DZLIB=false -DSHARED=false
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=$GITHUB_WORKSPACE/scip_install -DGMP=true -DZLIB=false -DSHARED=false
 make -j$(nproc)
 make install
 
