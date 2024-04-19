@@ -1,3 +1,4 @@
+pwd
 ls -a
 cd $GITHUB_WORKSPACE
 yum install gcc gcc-c++ libgfortran git patch wget lapack-static unzip zip make glibc-static -y
