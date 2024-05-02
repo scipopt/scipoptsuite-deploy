@@ -6,7 +6,6 @@ brew install unzip
 export CC=/usr/local/bin/gcc-13
 export CXX=/usr/local/bin/g++-13
 export FC=/usr/local/bin/gfortran-13
-export MACOSX_DEPLOYMENT_TARGET=11.0
 wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
 tar xvf gmp-6.3.0.tar.xz
 cd gmp-6.3.0
