@@ -1,5 +1,6 @@
 pwd
 ls -a
+cp patch-first.patch $GITHUB_WORKSPACE/patch-first.patch
 cd $GITHUB_WORKSPACE
 yum install gcc gcc-c++ libgfortran git patch wget lapack-static unzip zip make glibc-static -y
 rm -f /usr/lib64/liblapack.s*
@@ -107,7 +108,7 @@ cd $GITHUB_WORKSPACE
 wget -O gcg.zip https://github.com/scipopt/gcg/archive/v36-bugfix.zip
 unzip gcg.zip
 cd gcg-36-bugfix
-git apply --whitespace=fix ~/patch-first.patch
+git apply --whitespace=fix $GITHUB_WORKSPACE/patch-first.patch
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=$GITHUB_WORKSPACE/scip_install -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DGMP=true -DZLIB=false
