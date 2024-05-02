@@ -55,7 +55,7 @@ cd Ipopt-releases-$IPOPT_VERSION
 mkdir build
 cd build
 ../configure --prefix=$GITHUB_WORKSPACE/scip_install/
-make -j$(nproc)
+make -j
 make test
 make install
 
@@ -67,7 +67,7 @@ cd soplex-release-$SOPLEX_VERSION
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DBOOST=false -DGMP_DIR=../../scip_install
-make -j$(nproc)
+make -j
 make test
 make install
 
@@ -79,7 +79,7 @@ cd scip-$SCIP_VERSION
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install
-make -j$(nproc)
+make -j
 make install
 
 
@@ -90,7 +90,7 @@ cd Bliss-0.77
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
+make -j
 make install
 
 cd $GITHUB_WORKSPACE
@@ -100,10 +100,10 @@ cd gcg-36-bugfix
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=../../scip_install -DGMP_DIR=../../scip_install -DGMP=true
-make -j$(nproc)
+make -j
 make install
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=../../scip_install -DGMP_DIR=../../scip_install -DGMP=true -DSHARED=false
-make -j$(nproc)
+make -j
 make install
 
 cd ../..
