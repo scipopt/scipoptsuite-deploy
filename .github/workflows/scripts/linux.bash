@@ -105,10 +105,9 @@ make -j$(nproc)
 make install
 
 cd $GITHUB_WORKSPACE
-wget -O gcg.zip https://github.com/scipopt/gcg/archive/v36-bugfix.zip
-unzip gcg.zip
-cd gcg-36-bugfix
-git apply --whitespace=fix $GITHUB_WORKSPACE/patch-first.patch
+wget -O gcg.zip https://github.com/jurgen-lentz/gcg/archive/refs/heads/master.zip
+unzip gcg-master.zip
+cd gcg-master
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=$GITHUB_WORKSPACE/scip_install -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DZLIB=true -DGMP=true -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install
