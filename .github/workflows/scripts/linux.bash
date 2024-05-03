@@ -106,7 +106,7 @@ make install
 
 cd $GITHUB_WORKSPACE
 wget -O gcg.zip https://github.com/jurgen-lentz/gcg/archive/refs/heads/master.zip
-unzip gcg-master.zip
+unzip gcg.zip
 cd gcg-master
 mkdir build
 cd build
