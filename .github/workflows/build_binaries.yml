@@ -45,7 +45,7 @@ on:
                 type: string
                 description: IPOPT version to use
                 required: true
-                default: "3.14.12"
+                default: "3.14.14"
 
 jobs:
     print-inputs:
