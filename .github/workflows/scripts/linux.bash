@@ -2,6 +2,13 @@ cd $GITHUB_WORKSPACE
 yum install gcc gcc-c++ libgfortran git patch wget lapack-static unzip zip make glibc-static -y
 rm -f /usr/lib64/liblapack.s*
 rm -f /usr/lib64/libblas.*
+rm -rf /usr/include/boost
+mkdir /usr/include/boost
+
+wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
+tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
+mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/include/boost/.
+
 git clone https://github.com/Reference-LAPACK/lapack.git
 cd lapack
 mkdir build
@@ -72,7 +79,7 @@ unzip release-$SOPLEX_VERSION.zip
 cd soplex-release-$SOPLEX_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DWITH_SHARED_LIBS=off
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DBOOST=true
 make -j$(nproc)
 make test
 make install
@@ -83,11 +90,9 @@ unzip v$SCIP_VERSION.zip
 cd scip-$SCIP_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=false -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DSHARED=false
 make -j$(nproc) VERBOSE=true
-make install
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=false -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DSHARED=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install
-make -j$(nproc) VERBOSE=true
+make test
 make install
 
 
@@ -107,11 +112,9 @@ unzip gcg.zip
 cd gcg-master
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=$GITHUB_WORKSPACE/scip_install -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DZLIB=true -DGMP=true -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install
-make -j$(nproc)
-make install
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=$GITHUB_WORKSPACE/scip_install -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DZLIB=true -DGMP=true -DSHARED=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install
-make -j$(nproc)
+make -j$(nproc) VERBOSE=true
+make test
 make install
 
 
