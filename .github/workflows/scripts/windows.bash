@@ -1,5 +1,12 @@
 pacman -S --noconfirm unzip git mingw-w64-x86_64-cmake cmake mingw-w64-x86_64-zlib zip
-            
+
+cd $GITHUB_WORKSPACE
+wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.zip
+unzip gmp-6.3.0.zip
+cd gmp-6.3.0
+./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
+make install -j
+
 cd $GITHUB_WORKSPACE
 wget https://github.com/coin-or/Ipopt/releases/download/releases%2F$IPOPT_VERSION/Ipopt-$IPOPT_VERSION-win64-msvs2019-md.zip
 unzip Ipopt-$IPOPT_VERSION-win64-msvs2019-md.zip
