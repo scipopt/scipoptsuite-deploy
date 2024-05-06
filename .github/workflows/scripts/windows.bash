@@ -1,8 +1,8 @@
-pacman -S --noconfirm unzip git mingw-w64-x86_64-cmake cmake mingw-w64-x86_64-zlib zip
+pacman -S --noconfirm p7zip unzip git mingw-w64-x86_64-cmake cmake mingw-w64-x86_64-zlib zip
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.zip
-unzip gmp-6.3.0.zip
+wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
+tar xvf gmp-6.3.0.tar.xz
 cd gmp-6.3.0
 ./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
 make install -j
