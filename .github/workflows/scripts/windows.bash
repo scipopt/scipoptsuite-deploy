@@ -45,22 +45,22 @@ export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBu
 export PATH="$PATH:C:\msys64\mingw64"
 export PATH="$PATH:C:\msys64\mingw64\lib"
 mkdir bliss_build
-cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/bliss_build -DUSE_GMP=ON -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64
+cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/bliss_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64
 cmake --build $GITHUB_WORKSPACE/bliss_build --config Release
 cmake --install $GITHUB_WORKSPACE/bliss_build
 
 cd $GITHUB_WORKSPACE
-wget -O gcg.zip https://github.com/scipopt/gcg/archive/v36-bugfix.zip
+wget -O gcg.zip https://github.com/jurgen-lentz/gcg/archive/refs/heads/master.zip
 unzip gcg.zip
-cd gcg-36-bugfix
+cd gcg-master
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"
 mkdir gcg_build
-cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/gcg_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS=false -DGMP=false -DCMAKE_GENERATOR_PLATFORM=x64
+cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/gcg_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS=true -DBLISS_DIR=../scip_install -DGMP=false -DCMAKE_GENERATOR_PLATFORM=x64
 cmake --build $GITHUB_WORKSPACE/gcg_build --config Release
 cmake --install $GITHUB_WORKSPACE/gcg_build
-cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/gcg_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS=false -DGMP=false -DCMAKE_GENERATOR_PLATFORM=x64 -DSHARED=false
+cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/gcg_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS=true -DBLISS_DIR=../scip_install -DGMP=false -DCMAKE_GENERATOR_PLATFORM=x64 -DSHARED=false
 cmake --build $GITHUB_WORKSPACE/gcg_build --config Release
 cmake --install $GITHUB_WORKSPACE/gcg_build
 
