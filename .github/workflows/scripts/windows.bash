@@ -45,7 +45,7 @@ export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBu
 export PATH="$PATH:C:\msys64\mingw64"
 export PATH="$PATH:C:\msys64\mingw64\lib"
 mkdir bliss_build
-cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/bliss_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64
+cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/bliss_build -DUSE_GMP=ON -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64
 cmake --build $GITHUB_WORKSPACE/bliss_build --config Release
 cmake --install $GITHUB_WORKSPACE/bliss_build
 
