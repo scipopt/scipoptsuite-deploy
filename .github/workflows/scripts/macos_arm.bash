@@ -94,6 +94,7 @@ mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release
 make -j$(nproc)
+make test
 make install
 
 cd $GITHUB_WORKSPACE
