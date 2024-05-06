@@ -1,7 +1,8 @@
 pacman -S --noconfirm p7zip unzip git mingw-w64-x86_64-cmake cmake mingw-w64-x86_64-zlib zip
 
-export CC=C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.38.33130/bin/HostX64/x64/cl.exe
-export CXX=C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.38.33130/bin/HostX64/x64/cl.exe
+export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
+export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
+export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"
 cd $GITHUB_WORKSPACE
 wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
 tar xvf gmp-6.3.0.tar.xz
@@ -44,17 +45,17 @@ cmake --build $GITHUB_WORKSPACE/scip_build --config Release
 cmake --install $GITHUB_WORKSPACE/scip_build
 
 
-#cd $GITHUB_WORKSPACE
-#wget https://github.com/ds4dm/Bliss/archive/refs/tags/v0.77.zip
-#unzip v0.77.zip
-#cd Bliss-0.77
-#export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
-#export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
-#export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"
-#mkdir bliss_build
-#cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/bliss_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64
-#cmake --build $GITHUB_WORKSPACE/bliss_build --config Release
-#cmake --install $GITHUB_WORKSPACE/bliss_build
+cd $GITHUB_WORKSPACE
+wget https://github.com/ds4dm/Bliss/archive/refs/tags/v0.77.zip
+unzip v0.77.zip
+cd Bliss-0.77
+export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
+export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
+export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"
+mkdir bliss_build
+cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/bliss_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64
+cmake --build $GITHUB_WORKSPACE/bliss_build --config Release
+cmake --install $GITHUB_WORKSPACE/bliss_build
 
 cd $GITHUB_WORKSPACE
 wget -O gcg.zip https://github.com/scipopt/gcg/archive/v36-bugfix.zip
