@@ -1,14 +1,4 @@
-pacman -S --noconfirm p7zip unzip git mingw-w64-x86_64-cmake cmake mingw-w64-x86_64-zlib zip
-
-export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
-export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
-export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"
-cd $GITHUB_WORKSPACE
-wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
-tar xvf gmp-6.3.0.tar.xz
-cd gmp-6.3.0
-./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
-make install -j
+pacman -S --noconfirm unzip git mingw-w64-x86_64-cmake cmake mingw-w64-x86_64-zlib mingw-w64-x86_64-gmp zip
 
 cd $GITHUB_WORKSPACE
 wget https://github.com/coin-or/Ipopt/releases/download/releases%2F$IPOPT_VERSION/Ipopt-$IPOPT_VERSION-win64-msvs2019-md.zip
