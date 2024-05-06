@@ -1,5 +1,7 @@
 pacman -S --noconfirm p7zip unzip git mingw-w64-x86_64-cmake cmake mingw-w64-x86_64-zlib zip
 
+export CC=C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.38.33130/bin/HostX64/x64/cl.exe
+export CXX=C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.38.33130/bin/HostX64/x64/cl.exe
 cd $GITHUB_WORKSPACE
 wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
 tar xvf gmp-6.3.0.tar.xz
