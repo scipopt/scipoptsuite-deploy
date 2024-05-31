@@ -24,6 +24,7 @@ mkdir $GITHUB_WORKSPACE/scip_build
 wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION.zip
 unzip v$SCIP_VERSION.zip
 cd scip-$SCIP_VERSION
+mkdir scip_build
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"
