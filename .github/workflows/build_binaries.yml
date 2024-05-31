@@ -78,9 +78,9 @@ jobs:
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 bash .github/workflows/scripts/${{ matrix.bash_script }}
         
-            - uses: actions/upload-artifact@v3
-              with:
-                path: ${{ github.workspace }}/libscip-${{matrix.id}}.zip
+#            - uses: actions/upload-artifact@v3
+#              with:
+#                path: ${{ github.workspace }}/libscip-${{matrix.id}}.zip
 
     linux-build-binaries:
         runs-on: ubuntu-latest
@@ -93,9 +93,9 @@ jobs:
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 bash -x .github/workflows/scripts/linux.bash
-            - uses: actions/upload-artifact@v3
-              with:
-                path: ${{ github.workspace }}/libscip-linux.zip
+#            - uses: actions/upload-artifact@v3
+#              with:
+#                path: ${{ github.workspace }}/libscip-linux.zip
 
     windows-build-binaries:
         runs-on: windows-latest
@@ -111,7 +111,7 @@ jobs:
               bash -x .github/workflows/scripts/windows.bash
             shell: msys2 {0}
           
-          - uses: actions/upload-artifact@v3
-            with:
-              path: ${{ github.workspace }}/libscip-windows.zip
+#          - uses: actions/upload-artifact@v3
+#            with:
+#              path: ${{ github.workspace }}/libscip-windows.zip
 
