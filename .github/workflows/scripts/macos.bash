@@ -64,7 +64,7 @@ cd Ipopt-releases-$IPOPT_VERSION
 mkdir build
 cd build
 ../configure --prefix=$GITHUB_WORKSPACE/scip_install/
-make -j$(nproc)
+make -j
 make test
 make install
 

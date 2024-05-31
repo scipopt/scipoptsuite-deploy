@@ -28,8 +28,8 @@ export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Comm
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"
 cmake -G "Visual Studio 17 2022" -B $GITHUB_WORKSPACE/scip_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../scip_install -DPAPILO=false -DZIMPL=false -DZLIB=false -DREADLINE=false -DGMP=false -DIPOPT=true -DIPOPT_DIR=../scip_install -DIPOPT_LIBRARIES=../scip_install/bin -DCMAKE_GENERATOR_PLATFORM=x64
-cmake --build $GITHUB_WORKSPACE/scip_build --config Release
-cmake --install $GITHUB_WORKSPACE/scip_build
+cmake --build scip_build --config Release
+cmake --install scip_build
 ctest
 
 cd $GITHUB_WORKSPACE

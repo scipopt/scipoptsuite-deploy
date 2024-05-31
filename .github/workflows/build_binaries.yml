@@ -64,7 +64,7 @@ jobs:
                 - os: macos-14
                   bash_script: macos_arm.bash
                   id: macos-arm
-                - os: macos-latest
+                - os: macos-13
                   bash_script: macos.bash
                   id: macos
 
