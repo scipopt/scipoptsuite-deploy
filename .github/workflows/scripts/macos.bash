@@ -52,12 +52,12 @@ make install
 cd $GITHUB_WORKSPACE
 wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/$IPOPT_VERSION.zip
 unzip $IPOPT_VERSION.zip
-echo 'enable_shared=no
+echo "enable_shared=no
 enable_java=no
 enable_sipopt=no
 with_pic=yes
-with_metis_cflags="-I$GITHUB_WORKSPACE/metis/include"
-with_metis_lflags="-L$GITHUB_WORKSPACE/metis/lib -lmetis"' > $GITHUB_WORKSPACE/scip_install/share/config.site
+with_metis_cflags=\"-I${GITHUB_WORKSPACE}/metis/include\"
+with_metis_lflags=\"-L${GITHUB_WORKSPACE}/metis/lib -lmetis\"" > $GITHUB_WORKSPACE/scip_install/share/config.site
 
 
 cd Ipopt-releases-$IPOPT_VERSION
