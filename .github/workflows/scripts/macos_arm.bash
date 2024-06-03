@@ -1,6 +1,7 @@
 rm -rf /usr/local/include/boost
 mkdir /usr/local/include/boost
 brew install boost
+export MACOSX_DEPLOYMENT_TARGET=11.0
 
 wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
 tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
