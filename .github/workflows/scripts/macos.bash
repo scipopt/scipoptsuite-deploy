@@ -75,7 +75,7 @@ unzip release-$SOPLEX_VERSION.zip
 cd soplex-release-$SOPLEX_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DMPFR=false -DBOOST=false
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DMPFR=false -DBOOST=true -DBOOST_INCLUDE_DIR=/usr/local/include/boost/
 make -j 
 make test
 make install

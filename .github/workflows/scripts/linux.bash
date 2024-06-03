@@ -22,15 +22,15 @@ mkdir scip_install
 mkdir scip_install/share
 wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/$IPOPT_VERSION.zip
 unzip $IPOPT_VERSION.zip
-echo 'enable_shared=no
+echo "enable_shared=no
 enable_java=no
 enable_sipopt=no
 with_pic=yes
-with_metis_cflags="-I/metis/include/"
-with_metis_lflags="-L/metis/lib -lmetis -lm"
-with_lapack_lflags="-llapack_pic -lblas -lgfortran -lquadmath -lm"
+with_metis_cflags=\"-I${GITHUB_WORKSPACE}/metis/include/\"
+with_metis_lflags=\"-L${GITHUB_WORKSPACE}/metis/lib -lmetis -lm\"
+with_lapack_lflags=\"-llapack_pic -lblas -lgfortran -lquadmath -lm\"
 LT_LDFLAGS=-all-static
-LDFLAGS=-static' > $GITHUB_WORKSPACE/scip_install/share/config.site
+LDFLAGS=-static" > $GITHUB_WORKSPACE/scip_install/share/config.site
 
 wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
 tar xvf gmp-6.3.0.tar.xz
@@ -90,7 +90,7 @@ unzip v$SCIP_VERSION.zip
 cd scip-$SCIP_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DBOOST=true
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DGMP_DIR=$GITHUB_WORKSPACE/scip_install
 make -j$(nproc) VERBOSE=true
 make test
 make install

@@ -64,13 +64,19 @@ jobs:
                 - os: macos-14
                   bash_script: macos_arm.bash
                   id: macos-arm
-                - os: macos-13
+                - os: macos-12
                   bash_script: macos.bash
                   id: macos
 
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v3
+            - uses: fortran-lang/setup-fortran@v1
+              id: setup-fortran
+              with:
+                compiler: lfortran
+                version: 0.33.0
+
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
