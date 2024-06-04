@@ -82,6 +82,7 @@ jobs:
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
+                export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
                 tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
                 bash .github/workflows/scripts/${{ matrix.bash_script }}
         
