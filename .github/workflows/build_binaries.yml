@@ -61,10 +61,10 @@ jobs:
         strategy:
             matrix:
               include:
-                - os: macos-14
-                  bash_script: macos_arm.bash
-                  id: macos-arm
-                - os: macos-12
+#                - os: macos-14
+#                  bash_script: macos_arm.bash
+#                  id: macos-arm
+                - os: macos-13
                   bash_script: macos.bash
                   id: macos
 
@@ -82,6 +82,7 @@ jobs:
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
+                tar -xvf metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
                 bash .github/workflows/scripts/${{ matrix.bash_script }}
         
 #            - uses: actions/upload-artifact@v3
