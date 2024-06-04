@@ -40,7 +40,7 @@ make install -j
 #make install
 mkdir $GITHUB_WORKSPACE/metis
 cd $GITHUB_WORKSPACE/metis-5.1.0
-sed -i '3i cmake_policy(SET CMP0042 NEW)'
+sed -i '' '3i\ 3 cmake_policy(SET CMP0042 NEW)\ ' CMakeLists.txt
 make config shared=0 prefix=$GITHUB_WORKSPACE/metis/
 make
 make install
