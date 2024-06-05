@@ -38,6 +38,7 @@ make install -j
 #make config prefix=$GITHUB_WORKSPACE/metis/ gklib_path=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
 #make
 #make install
+cd $GITHUB_WORKSPACE
 mkdir $GITHUB_WORKSPACE/metis
 cd $GITHUB_WORKSPACE/metis-5.1.0
 make config shared=0 prefix=$GITHUB_WORKSPACE/metis/
@@ -50,11 +51,6 @@ git clone https://github.com/coin-or-tools/ThirdParty-Mumps.git
 cd ThirdParty-Mumps
 ./get.Mumps
 ./configure --enable-shared=no --enable-static=yes --prefix=/$GITHUB_WORKSPACE/scip_install
-make
-make install
-# Just install this stuff globally to check if MUMPS finds it
-make clean
-./configure --enable-shared=no --enable-static=yes
 make
 make install
 

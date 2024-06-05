@@ -61,12 +61,12 @@ jobs:
         strategy:
             matrix:
               include:
-#                - os: macos-14
-#                  bash_script: macos_arm.bash
-#                  id: macos-arm
-                - os: macos-13
-                  bash_script: macos.bash
-                  id: macos
+                - os: macos-14
+                  bash_script: macos_arm.bash
+                  id: macos-arm
+#                - os: macos-13
+#                  bash_script: macos.bash
+#                  id: macos
 
         runs-on: ${{ matrix.os }}
         steps:

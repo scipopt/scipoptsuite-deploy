@@ -26,21 +26,26 @@ cd gmp-6.3.0
 make install -j
 
 
+#cd $GITHUB_WORKSPACE
+#wget https://github.com/KarypisLab/METIS/archive/refs/tags/v5.1.1-DistDGL-v0.5.tar.gz
+#tar -xvf v5.1.1-DistDGL-v0.5.tar.gz
+#wget https://github.com/KarypisLab/GKlib/archive/refs/tags/METIS-v5.1.1-DistDGL-0.5.tar.gz
+#tar -xvf METIS-v5.1.1-DistDGL-0.5.tar.gz
+#mkdir metis
+#cd GKlib-METIS-v5.1.1-DistDGL-0.5
+#make config prefix=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
+#make
+#make install
+#sed -i'' -e 's/set(GKlib_COPTIONS "${GKlib_COPTIONS} -Werror -Wall -pedantic -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unknown-pragmas -Wno-unused-label")/set(GKlib_COPTIONS "${GKlib_COPTIONS} -Wall -pedantic -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unknown-pragmas -Wno-unused-label")/g' GKlibSystem.cmake
+#cd $GITHUB_WORKSPACE
+#cd METIS-5.1.1-DistDGL-v0.5
+#make config prefix=$GITHUB_WORKSPACE/metis/ gklib_path=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
+#make
+#make install
 cd $GITHUB_WORKSPACE
-wget https://github.com/KarypisLab/METIS/archive/refs/tags/v5.1.1-DistDGL-v0.5.tar.gz
-tar -xvf v5.1.1-DistDGL-v0.5.tar.gz
-wget https://github.com/KarypisLab/GKlib/archive/refs/tags/METIS-v5.1.1-DistDGL-0.5.tar.gz
-tar -xvf METIS-v5.1.1-DistDGL-0.5.tar.gz
-mkdir metis
-cd GKlib-METIS-v5.1.1-DistDGL-0.5
-make config prefix=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
-make
-make install
-sed -i'' -e 's/set(GKlib_COPTIONS "${GKlib_COPTIONS} -Werror -Wall -pedantic -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unknown-pragmas -Wno-unused-label")/set(GKlib_COPTIONS "${GKlib_COPTIONS} -Wall -pedantic -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unknown-pragmas -Wno-unused-label")/g' GKlibSystem.cmake
-
-cd $GITHUB_WORKSPACE
-cd METIS-5.1.1-DistDGL-v0.5
-make config prefix=$GITHUB_WORKSPACE/metis/ gklib_path=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
+mkdir $GITHUB_WORKSPACE/metis
+cd $GITHUB_WORKSPACE/metis-5.1.0
+make config shared=0 prefix=$GITHUB_WORKSPACE/metis/
 make
 make install
 
