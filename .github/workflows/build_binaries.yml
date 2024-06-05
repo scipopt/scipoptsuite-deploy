@@ -57,21 +57,21 @@ jobs:
               echo "Soplex version: ${{github.event.inputs.soplex_version}}"
               echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
 
-    macos-arm-build-binaries:
-        runs-on: macos-14
-        steps:
-            - uses: actions/checkout@v3
-            - name: Build and install SCIP
-              run: |
-                export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
-                export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-                export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
-                bash .github/workflows/scripts/macos_arm.bash
-
-            - uses: actions/upload-artifact@v3
-              with:
-                path: ${{ github.workspace }}/libscip-macos-arm.zip
+#    macos-arm-build-binaries:
+#        runs-on: macos-14
+#        steps:
+#            - uses: actions/checkout@v3
+#            - name: Build and install SCIP
+#              run: |
+#                export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+#                export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
+#                export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
+#                tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
+#                bash .github/workflows/scripts/macos_arm.bash
+#
+#            - uses: actions/upload-artifact@v3
+#              with:
+#                path: ${{ github.workspace }}/libscip-macos-arm.zip
 
     macos-intel-build-binaries:
       runs-on: macos-13
@@ -89,7 +89,7 @@ jobs:
             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
             export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
             tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
-#            bash .github/workflows/scripts/macos.bash
+            bash .github/workflows/scripts/macos.bash
 
         - uses: actions/upload-artifact@v3
           with:
@@ -105,7 +105,7 @@ jobs:
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-#               bash -x .github/workflows/scripts/linux.bash
+               bash -x .github/workflows/scripts/linux.bash
 #            - uses: actions/upload-artifact@v3
 #              with:
 #                path: ${{ github.workspace }}/libscip-linux.zip
@@ -121,7 +121,7 @@ jobs:
               export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
               export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
               export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-#             bash -x .github/workflows/scripts/windows.bash
+             bash -x .github/workflows/scripts/windows.bash
             shell: msys2 {0}
           
 #          - uses: actions/upload-artifact@v3
