@@ -3,7 +3,6 @@ brew install bash
 brew upgrade cmake
 brew install unzip
 
-export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
 export CC=/usr/local/bin/gcc-13
 export CXX=/usr/local/bin/g++-13
 export FC=/usr/local/bin/gfortran-13
