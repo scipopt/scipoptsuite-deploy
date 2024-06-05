@@ -18,7 +18,9 @@ mkdir scip_install/share
 echo "enable_shared=no
 enable_java=no
 enable_sipopt=no
-with_pic=yes" > scip_install/share/config.site
+with_pic=yes
+with_metis_cflags=\"-I${GITHUB_WORKSPACE}/metis/include\"
+with_metis_lflags=\"-L${GITHUB_WORKSPACE}/metis/lib -llibmetis\"" > scip_install/share/config.site
 
 #rm -f /usr/local/lib/libgmp*
 #wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
@@ -47,8 +49,7 @@ with_pic=yes" > scip_install/share/config.site
 cd $GITHUB_WORKSPACE
 mkdir $GITHUB_WORKSPACE/metis
 cd $GITHUB_WORKSPACE/metis-5.1.0
-# make config shared=0 prefix=$GITHUB_WORKSPACE/metis/ cc=gcc
-make config shared=0 cc=gcc
+make config shared=0 prefix=$GITHUB_WORKSPACE/metis/ cc=gcc
 make
 make install
 
