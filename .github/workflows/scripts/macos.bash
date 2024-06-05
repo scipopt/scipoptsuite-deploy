@@ -3,6 +3,7 @@ brew install bash
 brew upgrade cmake
 brew install unzip
 
+export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
 export CC=/usr/local/bin/gcc-13
 export CXX=/usr/local/bin/g++-13
 export FC=/usr/local/bin/gfortran-13
@@ -93,7 +94,7 @@ unzip v$SCIP_VERSION.zip
 cd scip-$SCIP_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=true
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=true -DGMP=true -DGMP_DIR=$GITHUB_WORKSPACE/scip_install
 make -j
 make test
 make install
