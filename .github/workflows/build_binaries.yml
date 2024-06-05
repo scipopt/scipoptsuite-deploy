@@ -61,11 +61,6 @@ jobs:
         runs-on: macos-14
         steps:
             - uses: actions/checkout@v3
-            - uses: fortran-lang/setup-fortran@v1
-              id: setup-fortran
-              with:
-                compiler: lfortran
-                version: 0.33.0
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
