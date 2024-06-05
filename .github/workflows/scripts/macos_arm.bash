@@ -7,9 +7,9 @@ export CC=/opt/homebrew/bin/gcc-13
 export CXX=/opt/homebrew/bin/g++-13
 export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
 
-wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
-tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
-mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/local/include/boost/.
+#wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
+#tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
+#mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/local/include/boost/.
 
 wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/$IPOPT_VERSION.zip
 unzip $IPOPT_VERSION.zip
