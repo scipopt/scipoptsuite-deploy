@@ -2,9 +2,11 @@ rm -rf /usr/local/include/boost
 mkdir /usr/local/include/boost
 brew install boost
 export MACOSX_DEPLOYMENT_TARGET=11.0
-export FC=/usr/local/bin/gfortran-13
-export CC=/usr/local/bin/gcc-13
-export CXX=/usr/local/bin/g++-13
+ls /usr/local/bin/
+ls /opt/homebrew/bin
+export FC=/opt/homebrew/bin/gfortran-13
+export CC=/opt/homebrew/bin/gcc-13
+export CXX=/opt/homebrew/bin/g++-13
 
 wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
 tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
