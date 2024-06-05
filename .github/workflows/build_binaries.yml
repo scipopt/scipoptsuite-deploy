@@ -57,38 +57,48 @@ jobs:
               echo "Soplex version: ${{github.event.inputs.soplex_version}}"
               echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
 
-    build-binaries:
-        strategy:
-            matrix:
-              include:
-                - os: macos-14
-                  bash_script: macos_arm.bash
-                  id: macos-arm
-#                - os: macos-13
-#                  bash_script: macos.bash
-#                  id: macos
-
-        runs-on: ${{ matrix.os }}
+    macos-arm-build-binaries:
+        runs-on: macos-14
         steps:
             - uses: actions/checkout@v3
             - uses: fortran-lang/setup-fortran@v1
               id: setup-fortran
               with:
-                compiler: gcc
-                version: 13
-
+                compiler: lfortran
+                version: 0.33.0
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
                 tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
-                bash .github/workflows/scripts/${{ matrix.bash_script }}
-        
-#            - uses: actions/upload-artifact@v3
-#              with:
-#                path: ${{ github.workspace }}/libscip-${{matrix.id}}.zip
+                bash .github/workflows/scripts/macos_arm.bash
+
+            - uses: actions/upload-artifact@v3
+              with:
+                path: ${{ github.workspace }}/libscip-macos-arm.zip
+
+    macos-intel-build-binaries:
+      runs-on: macos-13
+      steps:
+        - uses: actions/checkout@v3
+        - uses: fortran-lang/setup-fortran@v1
+          id: setup-fortran
+          with:
+            compiler: gcc
+            version: 13
+        - name: Build and install SCIP
+          run: |
+            export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+            export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
+            export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
+            export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
+            tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
+#            bash .github/workflows/scripts/macos.bash
+
+        - uses: actions/upload-artifact@v3
+          with:
+            path: ${{ github.workspace }}/libscip-macos.zip
 
     linux-build-binaries:
         runs-on: ubuntu-latest

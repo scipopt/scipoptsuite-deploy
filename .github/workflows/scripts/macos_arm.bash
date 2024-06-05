@@ -18,12 +18,12 @@ with_pic=yes
 with_metis_cflags=\"-I${GITHUB_WORKSPACE}/metis/include\"
 with_metis_lflags=\"-L${GITHUB_WORKSPACE}/metis/lib -lmetis\"" > scip_install/share/config.site
 
-rm -f /usr/local/lib/libgmp*
-wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
-tar xvf gmp-6.3.0.tar.xz
-cd gmp-6.3.0
-./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
-make install -j
+#rm -f /usr/local/lib/libgmp*
+#wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
+#tar xvf gmp-6.3.0.tar.xz
+#cd gmp-6.3.0
+#./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
+#make install -j
 
 
 cd $GITHUB_WORKSPACE
