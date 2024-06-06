@@ -17,8 +17,8 @@ echo "enable_shared=no
 enable_java=no
 enable_sipopt=no
 with_pic=yes
-with_metis_cflags=\"-I${GITHUB_WORKSPACE}/metis/include\"
-with_metis_lflags=\"-L${GITHUB_WORKSPACE}/metis/lib -lmetis\"" > scip_install/share/config.site
+with_metis_cflags=\"-I${GITHUB_WORKSPACE}/scip_install/include\"
+with_metis_lflags=\"-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis\"" > scip_install/share/config.site
 
 rm -f /usr/local/lib/libgmp*
 wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
