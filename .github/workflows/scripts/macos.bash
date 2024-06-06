@@ -7,6 +7,7 @@ export CC=/usr/local/bin/gcc-13
 export CXX=/usr/local/bin/g++-13
 export FC=/usr/local/bin/gfortran-13
 export MACOSX_DEPLOYMENT_TARGET=11.0
+export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install
 
 rm -rf /usr/local/include/boost
 mkdir /usr/local/include/boost
@@ -18,16 +19,16 @@ with_pic=yes
 with_metis_cflags=\"-I${GITHUB_WORKSPACE}/scip_install/include\"
 with_metis_lflags=\"-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis\"" > $GITHUB_WORKSPACE/scip_install/share/config.site
 
-wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
-tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
-mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/local/include/boost/.
-
-rm -f /usr/local/lib/libgmp*
-wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
-tar xvf gmp-6.3.0.tar.xz
-cd gmp-6.3.0
-./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
-make install -j
+#wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
+#tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
+#mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/local/include/boost/.
+#
+#rm -f /usr/local/lib/libgmp*
+#wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
+#tar xvf gmp-6.3.0.tar.xz
+#cd gmp-6.3.0
+#./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
+#make install -j
 
 #cd $GITHUB_WORKSPACE
 #wget https://github.com/KarypisLab/METIS/archive/refs/tags/v5.1.1-DistDGL-v0.5.tar.gz
@@ -74,27 +75,27 @@ make test
 make install
 
 
-cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/soplex/archive/refs/tags/release-$SOPLEX_VERSION.zip
-unzip release-$SOPLEX_VERSION.zip
-cd soplex-release-$SOPLEX_VERSION
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DMPFR=false -DBOOST=true -DBOOST_INCLUDE_DIR=/usr/local/include/boost/
-make -j
-make test
-make install
-
-
-cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION.zip
-unzip v$SCIP_VERSION.zip
-cd scip-$SCIP_VERSION
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=true -DGMP=true -DGMP_DIR=$GITHUB_WORKSPACE/scip_install
-make -j
-make test
-make install
-cd ../..
-zip -r $GITHUB_WORKSPACE/libscip-macos.zip scip_install/lib scip_install/include scip_install/bin
+#cd $GITHUB_WORKSPACE
+#wget https://github.com/scipopt/soplex/archive/refs/tags/release-$SOPLEX_VERSION.zip
+#unzip release-$SOPLEX_VERSION.zip
+#cd soplex-release-$SOPLEX_VERSION
+#mkdir build
+#cd build
+#cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DPAPILO=false -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DMPFR=false -DBOOST=true -DBOOST_INCLUDE_DIR=/usr/local/include/boost/
+#make -j
+#make test
+#make install
+#
+#
+#cd $GITHUB_WORKSPACE
+#wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION.zip
+#unzip v$SCIP_VERSION.zip
+#cd scip-$SCIP_VERSION
+#mkdir build
+#cd build
+#cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=true -DGMP=true -DGMP_DIR=$GITHUB_WORKSPACE/scip_install
+#make -j
+#make test
+#make install
+#cd ../..
+#zip -r $GITHUB_WORKSPACE/libscip-macos.zip scip_install/lib scip_install/include scip_install/bin
