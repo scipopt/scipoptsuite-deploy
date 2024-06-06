@@ -7,7 +7,7 @@ export CC=/usr/local/bin/gcc-13
 export CXX=/usr/local/bin/g++-13
 export FC=/usr/local/bin/gfortran-13
 export MACOSX_DEPLOYMENT_TARGET=11.0
-export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install
+export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
 
 rm -rf /usr/local/include/boost
 mkdir /usr/local/include/boost
