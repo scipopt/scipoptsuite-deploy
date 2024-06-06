@@ -11,7 +11,6 @@ export MACOSX_DEPLOYMENT_TARGET=11.0
 rm -rf /usr/local/include/boost
 mkdir /usr/local/include/boost
 
-cd $GITHUB_WORKSPACE
 echo "enable_shared=no
 enable_java=no
 enable_sipopt=no
@@ -52,13 +51,16 @@ cd $GITHUB_WORKSPACE/metis-5.1.0
 make config shared=0 prefix=$GITHUB_WORKSPACE/metis/
 make
 make install
+make clean
+make config shared=0 prefix=$GITHUB_WORKSPACE/scip_install
+make install
 
 
 cd $GITHUB_WORKSPACE
 git clone https://github.com/coin-or-tools/ThirdParty-Mumps.git
 cd ThirdParty-Mumps
 ./get.Mumps
-./configure --enable-shared=no --enable-static=yes --prefix=$GITHUB_WORKSPACE/scip_install --with-metis-cflags='-I${GITHUB_WORKSPACE}/metis/include' --with-metis-lflags='-L${GITHUB_WORKSPACE}/metis/lib -lmetis'
+./configure --enable-shared=no --enable-static=yes --prefix=$GITHUB_WORKSPACE/scip_install
 make
 make install
 
