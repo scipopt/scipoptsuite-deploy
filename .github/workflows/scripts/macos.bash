@@ -17,7 +17,6 @@ enable_sipopt=no
 with_pic=yes
 with_metis_cflags=\"-I${GITHUB_WORKSPACE}/metis/include\"
 with_metis_lflags=\"-L${GITHUB_WORKSPACE}/metis/lib -lmetis\"" > $GITHUB_WORKSPACE/scip_install/share/config.site
-cat $GITHUB_WORKSPACE/scip_install/share/config.site
 
 #wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
 #tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
@@ -69,8 +68,7 @@ unzip $IPOPT_VERSION.zip
 cd Ipopt-releases-$IPOPT_VERSION
 mkdir build
 cd build
-../configure --help
-../configure --prefix=$GITHUB_WORKSPACE/scip_install/
+../configure --prefix=$GITHUB_WORKSPACE/scip_install/ --disable-java --enable-shared=no --disable-sipopt --enable-static=yes --with-metis-cflags="-I${GITHUB_WORKSPACE}/metis/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/metis/lib -lmetis"
 make -j
 make test
 make install
