@@ -57,8 +57,7 @@ cd $GITHUB_WORKSPACE
 git clone https://github.com/coin-or-tools/ThirdParty-Mumps.git
 cd ThirdParty-Mumps
 ./get.Mumps
-./configure --enable-shared=no --enable-static=yes --prefix=$GITHUB_WORKSPACE/scip_install --with-metis-cflags="-I${GITHUB_WORKSPACE}/metis/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/metis/lib -lmetis"
-cat config.log
+./configure --enable-shared=no --enable-static=yes --prefix=$GITHUB_WORKSPACE/scip_install --with-metis-cflags="-I${GITHUB_WORKSPACE}/metis/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/metis/lib -lmetis" --with-intsize=64
 make
 make install
 
