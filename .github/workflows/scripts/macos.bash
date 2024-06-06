@@ -51,9 +51,6 @@ cd $GITHUB_WORKSPACE/metis-5.1.0
 make config shared=0 prefix=$GITHUB_WORKSPACE/metis/
 make
 make install
-make clean
-make config shared=0 prefix=$GITHUB_WORKSPACE/scip_install
-make install
 
 
 cd $GITHUB_WORKSPACE
