@@ -105,10 +105,10 @@ jobs:
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-#                bash -x .github/workflows/scripts/linux.bash
-#            - uses: actions/upload-artifact@v3
-#              with:
-#                path: ${{ github.workspace }}/libscip-linux.zip
+                bash -x .github/workflows/scripts/linux.bash
+            - uses: actions/upload-artifact@v3
+              with:
+                path: ${{ github.workspace }}/libscip-linux.zip
 
     windows-build-binaries:
         runs-on: windows-latest
@@ -121,10 +121,10 @@ jobs:
               export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
               export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
               export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-#              bash -x .github/workflows/scripts/windows.bash
+              bash -x .github/workflows/scripts/windows.bash
             shell: msys2 {0}
           
-#          - uses: actions/upload-artifact@v3
-#            with:
-#              path: ${{ github.workspace }}/libscip-windows.zip
+          - uses: actions/upload-artifact@v3
+            with:
+              path: ${{ github.workspace }}/libscip-windows.zip
 
