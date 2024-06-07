@@ -72,9 +72,9 @@ make test
 make install
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION.zip
-unzip v$SCIP_VERSION.zip
-cd scip-$SCIP_VERSION
+wget -O scip.zip https://github.com/jurgen-lentz/scip/archive/refs/heads/master.zip
+unzip scip.zip
+cd scip-master
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install
@@ -83,6 +83,31 @@ make install
 cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DGMP_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=true -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DSHARED=false
 make -j$(nproc)
 make test
+make install
+
+
+cd $GITHUB_WORKSPACE
+wget https://github.com/ds4dm/Bliss/archive/refs/tags/v0.77.zip
+unzip v0.77.zip
+cd Bliss-0.77
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release
+make -j$(nproc)
+make test
+make install
+
+cd $GITHUB_WORKSPACE
+wget -O gcg.zip https://github.com/jurgen-lentz/gcg/archive/refs/heads/master.zip
+unzip gcg.zip
+cd gcg-master
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=../../scip_install -DGMP_DIR=../../scip_install -DGMP=true
+make -j$(nproc)
+make install
+cmake .. -DCMAKE_INSTALL_PREFIX=../../scip_install -DCMAKE_BUILD_TYPE=Release -DBLISS_DIR=../../scip_install -DGMP_DIR=../../scip_install -DGMP=true -DSHARED=false
+make -j$(nproc)
 make install
 
 cd $GITHUB_WORKSPACE
