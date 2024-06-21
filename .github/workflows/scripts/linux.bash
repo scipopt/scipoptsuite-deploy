@@ -95,13 +95,12 @@ make test
 make install
 
 cd $GITHUB_WORKSPACE
-git clone https://github.com/scipopt/gcg.git
+git clone https://github.com/jurgen-lentz/gcg.git
 cd gcg
-git checkout -b v36-bugfix
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DSHARED=false -DSYM=none -DZLIB=true
-make -j$(nproc) VERBOSE=true
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DSHARED=false -DSYM=none -DZLIB=true -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install
+make -j$(nproc)
 make test
 make install
 

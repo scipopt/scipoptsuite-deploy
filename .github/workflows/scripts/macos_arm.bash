@@ -76,4 +76,14 @@ make test
 make install
 
 cd $GITHUB_WORKSPACE
+git clone https://github.com/jurgen-lentz/gcg.git
+cd gcg
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DSHARED=false -DSYM=none -DZLIB=true -DIPOPT=true -DIPOPT_DIR=../../scip_install
+make -j$
+make test
+make install
+
+cd $GITHUB_WORKSPACE
 zip -r $GITHUB_WORKSPACE/libscip-macos-arm.zip scip_install/lib scip_install/include scip_install/bin
