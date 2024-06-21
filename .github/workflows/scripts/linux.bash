@@ -101,7 +101,7 @@ cd gcg
 git checkout -b v36-bugfix
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DSHARED=false -DSYM=none
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=true -DGMP_DIR=$GITHUB_WORKSPACE/scip_install -DSHARED=false -DSYM=none -DZLIB=true
 make -j$(nproc) VERBOSE=true
 make test
 make install
