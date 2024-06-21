@@ -34,8 +34,8 @@ on:
             gcg_version:
                 type: string
                 description: GCG version to use
-                required: false
-                default: "3.6.0"
+                required: true
+                default: "3.6.2"
             scip_version:
                 type: string
                 description: SCIP version to use
@@ -59,29 +59,31 @@ jobs:
           - name: Print inputs
             run: |
               echo "SCIP version: ${{github.event.inputs.scip_version}}"
+              echo "SCIP version: ${{github.event.inputs.gcg_version}}"
               echo "Soplex version: ${{github.event.inputs.soplex_version}}"
               echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
 
     macos-arm-build-binaries:
         runs-on: macos-14
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+                export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
                 bash .github/workflows/scripts/macos_arm.bash
 
-            - uses: actions/upload-artifact@v3
+            - uses: actions/upload-artifact@v4
               with:
                 path: ${{ github.workspace }}/libscip-macos-arm.zip
 
     macos-intel-build-binaries:
       runs-on: macos-13
       steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@v4
         - uses: fortran-lang/setup-fortran@v1
           id: setup-fortran
           with:
@@ -90,13 +92,14 @@ jobs:
         - name: Build and install SCIP
           run: |
             export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+            export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
             export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
             export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
             tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
             bash .github/workflows/scripts/macos.bash
 
-        - uses: actions/upload-artifact@v3
+        - uses: actions/upload-artifact@v4
           with:
             path: ${{ github.workspace }}/libscip-macos.zip
 
@@ -104,32 +107,34 @@ jobs:
         runs-on: ubuntu-latest
         container: quay.io/pypa/manylinux2014_x86_64
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+                export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 bash -x .github/workflows/scripts/linux.bash
-            - uses: actions/upload-artifact@v3
+            - uses: actions/upload-artifact@v4
               with:
                 path: ${{ github.workspace }}/libscip-linux.zip
 
     windows-build-binaries:
         runs-on: windows-latest
         steps:
-          - uses: actions/checkout@v3
+          - uses: actions/checkout@v4
           - uses: msys2/setup-msys2@v2
 
           - name: Build and install SCIP
             run:  |
               export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+              export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
               export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
               export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
               bash -x .github/workflows/scripts/windows.bash
             shell: msys2 {0}
 
-          - uses: actions/upload-artifact@v3
+          - uses: actions/upload-artifact@v4
             with:
               path: ${{ github.workspace }}/libscip-windows.zip
 
