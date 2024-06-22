@@ -31,11 +31,16 @@ name: build-binaries
 on:
     workflow_dispatch:
         inputs:
+            gcg_version:
+                type: string
+                description: GCG version to use
+                required: true
+                default: "3.6.2"
             scip_version:
                 type: string
                 description: SCIP version to use
                 required: true
-                default: "9.0.0"
+                default: "9.1.0"
             soplex_version:
                 type: string
                 description: Soplex version to use
@@ -54,6 +59,7 @@ jobs:
           - name: Print inputs
             run: |
               echo "SCIP version: ${{github.event.inputs.scip_version}}"
+              echo "SCIP version: ${{github.event.inputs.gcg_version}}"
               echo "Soplex version: ${{github.event.inputs.soplex_version}}"
               echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
 
@@ -64,6 +70,7 @@ jobs:
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+                export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
@@ -85,6 +92,7 @@ jobs:
         - name: Build and install SCIP
           run: |
             export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+            export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
             export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
             export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
@@ -103,6 +111,7 @@ jobs:
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+                export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 bash -x .github/workflows/scripts/linux.bash
@@ -119,6 +128,7 @@ jobs:
           - name: Build and install SCIP
             run:  |
               export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+              export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
               export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
               export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
               bash -x .github/workflows/scripts/windows.bash
