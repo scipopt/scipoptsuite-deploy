@@ -81,5 +81,17 @@ cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYP
 make -j
 make test
 make install
+
+cd $GITHUB_WORKSPACE
+wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION.zip
+unzip v$GCG_VERSION.zip
+cd gcg-$GCG_VERSION
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DSYM=none
+make -j
+make test
+make install
+
 cd ../..
 zip -r $GITHUB_WORKSPACE/libscip-macos.zip scip_install/lib scip_install/include scip_install/bin
