@@ -59,7 +59,7 @@ jobs:
           - name: Print inputs
             run: |
               echo "SCIP version: ${{github.event.inputs.scip_version}}"
-              echo "SCIP version: ${{github.event.inputs.gcg_version}}"
+              echo "GCG version: ${{github.event.inputs.gcg_version}}"
               echo "Soplex version: ${{github.event.inputs.soplex_version}}"
               echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
 
