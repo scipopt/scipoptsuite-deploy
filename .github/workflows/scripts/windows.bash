@@ -16,7 +16,7 @@ export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/T
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"
 cmake -G "Visual Studio 17 2022" -B soplex_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Debug -DBoost=true -DPAPILO=false -DGMP=false -DZLIB=false -DCMAKE_GENERATOR_PLATFORM=x64
 cmake --build soplex_build --config Debug
-cmake --install soplex_build
+cmake --install soplex_build --config Debug
 
 
 cd $GITHUB_WORKSPACE
@@ -30,7 +30,7 @@ export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/T
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"
 cmake -G "Visual Studio 17 2022" -B scip_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Debug -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../scip_install -DPAPILO=false -DZIMPL=false -DZLIB=false -DREADLINE=false -DGMP=false -DBoost=true -DIPOPT=true -DIPOPT_DIR=../scip_install -DIPOPT_LIBRARIES=../scip_install/bin -DTPI=tny -DCMAKE_GENERATOR_PLATFORM=x64
 cmake --build scip_build --config Debug
-cmake --install scip_build
+cmake --install scip_build --config Debug
 ctest
 
 cd $GITHUB_WORKSPACE
