@@ -40,17 +40,17 @@ on:
                 type: string
                 description: SCIP version to use
                 required: true
-                default: "9.1.0"
+                default: "9.1.1"
             soplex_version:
                 type: string
                 description: Soplex version to use
                 required: true
-                default: "7.0.0"
+                default: "7.1.1"
             ipopt_version:
                 type: string
                 description: IPOPT version to use
                 required: true
-                default: "3.14.12"
+                default: "3.14.16"
 
 jobs:
     print-inputs:
@@ -105,7 +105,7 @@ jobs:
 
     linux-build-binaries:
         runs-on: ubuntu-latest
-        container: quay.io/pypa/manylinux2014_x86_64
+        container: quay.io/pypa/manylinux_2_28_x86_64
         steps:
             - uses: actions/checkout@v3
             - name: Build and install SCIP
