@@ -2,7 +2,7 @@ rm -rf /usr/local/include/boost
 mkdir /usr/local/include/boost
 brew install boost
 export MACOSX_DEPLOYMENT_TARGET=14.0
-export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
+export DEVELOPER_DIR=/Applications/Xcode_15.0.1.app/Contents/Developer
 export FC=/opt/homebrew/bin/gfortran-13
 export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
 
