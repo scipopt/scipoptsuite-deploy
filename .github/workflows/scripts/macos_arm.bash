@@ -3,8 +3,24 @@ mkdir /usr/local/include/boost
 brew install boost
 export MACOSX_DEPLOYMENT_TARGET=14.0
 export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
-export FC=/opt/homebrew/bin/gfortran-13
-export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
+export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib:$HOME/gcc/lib
+
+
+curl -O https://ftp.gwdg.de/pub/misc/gcc/releases/gcc-14.2.0/gcc-14.2.0.tar.xz
+curl -O https://raw.githubusercontent.com/Homebrew/formula-patches/d5dcb918a951b2dcf2d7702db75eb29ef144f614/gcc/gcc-14.2.0.diff
+tar xJf gcc-14.2.0.tar.xz
+
+pushd gcc-14.2.0
+./contrib/download_prerequisites
+patch -p1 < ../gcc-14.2.0.diff
+
+./configure --prefix=$HOME/gcc --enable-checking=release --enable-languages="fortran" --disable-multilib --disable-nls --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk CC=clang CXX=clang++
+
+make -j8
+make install
+export FC=$HOME/gcc/bin/gfortran
+popd
+
 
 wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
 tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
