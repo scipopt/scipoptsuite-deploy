@@ -88,7 +88,7 @@ unzip v$GCG_VERSION.zip
 cd gcg-$GCG_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DSYM=none
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_BUILD_TYPE=Release -DGMP=false -DSYM=none
 make -j
 make test
 make install
