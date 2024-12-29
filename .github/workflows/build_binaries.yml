@@ -51,17 +51,26 @@ on:
                 description: IPOPT version to use
                 required: true
                 default: "3.14.16"
-            os:
-                type: choice
-                description: Operating systems to build for
-                required: true
-                options:
-                    - all
-                    - linux
-                    - macos-intel
-                    - macos-arm
-                    - windows
-                default: 'all'
+            linux:
+                type: boolean
+                description: Build for Linux
+                required: false
+                default: true
+            macos-intel:
+                type: boolean
+                description: Build for macOS (Intel)
+                required: false
+                default: true
+            macos-arm:
+                type: boolean
+                description: Build for macOS (ARM)
+                required: false
+                default: true
+            windows:
+                type: boolean
+                description: Build for Windows
+                required: false
+                default: true
 
 jobs:
     print-inputs:
