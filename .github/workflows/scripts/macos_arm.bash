@@ -1,3 +1,6 @@
+# Enable exit on error - script will stop if any command fails
+set -e
+
 rm -rf /usr/local/include/boost
 mkdir /usr/local/include/boost
 brew install boost

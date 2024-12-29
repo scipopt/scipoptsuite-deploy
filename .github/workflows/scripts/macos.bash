@@ -1,3 +1,5 @@
+# Enable exit on error - script will stop if any command fails
+set -e
 
 brew install bash
 brew upgrade cmake
