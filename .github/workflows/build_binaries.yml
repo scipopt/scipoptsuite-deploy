@@ -85,7 +85,7 @@ jobs:
 
     macos-arm-build-binaries:
         runs-on: macos-14
-        if: ${{ github.event.inputs.macos-arm == true }}
+        if: github.event.inputs.macos-arm == 'true'
         steps:
             - uses: actions/checkout@v3
             - name: Build and install SCIP
@@ -103,7 +103,7 @@ jobs:
 
     macos-intel-build-binaries:
       runs-on: macos-13
-      if: ${{ github.event.inputs.macos-intel == true }}
+      if: github.event.inputs.macos-intel == 'true'
       steps:
         - uses: actions/checkout@v3
         - uses: fortran-lang/setup-fortran@v1
@@ -127,7 +127,7 @@ jobs:
 
     linux-build-binaries:
         runs-on: ubuntu-latest
-        if: ${{ github.event.inputs.linux == true }}
+        if: github.event.inputs.linux == 'true'
         container: quay.io/pypa/manylinux_2_28_x86_64
         steps:
             - uses: actions/checkout@v3
@@ -144,7 +144,7 @@ jobs:
 
     windows-build-binaries:
         runs-on: windows-latest
-        if: ${{ github.event.inputs.windows == true }}
+        if: github.event.inputs.windows == 'true'
         steps:
           - uses: actions/checkout@v3
           - uses: msys2/setup-msys2@v2
