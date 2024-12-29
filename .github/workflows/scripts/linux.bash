@@ -110,5 +110,5 @@ make install
 
 cd $GITHUB_WORKSPACE
 mkdir -p scip_install/lib
-mv scip_install/lib64/* scip_install/lib/.
+cp -r scip_install/lib64/* scip_install/lib
 zip -r $GITHUB_WORKSPACE/libscip-linux.zip scip_install/lib scip_install/include scip_install/bin
