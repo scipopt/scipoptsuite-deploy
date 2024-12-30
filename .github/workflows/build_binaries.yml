@@ -95,7 +95,7 @@ jobs:
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
-                bash .github/workflows/scripts/macos_arm.bash
+                bash -x .github/workflows/scripts/macos_arm.bash
 
             - uses: actions/upload-artifact@v3
               with:
@@ -119,7 +119,7 @@ jobs:
             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
             export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
             tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
-            bash .github/workflows/scripts/macos.bash
+            bash -x .github/workflows/scripts/macos.bash
 
         - uses: actions/upload-artifact@v3
           with:
