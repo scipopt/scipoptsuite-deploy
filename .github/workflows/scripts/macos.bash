@@ -12,7 +12,6 @@ export MACOSX_DEPLOYMENT_TARGET=13.0
 export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
 
 rm -rf /usr/local/include/boost
-mkdir /usr/local/include/boost
 
 echo "enable_shared=no
 enable_java=no
