@@ -2,7 +2,7 @@
 set -e
 
 rm -rf /usr/local/include/boost
-mkdir /usr/local/include/boost
+mkdir -p /usr/local/include/boost
 brew install boost
 export MACOSX_DEPLOYMENT_TARGET=14.0
 export DEVELOPER_DIR=/Applications/Xcode_15.0.1.app/Contents/Developer
