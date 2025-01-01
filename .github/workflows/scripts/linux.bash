@@ -1,3 +1,6 @@
+# Enable exit on error - script will stop if any command fails
+set -e
+
 cd $GITHUB_WORKSPACE
 yum install gcc gcc-c++ libgfortran git patch wget lapack-static unzip zip make glibc-static -y
 rm -f /usr/lib64/liblapack.s*
@@ -5,9 +8,9 @@ rm -f /usr/lib64/libblas.*
 rm -rf /usr/include/boost
 mkdir /usr/include/boost
 
-wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
-tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
-mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/include/boost/.
+# wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
+# tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
+# mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/include/boost/.
 
 git clone https://github.com/Reference-LAPACK/lapack.git
 cd lapack
@@ -78,7 +81,7 @@ unzip release-$SOPLEX_VERSION.zip
 cd soplex-release-$SOPLEX_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DBOOST=true
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DBOOST=false
 make -j$(nproc)
 make test
 make install
@@ -106,6 +109,6 @@ make test
 make install
 
 cd $GITHUB_WORKSPACE
-mkdir scip_install/lib
-mv scip_install/lib64/* scip_install/lib/.
+mkdir -p scip_install/lib
+cp -r scip_install/lib64/* scip_install/lib
 zip -r $GITHUB_WORKSPACE/libscip-linux.zip scip_install/lib scip_install/include scip_install/bin

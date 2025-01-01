@@ -1,3 +1,6 @@
+# Enable exit on error - script will stop if any command fails
+set -e
+
 pacman -S --noconfirm unzip git mingw-w64-x86_64-cmake cmake mingw-w64-x86_64-zlib zip mingw-w64-x86_64-boost
             
 cd $GITHUB_WORKSPACE
