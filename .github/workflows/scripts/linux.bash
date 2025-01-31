@@ -9,7 +9,7 @@ rm -rf /usr/include/boost
 mkdir /usr/include/boost
 
 wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz
-tar -xzf $GITHUB_WORKSPACE/boost_1_82_0.tar.gz -C $GITHUB_WORKSPACE/boost_1_82_0 --strip-components=1
+tar -xzf $GITHUB_WORKSPACE/boost_1_82_0.tar.gz
 cd boost_1_82_0
 ./bootstrap.sh --prefix=/usr/include/boost --with-libraries=program_options,serialization,iostreams,regex
 ./b2 --prefix=/usr/include/boost -j8 install
