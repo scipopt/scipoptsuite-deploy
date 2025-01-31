@@ -1,3 +1,6 @@
+# Enable exit on error - script will stop if any command fails
+set -e
+
 cd $GITHUB_WORKSPACE
 yum install gcc gcc-c++ libgfortran git patch wget lapack-static unzip zip make glibc-static -y
 rm -f /usr/lib64/liblapack.s*
@@ -106,6 +109,6 @@ make test
 make install
 
 cd $GITHUB_WORKSPACE
-mkdir scip_install/lib
+mkdir -p scip_install/lib
 mv scip_install/lib64/* scip_install/lib/.
 zip -r $GITHUB_WORKSPACE/libscip-linux.zip scip_install/lib scip_install/include scip_install/bin

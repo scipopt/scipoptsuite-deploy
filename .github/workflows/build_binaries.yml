@@ -1,4 +1,4 @@
-name: build-binaries
+name: Build Binaries
 
 
 # Authors: 
@@ -40,17 +40,37 @@ on:
                 type: string
                 description: SCIP version to use
                 required: true
-                default: "9.2.0"
+                default: "9.2.1"
             soplex_version:
                 type: string
                 description: Soplex version to use
                 required: true
-                default: "7.1.2"
+                default: "7.1.3"
             ipopt_version:
                 type: string
                 description: IPOPT version to use
                 required: true
-                default: "3.14.16"
+                default: "3.14.17"
+            linux:
+                type: boolean
+                description: Build for Linux
+                required: false
+                default: true
+            macos-intel:
+                type: boolean
+                description: Build for macOS (Intel)
+                required: false
+                default: true
+            macos-arm:
+                type: boolean
+                description: Build for macOS (ARM)
+                required: false
+                default: true
+            windows:
+                type: boolean
+                description: Build for Windows
+                required: false
+                default: true
 
 jobs:
     print-inputs:
@@ -65,6 +85,7 @@ jobs:
 
     macos-arm-build-binaries:
         runs-on: macos-14
+        if: github.event.inputs.macos-arm == 'true'
         steps:
             - uses: actions/checkout@v3
             - name: Build and install SCIP
@@ -74,7 +95,7 @@ jobs:
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
-                bash .github/workflows/scripts/macos_arm.bash
+                bash -x .github/workflows/scripts/macos_arm.bash
 
             - uses: actions/upload-artifact@v3
               with:
@@ -82,6 +103,7 @@ jobs:
 
     macos-intel-build-binaries:
       runs-on: macos-13
+      if: github.event.inputs.macos-intel == 'true'
       steps:
         - uses: actions/checkout@v3
         - uses: fortran-lang/setup-fortran@v1
@@ -97,7 +119,7 @@ jobs:
             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
             export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
             tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
-            bash .github/workflows/scripts/macos.bash
+            bash -x .github/workflows/scripts/macos.bash
 
         - uses: actions/upload-artifact@v3
           with:
@@ -105,6 +127,7 @@ jobs:
 
     linux-build-binaries:
         runs-on: ubuntu-latest
+        if: github.event.inputs.linux == 'true'
         container: quay.io/pypa/manylinux_2_28_x86_64
         steps:
             - uses: actions/checkout@v3
@@ -121,6 +144,7 @@ jobs:
 
     windows-build-binaries:
         runs-on: windows-latest
+        if: github.event.inputs.windows == 'true'
         steps:
           - uses: actions/checkout@v3
           - uses: msys2/setup-msys2@v2

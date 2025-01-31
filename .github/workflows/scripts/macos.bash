@@ -1,3 +1,5 @@
+# Enable exit on error - script will stop if any command fails
+set -e
 
 brew install bash
 brew upgrade cmake
@@ -9,8 +11,7 @@ export FC=/usr/local/bin/gfortran
 export MACOSX_DEPLOYMENT_TARGET=13.0
 export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
 
-rm -rf /usr/local/include/boost
-mkdir /usr/local/include/boost
+rm -rf /usr/local/include/boost/*
 
 echo "enable_shared=no
 enable_java=no
