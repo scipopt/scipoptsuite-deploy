@@ -1,7 +1,7 @@
 # Enable exit on error - script will stop if any command fails
 set -e
 
-rm -rf /usr/local/include/boost
+rm -rf /usr/local/include/boost/*
 
 brew install boost
 export MACOSX_DEPLOYMENT_TARGET=14.0
