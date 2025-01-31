@@ -100,7 +100,7 @@ jobs:
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                export BUILD_MODE=${{github.event.inputs.ipopt_version}}
+                export BUILD_MODE=${{github.event.inputs.build_mode}}
 
                 tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
                 bash -x .github/workflows/scripts/macos_arm.bash
@@ -126,7 +126,7 @@ jobs:
             export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
             export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
-            export BUILD_MODE=${{github.event.inputs.ipopt_version}}
+            export BUILD_MODE=${{github.event.inputs.build_mode}}
 
             tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
             bash -x .github/workflows/scripts/macos.bash
@@ -147,7 +147,7 @@ jobs:
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                export BUILD_MODE=${{github.event.inputs.ipopt_version}}
+                export BUILD_MODE=${{github.event.inputs.build_mode}}
 
                 bash -x .github/workflows/scripts/linux.bash
             - uses: actions/upload-artifact@v3
@@ -167,7 +167,7 @@ jobs:
               export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
               export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
               export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-              export BUILD_MODE=${{github.event.inputs.ipopt_version}}
+              export BUILD_MODE=${{github.event.inputs.build_mode}}
               
               bash -x .github/workflows/scripts/windows.bash
             shell: msys2 {0}
