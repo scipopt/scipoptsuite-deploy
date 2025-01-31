@@ -8,7 +8,7 @@ rm -f /usr/lib64/libblas.*
 rm -rf /usr/include/boost
 mkdir /usr/include/boost
 
-wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
+wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.bz2
 tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
 mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/include/boost/.
 

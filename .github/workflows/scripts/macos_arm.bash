@@ -9,7 +9,7 @@ export DEVELOPER_DIR=/Applications/Xcode_15.0.1.app/Contents/Developer
 export FC=/opt/homebrew/bin/gfortran
 export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
 
-wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
+wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.bz2
 tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
 mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/local/include/boost/.
 
