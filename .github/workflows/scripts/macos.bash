@@ -22,7 +22,8 @@ with_metis_lflags=\"-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis\"" > $GITHUB_
 
 wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.bz2
 tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
-mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/local/include/boost/.
+rm -rf /usr/local/include/boost
+mv $GITHUB_WORKSPACE/boost_1_82_0/boost /usr/local/include/boost
 
 rm -f /usr/local/lib/libgmp*
 #wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
