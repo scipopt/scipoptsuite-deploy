@@ -100,4 +100,4 @@ make test
 make install
 
 cd ../..
-zip -r $GITHUB_WORKSPACE/libscip-macos.zip scip_install/lib scip_install/include scip_install/bin
+zip -r $GITHUB_WORKSPACE/libscip-macos-intel.zip scip_install/lib scip_install/include scip_install/bin
