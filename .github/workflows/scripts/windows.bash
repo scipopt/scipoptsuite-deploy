@@ -4,9 +4,9 @@ set -e
 pacman -S --noconfirm unzip git mingw-w64-x86_64-cmake cmake mingw-w64-x86_64-zlib zip mingw-w64-x86_64-boost
             
 cd $GITHUB_WORKSPACE
-wget https://github.com/coin-or/Ipopt/releases/download/releases%2F$IPOPT_VERSION/Ipopt-$IPOPT_VERSION-win64-msvs2019-md.zip
-unzip Ipopt-$IPOPT_VERSION-win64-msvs2019-md.zip
-mv Ipopt-$IPOPT_VERSION-win64-msvs2019-md/ scip_install
+wget https://github.com/coin-or/Ipopt/releases/download/releases%2F$IPOPT_VERSION/Ipopt-$IPOPT_VERSION-win64-msvs2022-md.zip
+unzip Ipopt-$IPOPT_VERSION-win64-msvs2022-md.zip
+mv Ipopt-$IPOPT_VERSION-win64-msvs2022-md/ scip_install
 mv scip_install/lib/ipopt.dll.lib scip_install/lib/ipopt.lib
 
 cd $GITHUB_WORKSPACE
