@@ -13,6 +13,10 @@ export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
 
 rm -rf /usr/local/include/boost/*
 
+cd $GITHUB_WORKSPACE
+mkdir scip_install
+mkdir scip_install/share
+
 echo "enable_shared=no
 enable_java=no
 enable_sipopt=no
