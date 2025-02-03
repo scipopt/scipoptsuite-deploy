@@ -6,6 +6,7 @@ rm -rf /usr/local/include/boost/*
 brew install boost
 export MACOSX_DEPLOYMENT_TARGET=14.0
 export DEVELOPER_DIR=/Applications/Xcode_15.0.1.app/Contents/Developer
+cp /opt/homebrew/bin/gfortran-13 /opt/homebrew/bin/gfortran
 export FC=/opt/homebrew/bin/gfortran
 export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
 
@@ -62,7 +63,7 @@ unzip release-$SOPLEX_VERSION.zip
 cd soplex-release-$SOPLEX_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=true -DBOOST_INCLUDE_DIR=/usr/local/include/boost/
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false
 make -j$(nproc)
 make test
 make install
@@ -73,7 +74,7 @@ unzip v$SCIP_VERSION.zip
 cd scip-$SCIP_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=true -DTPI=tny
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny
 make -j
 make test
 make install
