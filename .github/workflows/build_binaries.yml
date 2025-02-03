@@ -99,6 +99,7 @@ jobs:
 
             - uses: actions/upload-artifact@v4
               with:
+                name: macos-arm
                 path: ${{ github.workspace }}/libscip-macos-arm.zip
 
     macos-intel-build-binaries:
@@ -123,7 +124,8 @@ jobs:
 
         - uses: actions/upload-artifact@v4
           with:
-            path: ${{ github.workspace }}/libscip-macos.zip
+            name: macos-intel
+            path: ${{ github.workspace }}/libscip-macos-intel.zip
 
     linux-build-binaries:
         runs-on: ubuntu-latest
@@ -140,6 +142,7 @@ jobs:
                 bash -x .github/workflows/scripts/linux.bash
             - uses: actions/upload-artifact@v4
               with:
+                name: linux
                 path: ${{ github.workspace }}/libscip-linux.zip
 
     windows-build-binaries:
@@ -160,5 +163,13 @@ jobs:
 
           - uses: actions/upload-artifact@v4
             with:
+              name: windows
               path: ${{ github.workspace }}/libscip-windows.zip
 
+    merge_artifacts:
+      name: Merge Artifacts
+      needs: [ windows-build-binaries, linux-build-binaries, macos-intel-build-binaries, macos-arm-build-binaries ]
+      runs-on: ubuntu-latest
+      steps:
+        - name: Merge Artifacts
+          uses: actions/upload-artifact/merge@v4
