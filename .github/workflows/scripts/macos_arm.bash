@@ -6,6 +6,7 @@ rm -rf /usr/local/include/boost/*
 brew install boost
 export MACOSX_DEPLOYMENT_TARGET=14.0
 export DEVELOPER_DIR=/Applications/Xcode_15.0.1.app/Contents/Developer
+brew reinstall gcc
 export FC=/opt/homebrew/bin/gfortran
 export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
 which gfortran || echo "gfortran not found"
