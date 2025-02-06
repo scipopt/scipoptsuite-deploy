@@ -55,7 +55,7 @@ cd Ipopt-releases-$IPOPT_VERSION
 mkdir build
 cd build
 ../configure --prefix=$GITHUB_WORKSPACE/scip_install/ --disable-java --enable-shared=no --disable-sipopt --enable-static=yes --with-metis-cflags="-I${GITHUB_WORKSPACE}/scip_install/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis"
-make -j
+make -j2
 make test
 make install
 
@@ -66,7 +66,7 @@ cd soplex-release-$SOPLEX_VERSION
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false
-make -j$(nproc)
+make -j2
 make test
 make install
 
@@ -77,7 +77,7 @@ cd scip-$SCIP_VERSION
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny
-make -j
+make -j2
 make test
 make install
 
@@ -88,7 +88,7 @@ cd gcg-$GCG_VERSION
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none
-make -j
+make -j2
 make test
 make install
 
