@@ -71,11 +71,16 @@ on:
                 description: Build for Windows
                 required: false
                 default: true
-            build_mode:
-                type: string
+            debug:
+                type: boolean
                 description: Build in debug mode
                 required: false
-                default: "Release"
+                default: false
+            static:
+                type: boolean
+                description: Build static libraries
+                required: false
+                default: false
 
 jobs:
     print-inputs:
@@ -87,7 +92,8 @@ jobs:
               echo "GCG version: ${{github.event.inputs.gcg_version}}"
               echo "Soplex version: ${{github.event.inputs.soplex_version}}"
               echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
-              echo "Build mode: ${{github.event.inputs.build_mode}}"
+              echo "Debug?: ${{github.event.inputs.debug}}"
+              echo "Static?: ${{github.event.inputs.static}}"
 
     macos-arm-build-binaries:
         runs-on: macos-14
@@ -100,7 +106,16 @@ jobs:
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                export BUILD_MODE=${{github.event.inputs.build_mode}}
+                if [ "${{github.event.inputs.debug}}" = "true" ]; then
+                    export BUILD_MODE=Debug
+                else
+                    export BUILD_MODE=Release
+                fi
+                if [ "${{github.event.inputs.static}}" = "true" ]; then
+                    export SHARED=OFF
+                else
+                    export SHARED=ON
+                fi
 
                 tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
                 bash -x .github/workflows/scripts/macos_arm.bash
@@ -127,7 +142,16 @@ jobs:
             export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
             export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
-            export BUILD_MODE=${{github.event.inputs.build_mode}}
+            if [ "${{github.event.inputs.debug}}" = "true" ]; then
+                export BUILD_MODE=Debug
+            else
+                export BUILD_MODE=Release
+            fi
+            if [ "${{github.event.inputs.static}}" = "true" ]; then
+                export SHARED=OFF
+            else
+                export SHARED=ON
+            fi
 
             tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
             bash -x .github/workflows/scripts/macos.bash
@@ -149,7 +173,16 @@ jobs:
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                export BUILD_MODE=${{github.event.inputs.build_mode}}
+                if [ "${{github.event.inputs.debug}}" = "true" ]; then
+                    export BUILD_MODE=Debug
+                else
+                    export BUILD_MODE=Release
+                fi
+                if [ "${{github.event.inputs.static}}" = "true" ]; then
+                    export SHARED=OFF
+                else
+                    export SHARED=ON
+                fi
 
                 bash -x .github/workflows/scripts/linux.bash
             - uses: actions/upload-artifact@v4
@@ -170,7 +203,16 @@ jobs:
               export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
               export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
               export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-              export BUILD_MODE=${{github.event.inputs.build_mode}}
+              if [ "${{github.event.inputs.debug}}" = "true" ]; then
+                  export BUILD_MODE=Debug
+              else
+                  export BUILD_MODE=Release
+              fi
+              if [ "${{github.event.inputs.static}}" = "true" ]; then
+                  export SHARED=OFF
+              else
+                  export SHARED=ON
+              fi
               
               bash -x .github/workflows/scripts/windows.bash
             shell: msys2 {0}
