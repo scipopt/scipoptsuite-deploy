@@ -8,9 +8,12 @@ rm -f /usr/lib64/libblas.*
 rm -rf /usr/include/boost
 mkdir /usr/include/boost
 
-wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2
-tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
-mv $GITHUB_WORKSPACE/boost_1_82_0/boost/* /usr/include/boost/.
+wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz
+tar -xvf $GITHUB_WORKSPACE/boost_1_82_0.tar.gz
+cd boost_1_82_0
+./bootstrap.sh --prefix=/usr/include/boost --with-libraries=program_options,serialization,iostreams,regex
+./b2 --prefix=/usr/include/boost -j8 install
+cd ..
 
 git clone https://github.com/Reference-LAPACK/lapack.git
 cd lapack
@@ -110,5 +113,6 @@ make install
 
 cd $GITHUB_WORKSPACE
 mkdir -p scip_install/lib
+rm -rf scip_install/lib64/cmake
 mv scip_install/lib64/* scip_install/lib/.
 zip -r $GITHUB_WORKSPACE/libscip-linux.zip scip_install/lib scip_install/include scip_install/bin

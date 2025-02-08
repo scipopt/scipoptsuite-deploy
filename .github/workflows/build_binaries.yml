@@ -93,7 +93,7 @@ jobs:
         runs-on: macos-14
         if: github.event.inputs.macos-arm == 'true'
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
@@ -105,15 +105,16 @@ jobs:
                 tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
                 bash -x .github/workflows/scripts/macos_arm.bash
 
-            - uses: actions/upload-artifact@v3
+            - uses: actions/upload-artifact@v4
               with:
+                name: macos-arm
                 path: ${{ github.workspace }}/libscip-macos-arm.zip
 
     macos-intel-build-binaries:
       runs-on: macos-13
       if: github.event.inputs.macos-intel == 'true'
       steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@v4
         - uses: fortran-lang/setup-fortran@v1
           id: setup-fortran
           with:
@@ -131,16 +132,17 @@ jobs:
             tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
             bash -x .github/workflows/scripts/macos.bash
 
-        - uses: actions/upload-artifact@v3
+        - uses: actions/upload-artifact@v4
           with:
-            path: ${{ github.workspace }}/libscip-macos.zip
+            name: macos-intel
+            path: ${{ github.workspace }}/libscip-macos-intel.zip
 
     linux-build-binaries:
         runs-on: ubuntu-latest
         if: github.event.inputs.linux == 'true'
         container: quay.io/pypa/manylinux_2_28_x86_64
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
@@ -150,15 +152,16 @@ jobs:
                 export BUILD_MODE=${{github.event.inputs.build_mode}}
 
                 bash -x .github/workflows/scripts/linux.bash
-            - uses: actions/upload-artifact@v3
+            - uses: actions/upload-artifact@v4
               with:
+                name: linux
                 path: ${{ github.workspace }}/libscip-linux.zip
 
     windows-build-binaries:
         runs-on: windows-latest
         if: github.event.inputs.windows == 'true'
         steps:
-          - uses: actions/checkout@v3
+          - uses: actions/checkout@v4
           - uses: msys2/setup-msys2@v2
 
           - name: Build and install SCIP
@@ -172,7 +175,15 @@ jobs:
               bash -x .github/workflows/scripts/windows.bash
             shell: msys2 {0}
 
-          - uses: actions/upload-artifact@v3
+          - uses: actions/upload-artifact@v4
             with:
+              name: windows
               path: ${{ github.workspace }}/libscip-windows.zip
 
+    merge_artifacts:
+      name: Merge Artifacts
+      needs: [ windows-build-binaries, linux-build-binaries, macos-intel-build-binaries, macos-arm-build-binaries ]
+      runs-on: ubuntu-latest
+      steps:
+        - name: Merge Artifacts
+          uses: actions/upload-artifact/merge@v4
