@@ -95,7 +95,7 @@ unzip v$SCIP_VERSION.zip
 cd scip-$SCIP_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DTPI=tny
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DTPI=tny
 make -j$(nproc)
 make test
 make install
@@ -106,7 +106,7 @@ unzip v$GCG_VERSION.zip
 cd gcg-$GCG_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DSHARED=$SHARED -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none
 make -j$(nproc)
 make test
 make install
