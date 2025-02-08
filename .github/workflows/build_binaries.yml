@@ -87,7 +87,7 @@ jobs:
               echo "GCG version: ${{github.event.inputs.gcg_version}}"
               echo "Soplex version: ${{github.event.inputs.soplex_version}}"
               echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
-              echo "Build mode: ${{github.event.inputs.build_mode}}""
+              echo "Build mode: ${{github.event.inputs.build_mode}}"
 
     macos-arm-build-binaries:
         runs-on: macos-14
