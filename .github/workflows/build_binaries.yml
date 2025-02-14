@@ -76,10 +76,10 @@ on:
                 description: Build in debug mode
                 required: false
                 default: false
-            static:
-                type: boolean
-                description: Build static libraries
-                default: false
+            # static:
+            #     type: boolean
+            #     description: Build static libraries
+            #     default: false
             use_cached_dependencies:
                 type: boolean
                 description: Use cached dependencies
