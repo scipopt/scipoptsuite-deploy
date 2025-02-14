@@ -6,7 +6,7 @@ if [ "$USE_CACHED_DEPENDENCIES" = "true" ]; then
     mkdir -p $GITHUB_WORKSPACE/scip_install
     wget https://github.com/scipopt/scipoptsuite-deploy/releases/download/v0.7.0/libscip-macos-arm.zip
     unzip libscip-macos-arm.zip
-    cp scip_install/* $GITHUB_WORKSPACE/scip_install/*
+    cp -r scip_install/* $GITHUB_WORKSPACE/scip_install/*
 else
     bash deps_macos_arm.bash
 fi
