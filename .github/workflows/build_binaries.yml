@@ -110,6 +110,7 @@ jobs:
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
+                export USE_CACHED_DEPENDENCIES=${{ github.event.inputs.use_cached_dependencies }}
                 if [ "${{github.event.inputs.debug}}" = "true" ]; then
                     export BUILD_MODE=Debug
                 else
@@ -120,11 +121,7 @@ jobs:
                 else
                     export SHARED=ON
                 fi
-                if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
-                    export USE_CACHED_DEPENDENCIES=OFF
-                else
-                    export USE_CACHED_DEPENDENCIES=ON
-                fi 
+            
 
                 tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
                 bash -x .github/workflows/scripts/macos_arm.bash
@@ -150,6 +147,7 @@ jobs:
             export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
             export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
+            export USE_CACHED_DEPENDENCIES=${{ github.event.inputs.use_cached_dependencies }}
             export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
             if [ "${{github.event.inputs.debug}}" = "true" ]; then
                 export BUILD_MODE=Debug
@@ -160,12 +158,7 @@ jobs:
                 export SHARED=OFF
             else
                 export SHARED=ON
-            fi
-            if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
-                export USE_CACHED_DEPENDENCIES=OFF
-            else
-                export USE_CACHED_DEPENDENCIES=ON
-            fi            
+            fi      
             
 
             tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
@@ -188,6 +181,7 @@ jobs:
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
+                export USE_CACHED_DEPENDENCIES=${{ github.event.inputs.use_cached_dependencies }}
                 if [ "${{github.event.inputs.debug}}" = "true" ]; then
                     export BUILD_MODE=Debug
                 else
@@ -197,11 +191,6 @@ jobs:
                     export SHARED=OFF
                 else
                     export SHARED=ON
-                fi
-                if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
-                    export USE_CACHED_DEPENDENCIES=OFF
-                else
-                    export USE_CACHED_DEPENDENCIES=ON
                 fi
 
                 bash -x .github/workflows/scripts/linux.bash
@@ -223,6 +212,7 @@ jobs:
               export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
               export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
               export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
+              export USE_CACHED_DEPENDENCIES=${{ github.event.inputs.use_cached_dependencies }}
               if [ "${{github.event.inputs.debug}}" = "true" ]; then
                   export BUILD_MODE=Debug
               else
@@ -232,11 +222,6 @@ jobs:
                   export SHARED=OFF
               else
                   export SHARED=ON
-              fi
-              if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
-                  export USE_CACHED_DEPENDENCIES=OFF
-              else
-                  export USE_CACHED_DEPENDENCIES=ON
               fi
               
               bash -x .github/workflows/scripts/windows.bash
