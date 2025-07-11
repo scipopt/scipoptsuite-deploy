@@ -51,13 +51,13 @@ wget https://github.com/KarypisLab/GKlib/archive/refs/tags/METIS-v5.1.1-DistDGL-
 tar -xvf METIS-v5.1.1-DistDGL-0.5.tar.gz
 mkdir $GITHUB_WORKSPACE/metis
 cd GKlib-METIS-v5.1.1-DistDGL-0.5
-make config prefix=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
+make config prefix=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5 CONFIG_FLAGS="-DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 make
 make install
 
 cd $GITHUB_WORKSPACE
 cd METIS-5.1.1-DistDGL-v0.5
-make config prefix=$GITHUB_WORKSPACE/metis/ gklib_path=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
+make config prefix=$GITHUB_WORKSPACE/metis/ gklib_path=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5 CONFIG_FLAGS="-DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 make
 make install
 
