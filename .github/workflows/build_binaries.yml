@@ -213,7 +213,7 @@ jobs:
     linux-arm-build-binaries:
         runs-on: ubuntu-24.04-arm
         if: github.event.inputs.linux == 'true'
-        container: quay.io/pypa/manylinux_2_39_aarch64
+        container: quay.io/pypa/manylinux_2_28_aarch64
         steps:
           - uses: actions/checkout@v4
           - name: Build and install SCIP
