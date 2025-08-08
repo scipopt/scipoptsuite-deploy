@@ -121,4 +121,4 @@ cd $GITHUB_WORKSPACE
 mkdir -p scip_install/lib
 rm -rf scip_install/lib64/cmake
 mv scip_install/lib64/* scip_install/lib/.
-zip -r $GITHUB_WORKSPACE/libscip-linux-arm.zip scip_install/lib scip_install/include scip_install/bin
+zip -r $GITHUB_WORKSPACE/libscip-linux.zip scip_install/lib scip_install/include scip_install/bin
