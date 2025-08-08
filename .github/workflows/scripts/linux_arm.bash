@@ -34,7 +34,7 @@ enable_sipopt=no
 with_pic=yes
 with_metis_cflags=\"-I${GITHUB_WORKSPACE}/metis/include/\"
 with_metis_lflags=\"-L${GITHUB_WORKSPACE}/metis/lib -lmetis -lm\"
-with_lapack_lflags=\"-llapack_pic -lblas -lgfortran -lquadmath -lm\"
+with_lapack_lflags=\"-llapack_pic -lblas -lgfortran -lm\"
 LT_LDFLAGS=-all-static
 LDFLAGS=-static" > $GITHUB_WORKSPACE/scip_install/share/config.site
 
