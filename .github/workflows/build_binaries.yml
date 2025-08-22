@@ -36,22 +36,22 @@ on:
                 type: string
                 description: GCG version to use
                 required: true
-                default: "3.7.0"
+                default: "3.7.2"
             scip_version:
                 type: string
                 description: SCIP version to use
                 required: true
-                default: "9.2.1"
+                default: "9.2.3"
             soplex_version:
                 type: string
                 description: Soplex version to use
                 required: true
-                default: "7.1.3"
+                default: "7.1.5"
             ipopt_version:
                 type: string
                 description: IPOPT version to use
                 required: true
-                default: "3.14.17"
+                default: "3.14.19"
             linux:
                 type: boolean
                 description: Build for Linux (Intel and ARM)
