@@ -39,7 +39,7 @@ rm -f /usr/local/lib/libgmp*
 cd $GITHUB_WORKSPACE
 mkdir $GITHUB_WORKSPACE/metis
 cd $GITHUB_WORKSPACE/metis-5.1.0
-sed -i 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
+sed -i '' 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
 make config prefix=$GITHUB_WORKSPACE/scip_install/
 make
 make install
