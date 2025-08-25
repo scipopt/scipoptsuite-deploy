@@ -34,7 +34,7 @@ enable_sipopt=no
 with_pic=yes
 with_metis_cflags=\"-I${GITHUB_WORKSPACE}/metis/include/\"
 with_metis_lflags=\"-L${GITHUB_WORKSPACE}/metis/lib -lmetis -lm\"
-with_lapack_lflags=\"-llapack_pic -lblas -lgfortran -lquadmath -lm\"
+with_lapack_lflags=\"-llapack_pic -lblas -lgfortran -lm\"
 LT_LDFLAGS=-all-static
 LDFLAGS=-static" > $GITHUB_WORKSPACE/scip_install/share/config.site
 
@@ -51,13 +51,15 @@ wget https://github.com/KarypisLab/GKlib/archive/refs/tags/METIS-v5.1.1-DistDGL-
 tar -xvf METIS-v5.1.1-DistDGL-0.5.tar.gz
 mkdir $GITHUB_WORKSPACE/metis
 cd GKlib-METIS-v5.1.1-DistDGL-0.5
+sed -i 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
 make config prefix=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
 make
 make install
 
 cd $GITHUB_WORKSPACE
 cd METIS-5.1.1-DistDGL-v0.5
-make config prefix=$GITHUB_WORKSPACE/metis/ gklib_path=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
+sed -i 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
+make config prefix=$GITHUB_WORKSPACE/metis gklib_path=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
 make
 make install
 
@@ -75,7 +77,9 @@ mkdir build
 cd build
 ../configure --prefix=$GITHUB_WORKSPACE/scip_install/
 make -j$(nproc)
-make test V=1 || :
+if [ "$TESTS" = "ON" ]; then
+    make test V=1 || :
+fi
 make install
 cd ..
 cd ..
@@ -86,7 +90,9 @@ mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DBOOST=true
 make -j$(nproc)
-make test
+if [ "$TESTS" = "ON" ]; then
+    make test
+fi
 make install
 
 cd $GITHUB_WORKSPACE
@@ -95,9 +101,11 @@ unzip v$SCIP_VERSION.zip
 cd scip-$SCIP_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DTPI=tny
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DTPI=tny -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j$(nproc)
-make test
+if [ "$TESTS" = "ON" ]; then
+    make test
+fi
 make install
 
 cd $GITHUB_WORKSPACE
@@ -106,13 +114,23 @@ unzip v$GCG_VERSION.zip
 cd gcg-$GCG_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DSHARED=$SHARED -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DSHARED=$SHARED -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j$(nproc)
-make test
+if [ "$TESTS" = "ON" ]; then
+    make test
+fi
 make install
 
 cd $GITHUB_WORKSPACE
 mkdir -p scip_install/lib
 rm -rf scip_install/lib64/cmake
 mv scip_install/lib64/* scip_install/lib/.
-zip -r $GITHUB_WORKSPACE/libscip-linux.zip scip_install/lib scip_install/include scip_install/bin
+
+# Detect architecture and set appropriate filename
+if [[ "$ARM" == "ON" ]]; then
+    FILENAME="libscip-linux-arm.zip"
+else
+    FILENAME="libscip-linux.zip"
+fi
+
+zip -r $GITHUB_WORKSPACE/$FILENAME scip_install/lib scip_install/include scip_install/bin
