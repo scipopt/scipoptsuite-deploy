@@ -119,8 +119,7 @@ rm -rf scip_install/lib64/cmake
 mv scip_install/lib64/* scip_install/lib/.
 
 # Detect architecture and set appropriate filename
-ARCH=$(uname -m)
-if [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
+if [[ "$ARM" == "ON" ]]; then
     FILENAME="libscip-linux-arm.zip"
 else
     FILENAME="libscip-linux.zip"

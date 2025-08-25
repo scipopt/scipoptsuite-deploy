@@ -205,6 +205,8 @@ jobs:
                     export USE_CACHED_DEPENDENCIES=ON
                 fi
 
+                export ARM=OFF
+                
                 bash -x .github/workflows/scripts/linux.bash
             - uses: actions/upload-artifact@v4
               with:
@@ -239,6 +241,7 @@ jobs:
                     export USE_CACHED_DEPENDENCIES=ON
                 fi
 
+                export ARM=ON
                 bash -x .github/workflows/scripts/linux.bash
             - uses: actions/upload-artifact@v4
               with:
