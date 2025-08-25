@@ -57,14 +57,9 @@ on:
                 description: Build for Linux (Intel and ARM)
                 required: false
                 default: true
-            macos-intel:
+            macos:
                 type: boolean
-                description: Build for macOS (Intel)
-                required: false
-                default: true
-            macos-arm:
-                type: boolean
-                description: Build for macOS (ARM)
+                description: Build for macOS (Intel and ARM)
                 required: false
                 default: true
             windows:
@@ -106,7 +101,7 @@ jobs:
 
     macos-arm-build-binaries:
         runs-on: macos-14
-        if: github.event.inputs.macos-arm == 'true'
+        if: github.event.inputs.macos == 'true'
         steps:
             - uses: actions/checkout@v4
             - name: Build and install SCIP
@@ -146,7 +141,7 @@ jobs:
 
     macos-intel-build-binaries:
       runs-on: macos-13
-      if: github.event.inputs.macos-intel == 'true'
+      if: github.event.inputs.macos == 'true'
       steps:
         - uses: actions/checkout@v4
         - uses: fortran-lang/setup-fortran@v1
