@@ -77,7 +77,9 @@ mkdir build
 cd build
 ../configure --prefix=$GITHUB_WORKSPACE/scip_install/
 make -j$(nproc)
-make test V=1 || :
+if [ "$TESTS" = "ON" ]; then
+    make test V=1 || :
+fi
 make install
 cd ..
 cd ..
@@ -88,7 +90,9 @@ mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DBOOST=true
 make -j$(nproc)
-make test
+if [ "$TESTS" = "ON" ]; then
+    make test
+fi
 make install
 
 cd $GITHUB_WORKSPACE
@@ -99,7 +103,9 @@ mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DTPI=tny -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j$(nproc)
-make test
+if [ "$TESTS" = "ON" ]; then
+    make test
+fi
 make install
 
 cd $GITHUB_WORKSPACE
@@ -110,7 +116,9 @@ mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DSHARED=$SHARED -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j$(nproc)
-make test
+if [ "$TESTS" = "ON" ]; then
+    make test
+fi
 make install
 
 cd $GITHUB_WORKSPACE

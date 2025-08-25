@@ -77,6 +77,10 @@ on:
                 description: Build in debug mode
                 required: false
                 default: false
+            tests:
+                type: boolean
+                description: Run tests
+                default: true
             # static:
                 # type: boolean
                 # description: Build static libraries
@@ -121,6 +125,11 @@ jobs:
                 else
                     export SHARED=ON
                 fi
+                
+                if [ "${{github.event.inputs.tests}}" = "true" ]; then
+                    export TESTS=ON
+                fi
+
                 if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
                     export USE_CACHED_DEPENDENCIES=OFF
                 else
@@ -162,6 +171,11 @@ jobs:
             else
                 export SHARED=ON
             fi
+            
+            if [ "${{github.event.inputs.tests}}" = "true" ]; then
+                export TESTS=ON
+            fi
+
             if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
                 export USE_CACHED_DEPENDENCIES=OFF
             else
@@ -199,6 +213,11 @@ jobs:
                 else
                     export SHARED=ON
                 fi
+
+                if [ "${{github.event.inputs.tests}}" = "true" ]; then
+                    export TESTS=ON
+                fi
+
                 if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
                     export USE_CACHED_DEPENDENCIES=OFF
                 else
@@ -235,6 +254,11 @@ jobs:
                 else
                     export SHARED=ON
                 fi
+
+                if [ "${{github.event.inputs.tests}}" = "true" ]; then
+                    export TESTS=ON
+                fi
+
                 if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
                     export USE_CACHED_DEPENDENCIES=OFF
                 else
@@ -271,6 +295,11 @@ jobs:
               else
                   export SHARED=ON
               fi
+
+              if [ "${{github.event.inputs.tests}}" = "true" ]; then
+                  export TESTS=ON
+              fi
+
               if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
                   export USE_CACHED_DEPENDENCIES=OFF
               else
