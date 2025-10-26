@@ -47,11 +47,6 @@ on:
                 description: Soplex version to use
                 required: true
                 default: "7.1.6"
-            papilo_version:
-                type: string
-                description: PaPILO version to use
-                required: true
-                default: "2.4.4"
             ipopt_version:
                 type: string
                 description: IPOPT version to use
@@ -99,7 +94,6 @@ jobs:
               echo "SCIP version: ${{github.event.inputs.scip_version}}"
               echo "GCG version: ${{github.event.inputs.gcg_version}}"
               echo "Soplex version: ${{github.event.inputs.soplex_version}}"
-              echo "PaPILO version: ${{github.event.inputs.papilo_version}}"
               echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
               echo "Debug?: ${{github.event.inputs.debug}}"
               echo "Static?: ${{github.event.inputs.static}}"
@@ -115,7 +109,6 @@ jobs:
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-                export PAPILO_VERSION=$(echo "${{github.event.inputs.papilo_version}}" | tr -d '.')
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 if [ "${{github.event.inputs.debug}}" = "true" ]; then
                     export BUILD_MODE=Debug
@@ -161,7 +154,6 @@ jobs:
             export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
             export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
             export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-            export PAPILO_VERSION=${{ github.event.inputs.papilo_version }}
             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
             export DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
             if [ "${{github.event.inputs.debug}}" = "true" ]; then
@@ -205,7 +197,6 @@ jobs:
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-                export PAPILO_VERSION=${{ github.event.inputs.papilo_version }}
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 if [ "${{github.event.inputs.debug}}" = "true" ]; then
                     export BUILD_MODE=Debug
@@ -247,7 +238,6 @@ jobs:
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-                export PAPILO_VERSION=${{ github.event.inputs.papilo_version }}
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 if [ "${{github.event.inputs.debug}}" = "true" ]; then
                     export BUILD_MODE=Debug
@@ -289,7 +279,6 @@ jobs:
               export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
               export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
               export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-              export PAPILO_VERSION=${{ github.event.inputs.papilo_version }}
               export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
               if [ "${{github.event.inputs.debug}}" = "true" ]; then
                   export BUILD_MODE=Debug
