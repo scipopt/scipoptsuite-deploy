@@ -41,12 +41,12 @@ on:
                 type: string
                 description: SCIP version to use
                 required: true
-                default: "9.2.3"
+                default: "9.2.4"
             soplex_version:
                 type: string
                 description: Soplex version to use
                 required: true
-                default: "7.1.5"
+                default: "7.1.6"
             ipopt_version:
                 type: string
                 description: IPOPT version to use
