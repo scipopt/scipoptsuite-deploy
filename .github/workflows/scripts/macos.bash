@@ -5,9 +5,9 @@ brew install bash
 brew upgrade cmake
 brew install unzip
 
-export CC=/usr/local/bin/gcc
-export CXX=/usr/local/bin/g++
-export FC=/usr/local/bin/gfortran
+export CC=/usr/local/bin/gcc-13
+export CXX=/usr/local/bin/g++-13
+export FC=/usr/local/bin/gfortran-13
 export MACOSX_DEPLOYMENT_TARGET=13.0
 export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
 
@@ -39,7 +39,7 @@ rm -f /usr/local/lib/libgmp*
 cd $GITHUB_WORKSPACE
 mkdir $GITHUB_WORKSPACE/metis
 cd $GITHUB_WORKSPACE/metis-5.1.0
-sed -i '' 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
+sed -i '' 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_C_COMPILER=\/usr\/local\/bin\/gcc-13 -DCMAKE_CXX_COMPILER=\/usr\/local\/bin\/g++-13/' Makefile
 make config prefix=$GITHUB_WORKSPACE/scip_install/
 make
 make install
@@ -74,7 +74,7 @@ unzip release-$SOPLEX_VERSION.zip
 cd soplex-release-$SOPLEX_VERSION
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j
 if [ "$TESTS" = "ON" ]; then
     make test
@@ -88,7 +88,7 @@ unzip v$SCIP_VERSION.zip
 cd scip-$SCIP_VERSION
 mkdir build
 cd build
-cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j
 if [ "$TESTS" = "ON" ]; then
     make test
