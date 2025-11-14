@@ -140,7 +140,7 @@ jobs:
                 path: ${{ github.workspace }}/libscip-macos-arm.zip
 
     macos-intel-build-binaries:
-      runs-on: macos-13
+      runs-on: macos-15-intel
       if: github.event.inputs.macos == 'true'
       steps:
         - uses: actions/checkout@v4
