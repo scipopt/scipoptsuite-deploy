@@ -5,9 +5,9 @@ brew install bash
 brew upgrade cmake
 brew install unzip
 
-export CC=/usr/local/bin/gcc
-export CXX=/usr/local/bin/g++
-export FC=/usr/local/bin/gfortran
+export CC=/usr/local/bin/gcc-13
+export CXX=/usr/local/bin/g++-13
+export FC=/usr/local/bin/gfortran-13
 export MACOSX_DEPLOYMENT_TARGET=13.0
 export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
 
