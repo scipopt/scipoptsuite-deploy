@@ -36,17 +36,17 @@ on:
                 type: string
                 description: GCG version to use
                 required: true
-                default: "3.7.2"
+                default: "4.0.0"
             scip_version:
                 type: string
                 description: SCIP version to use
                 required: true
-                default: "9.2.4"
+                default: "10.0.0"
             soplex_version:
                 type: string
                 description: Soplex version to use
                 required: true
-                default: "7.1.6"
+                default: "8.0.0"
             ipopt_version:
                 type: string
                 description: IPOPT version to use
