@@ -24,9 +24,9 @@ cmake --install soplex_build
 
 cd $GITHUB_WORKSPACE
 mkdir $GITHUB_WORKSPACE/scip_build
-wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION.zip
-unzip v$SCIP_VERSION.zip
-cd scip-$SCIP_VERSION
+wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION_FULL.zip
+unzip v$SCIP_VERSION_FULL.zip
+cd scip-$SCIP_VERSION_FULL
 mkdir scip_build
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
@@ -39,9 +39,9 @@ if [ "$TESTS" = "ON" ]; then
 fi
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION.zip
-unzip v$GCG_VERSION.zip
-cd gcg-$GCG_VERSION
+wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION_FULL.zip
+unzip v$GCG_VERSION_FULL.zip
+cd gcg-$GCG_VERSION_FULL
 mkdir gcg_build
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"

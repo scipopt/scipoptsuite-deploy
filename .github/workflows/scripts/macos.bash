@@ -83,9 +83,9 @@ make install
 
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION.zip
-unzip v$SCIP_VERSION.zip
-cd scip-$SCIP_VERSION
+wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION_FULL.zip
+unzip v$SCIP_VERSION_FULL.zip
+cd scip-$SCIP_VERSION_FULL
 mkdir build
 cd build
 cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5
@@ -96,9 +96,9 @@ fi
 make install
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION.zip
-unzip v$GCG_VERSION.zip
-cd gcg-$GCG_VERSION
+wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION_FULL.zip
+unzip v$GCG_VERSION_FULL.zip
+cd gcg-$GCG_VERSION_FULL
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_POLICY_VERSION_MINIMUM=3.5
