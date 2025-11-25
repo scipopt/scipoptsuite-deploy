@@ -10,9 +10,9 @@ mv Ipopt-$IPOPT_VERSION-win64-msvs2022-md/ scip_install
 mv scip_install/lib/ipopt.dll.lib scip_install/lib/ipopt.lib
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION.zip
-unzip v$SOPLEX_VERSION.zip
-cd v$SOPLEX_VERSION
+wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
+unzip v$SOPLEX_VERSION_FULL.zip
+cd soplex-$SOPLEX_VERSION_FULL
 mkdir soplex_build
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"

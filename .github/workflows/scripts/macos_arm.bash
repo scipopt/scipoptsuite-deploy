@@ -63,9 +63,9 @@ fi
 make install
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION.zip
-unzip v$SOPLEX_VERSION.zip
-cd v$SOPLEX_VERSION
+wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
+unzip v$SOPLEX_VERSION_FULL.zip
+cd soplex-$SOPLEX_VERSION_FULL
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5
