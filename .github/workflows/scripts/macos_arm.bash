@@ -63,9 +63,9 @@ fi
 make install
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/soplex/archive/refs/tags/release-$SOPLEX_VERSION.zip
-unzip release-$SOPLEX_VERSION.zip
-cd soplex-release-$SOPLEX_VERSION
+wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
+unzip v$SOPLEX_VERSION_FULL.zip
+cd soplex-$SOPLEX_VERSION_FULL
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5
@@ -76,9 +76,9 @@ fi
 make install
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION.zip
-unzip v$SCIP_VERSION.zip
-cd scip-$SCIP_VERSION
+wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION_FULL.zip
+unzip v$SCIP_VERSION_FULL.zip
+cd scip-$SCIP_VERSION_FULL
 mkdir build
 cd build
 cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5
@@ -89,9 +89,9 @@ fi
 make install
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION.zip
-unzip v$GCG_VERSION.zip
-cd gcg-$GCG_VERSION
+wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION_FULL.zip
+unzip v$GCG_VERSION_FULL.zip
+cd gcg-$GCG_VERSION_FULL
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_POLICY_VERSION_MINIMUM=3.5

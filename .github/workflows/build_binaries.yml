@@ -107,8 +107,11 @@ jobs:
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+                export SCIP_VERSION_FULL="${{ github.event.inputs.scip_version }}"
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
+                export GCG_VERSION_FULL="${{ github.event.inputs.gcg_version }}"
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
+                export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 if [ "${{github.event.inputs.debug}}" = "true" ]; then
                     export BUILD_MODE=Debug
@@ -152,8 +155,11 @@ jobs:
         - name: Build and install SCIP
           run: |
             export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+            export SCIP_VERSION_FULL="${{ github.event.inputs.scip_version }}"
             export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
+            export GCG_VERSION_FULL="${{ github.event.inputs.gcg_version }}"
             export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
+            export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
             if [ "${{github.event.inputs.debug}}" = "true" ]; then
                 export BUILD_MODE=Debug
@@ -194,8 +200,11 @@ jobs:
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+                export SCIP_VERSION_FULL="${{ github.event.inputs.scip_version }}"
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
+                export GCG_VERSION_FULL="${{ github.event.inputs.gcg_version }}"
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
+                export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 if [ "${{github.event.inputs.debug}}" = "true" ]; then
                     export BUILD_MODE=Debug
@@ -235,8 +244,11 @@ jobs:
             - name: Build and install SCIP
               run: |
                 export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+                export SCIP_VERSION_FULL="${{ github.event.inputs.scip_version }}"
                 export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
+                export GCG_VERSION_FULL="${{ github.event.inputs.gcg_version }}"
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
+                export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
                 if [ "${{github.event.inputs.debug}}" = "true" ]; then
                     export BUILD_MODE=Debug
@@ -276,8 +288,11 @@ jobs:
           - name: Build and install SCIP
             run:  |
               export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+              export SCIP_VERSION_FULL="${{ github.event.inputs.scip_version }}"
               export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
+              export GCG_VERSION_FULL="${{ github.event.inputs.gcg_version }}"
               export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
+              export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
               export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
               if [ "${{github.event.inputs.debug}}" = "true" ]; then
                   export BUILD_MODE=Debug

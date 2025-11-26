@@ -10,9 +10,9 @@ mv Ipopt-$IPOPT_VERSION-win64-msvs2022-md/ scip_install
 mv scip_install/lib/ipopt.dll.lib scip_install/lib/ipopt.lib
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/soplex/archive/refs/tags/release-$SOPLEX_VERSION.zip
-unzip release-$SOPLEX_VERSION.zip
-cd soplex-release-$SOPLEX_VERSION
+wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
+unzip v$SOPLEX_VERSION_FULL.zip
+cd soplex-$SOPLEX_VERSION_FULL
 mkdir soplex_build
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
@@ -24,14 +24,14 @@ cmake --install soplex_build
 
 cd $GITHUB_WORKSPACE
 mkdir $GITHUB_WORKSPACE/scip_build
-wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION.zip
-unzip v$SCIP_VERSION.zip
-cd scip-$SCIP_VERSION
+wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION_FULL.zip
+unzip v$SCIP_VERSION_FULL.zip
+cd scip-$SCIP_VERSION_FULL
 mkdir scip_build
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin"
-cmake -G "Visual Studio 17 2022" -B scip_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../scip_install -DPAPILO=false -DZIMPL=false -DZLIB=false -DREADLINE=false -DGMP=false -DBoost=true -DIPOPT=true -DIPOPT_DIR=../scip_install -DIPOPT_LIBRARIES=../scip_install/bin -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+cmake -G "Visual Studio 17 2022" --preset interface -B scip_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../scip_install -DPAPILO=false -DZIMPL=false -DZLIB=false -DREADLINE=false -DGMP=false -DBoost=true -DIPOPT=true -DIPOPT_DIR=../scip_install -DIPOPT_LIBRARIES=../scip_install/bin -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 cmake --build scip_build --config Release
 cmake --install scip_build
 if [ "$TESTS" = "ON" ]; then
@@ -39,9 +39,9 @@ if [ "$TESTS" = "ON" ]; then
 fi
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION.zip
-unzip v$GCG_VERSION.zip
-cd gcg-$GCG_VERSION
+wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION_FULL.zip
+unzip v$GCG_VERSION_FULL.zip
+cd gcg-$GCG_VERSION_FULL
 mkdir gcg_build
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
 export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64"
