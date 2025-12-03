@@ -27,4 +27,4 @@ Each release includes:
 - Header files (`include/`)
 - Binary executables (`bin/`)
 
-These are packaged as zip files that can be downloaded from the [Releases](https://github.com/scipopt/scipoptsuite-deploy/releases) page. 
+These are packaged as zip files that can be downloaded from the [Releases](https://github.com/scipopt/scipoptsuite-deploy/releases) page.
