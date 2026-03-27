@@ -1,0 +1,61 @@
+
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpLapack.o):IpLapack.cpp:(.text+0
+x67): undefined reference to `dpotrs_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpLapack.o):IpLapack.cpp:(.text+0
+xbe): undefined reference to `dpotrf_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpLapack.o):IpLapack.cpp:(.text+0
+x194): undefined reference to `dsyev_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpLapack.o):IpLapack.cpp:(.text+0
+x261): undefined reference to `dsyev_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpLapack.o):IpLapack.cpp:(.text+0
+x2d6): undefined reference to `dgetrf_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpLapack.o):IpLapack.cpp:(.text+0
+x364): undefined reference to `dgetrs_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpLapack.o):IpLapack.cpp:(.text+0
+x3b8): undefined reference to `dppsv_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0x36)
+: undefined reference to `ddot_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0x98)
+: undefined reference to `dnrm2_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0xc8)
+: undefined reference to `dasum_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0xf8)
+: undefined reference to `idamax_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0x182
+): undefined reference to `dcopy_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0x24c
+): undefined reference to `daxpy_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0x2d3
+): undefined reference to `dscal_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0x39b
+): undefined reference to `dgemv_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0x447
+): undefined reference to `dsymv_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0x579
+): undefined reference to `dgemm_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0x640
+): undefined reference to `dsyrk_'
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bi
+n/ld.exe: C:/msys64/home/root/scip_install/lib/libipopt.a(IpBlas.o):IpBlas.cpp:(.text+0x751
+): undefined reference to `dtrsm_'
+collect2.exe: error: ld returned 1 exit status
+ninja: build stopped: subcommand failed.
+
