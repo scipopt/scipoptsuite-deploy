@@ -1,11 +1,12 @@
 # Enable exit on error - script will stop if any command fails
-#set -e
+set -e
 
 pacman -S --noconfirm \
   unzip \
   zip \
   patch \
   m4 \
+  cmake \
   mingw-w64-ucrt-x86_64-git \
   mingw-w64-ucrt-x86_64-cmake \
   mingw-w64-ucrt-x86_64-zlib \
