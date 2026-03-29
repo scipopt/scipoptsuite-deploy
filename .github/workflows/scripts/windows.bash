@@ -2,15 +2,15 @@
 #set -e
 
 pacman -S --noconfirm \
-  mingw-w64-ucrt-x86_64-unzip \
+  unzip \
+  zip \
+  patch \
+  m4 \
   mingw-w64-ucrt-x86_64-git \
   mingw-w64-ucrt-x86_64-cmake \
   mingw-w64-ucrt-x86_64-zlib \
-  mingw-w64-ucrt-x86_64-zip \
   mingw-w64-ucrt-x86_64-boost \
-  mingw-w64-ucrt-x86_64-patch \
   mingw-w64-ucrt-x86_64-make \
-  mingw-w64-ucrt-x86_64-m4 \
   mingw-w64-ucrt-x86_64-gcc \
   mingw-w64-ucrt-x86_64-metis \
   mingw-w64-ucrt-x86_64-gcc-fortran
