@@ -10,6 +10,7 @@ pacman -S --noconfirm \
   cmake \
   ninja \
   make \
+  gcc \
   mingw-w64-ucrt-x86_64-git \
   mingw-w64-ucrt-x86_64-cmake \
   mingw-w64-ucrt-x86_64-zlib \
