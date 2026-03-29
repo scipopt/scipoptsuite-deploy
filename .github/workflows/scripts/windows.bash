@@ -2,6 +2,7 @@
 set -e
 
 pacman -S --noconfirm \
+  git \
   unzip \
   zip \
   patch \
