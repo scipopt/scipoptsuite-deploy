@@ -102,9 +102,9 @@ jobs:
     build:
         strategy:
             matrix:
-                os: ["macos", "linux", "windows"]
+                os: ["windows"]
                 architecture: ["x86_64", "arm"]
-                gmp: [true, false]
+                gmp: [true]
                 exclude:
                     - os: windows
                       architecture: arm

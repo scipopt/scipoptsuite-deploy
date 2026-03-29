@@ -1,7 +1,19 @@
 # Enable exit on error - script will stop if any command fails
 #set -e
 
-pacman -S --noconfirm unzip git mingw-w64-ucrt-x86_64-cmake cmake mingw-w64-ucrt-x86_64-zlib zip mingw-w64-ucrt-x86_64-boost patch make m4 gcc mingw-w64-ucrt-x86_64-metis mingw-w64-ucrt-x86_64-gcc-fortran
+pacman -S --noconfirm \
+  mingw-w64-ucrt-x86_64-unzip \
+  mingw-w64-ucrt-x86_64-git \
+  mingw-w64-ucrt-x86_64-cmake \
+  mingw-w64-ucrt-x86_64-zlib \
+  mingw-w64-ucrt-x86_64-zip \
+  mingw-w64-ucrt-x86_64-boost \
+  mingw-w64-ucrt-x86_64-patch \
+  mingw-w64-ucrt-x86_64-make \
+  mingw-w64-ucrt-x86_64-m4 \
+  mingw-w64-ucrt-x86_64-gcc \
+  mingw-w64-ucrt-x86_64-metis \
+  mingw-w64-ucrt-x86_64-gcc-fortran
         
 cd $GITHUB_WORKSPACE
 export GITHUB_WORKSPACE=$(pwd)
