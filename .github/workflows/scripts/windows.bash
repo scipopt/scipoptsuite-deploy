@@ -19,7 +19,9 @@ pacman -S --noconfirm \
   mingw-w64-ucrt-x86_64-gcc \
   mingw-w64-ucrt-x86_64-metis \
   mingw-w64-ucrt-x86_64-gcc-fortran
-        
+
+export FC=gfortran
+
 cd $GITHUB_WORKSPACE
 export GITHUB_WORKSPACE=$(pwd)
 
