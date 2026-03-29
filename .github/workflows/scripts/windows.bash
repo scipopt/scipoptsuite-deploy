@@ -8,6 +8,8 @@ pacman -S --noconfirm \
   patch \
   m4 \
   cmake \
+  ninja \
+  make \
   mingw-w64-ucrt-x86_64-git \
   mingw-w64-ucrt-x86_64-cmake \
   mingw-w64-ucrt-x86_64-zlib \
