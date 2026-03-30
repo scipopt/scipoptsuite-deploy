@@ -121,6 +121,8 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: msys2/setup-msys2@v2
+              with:
+                msystem: ucrt64
               if: matrix.os == 'windows'
             - name: Build and install SCIP
               run: |
