@@ -25,7 +25,7 @@ cd $GITHUB_WORKSPACE
 git clone https://github.com/Reference-LAPACK/lapack.git
 cd lapack
 mkdir build
-cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=$BUILD_MODE
+cmake -B build -DCMAKE_INSTALL_PREFIX=/ucrt64 -DCMAKE_BUILD_TYPE=$BUILD_MODE
 cmake --build build --config Release -j$(nproc)
 cmake --install build
 
@@ -33,7 +33,7 @@ cd $GITHUB_WORKSPACE
 git clone https://github.com/coin-or/Ipopt.git
 cd Ipopt
 git checkout releases/3.14.19
-./configure --disable-shared --enable-static --with-lapack-lflags="-llapack -lblas" --prefix=$GITHUB_WORKSPACE/scip_install
+./configure --disable-shared --enable-static  --prefix=$GITHUB_WORKSPACE/scip_install
 make -j$(nproc)
 make install
 
