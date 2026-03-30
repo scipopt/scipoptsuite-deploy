@@ -6,7 +6,7 @@ pacman -S --noconfirm \
   zip \
   patch \
   m4 \
-  ninja \
+  mingw-w64-ucrt-x86_64-ninja \
   mingw-w64-ucrt-x86_64-git \
   mingw-w64-ucrt-x86_64-cmake \
   mingw-w64-ucrt-x86_64-zlib \
@@ -33,7 +33,7 @@ cd $GITHUB_WORKSPACE
 git clone https://github.com/coin-or/Ipopt.git
 cd Ipopt
 git checkout releases/3.14.19
-./configure --disable-shared --enable-static --prefix=$GITHUB_WORKSPACE/scip_install
+./configure --disable-shared --enable-static --with-lapack-lflags="-llapack -lblas" --prefix=$GITHUB_WORKSPACE/scip_install
 make -j$(nproc)
 make install
 
