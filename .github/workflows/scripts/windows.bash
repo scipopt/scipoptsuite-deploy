@@ -2,15 +2,11 @@
 set -e
 
 pacman -S --noconfirm \
-  git \
   unzip \
   zip \
   patch \
   m4 \
-  cmake \
   ninja \
-  make \
-  gcc \
   mingw-w64-ucrt-x86_64-git \
   mingw-w64-ucrt-x86_64-cmake \
   mingw-w64-ucrt-x86_64-zlib \
@@ -19,11 +15,6 @@ pacman -S --noconfirm \
   mingw-w64-ucrt-x86_64-gcc \
   mingw-w64-ucrt-x86_64-metis \
   mingw-w64-ucrt-x86_64-gcc-fortran
-
-echo $MSYSTEM
-
-gfortran --version
-export FC=gfortran
 
 cd $GITHUB_WORKSPACE
 export GITHUB_WORKSPACE=$(pwd)
@@ -34,7 +25,7 @@ cd $GITHUB_WORKSPACE
 git clone https://github.com/Reference-LAPACK/lapack.git
 cd lapack
 mkdir build
-cmake -B build -DCMAKE_BUILD_TYPE=$BUILD_MODE
+cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=$BUILD_MODE
 cmake --build build --config Release -j$(nproc)
 cmake --install build
 
