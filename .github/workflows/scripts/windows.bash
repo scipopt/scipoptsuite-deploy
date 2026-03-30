@@ -25,7 +25,7 @@ cd $GITHUB_WORKSPACE
 git clone https://github.com/Reference-LAPACK/lapack.git
 cd lapack
 mkdir build
-cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=$BUILD_MODE
+cmake -B build -DCMAKE_INSTALL_PREFIX=/ucrt64 -DCMAKE_BUILD_TYPE=$BUILD_MODE
 cmake --build build --config Release -j$(nproc)
 cmake --install build
 
