@@ -20,7 +20,6 @@ pacman -S --noconfirm \
   mingw-w64-ucrt-x86_64-metis \
   mingw-w64-ucrt-x86_64-gcc-fortran
 
-export MSYSTEM=UCRT64
 echo $MSYSTEM
 
 gfortran --version
