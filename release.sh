@@ -27,23 +27,28 @@ current_default() {
     sed -n "/${1}:/,/default:/{s/.*default: \"\(.*\)\"/\1/p;}" "$WORKFLOW"
 }
 
-# Validate version format
+# Validate version format and that the tag exists upstream
 validate_version() {
-    if [[ ! "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        echo "Error: '$1' is not a valid version (expected X.Y.Z)"
+    local version="$1" repo="$2" tag="$3"
+    if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "Error: '$version' is not a valid version (expected X.Y.Z)"
+        exit 1
+    fi
+    if ! gh api "repos/${repo}/git/ref/tags/${tag}" &>/dev/null; then
+        echo "Error: tag '${tag}' not found in ${repo}"
         exit 1
     fi
 }
 
 # Prompt for a version, keeping current value if enter is pressed.
-# Writes result to the variable named by $3.
+# Writes result to the variable named by $5.
 prompt_version() {
-    local label="$1" key="$2" outvar="$3"
+    local label="$1" key="$2" repo="$3" tag_prefix="$4" outvar="$5"
     local current
     current=$(current_default "$key")
     read -rp "${label} [${current}]: " value
     value="${value:-$current}"
-    validate_version "$value"
+    validate_version "$value" "$repo" "${tag_prefix}${value}"
     printf -v "$outvar" '%s' "$value"
 }
 
@@ -57,10 +62,10 @@ OLD_SOPLEX=$(current_default "soplex_version")
 OLD_GCG=$(current_default "gcg_version")
 OLD_IPOPT=$(current_default "ipopt_version")
 
-prompt_version "SCIP" "scip_version" SCIP_VERSION
-prompt_version "SoPlex" "soplex_version" SOPLEX_VERSION
-prompt_version "GCG" "gcg_version" GCG_VERSION
-prompt_version "IPOPT" "ipopt_version" IPOPT_VERSION
+prompt_version "SCIP" "scip_version" "scipopt/scip" "v" SCIP_VERSION
+prompt_version "SoPlex" "soplex_version" "scipopt/soplex" "v" SOPLEX_VERSION
+prompt_version "GCG" "gcg_version" "scipopt/gcg" "v" GCG_VERSION
+prompt_version "IPOPT" "ipopt_version" "coin-or/Ipopt" "releases/" IPOPT_VERSION
 
 echo ""
 echo "Versions: SCIP=${SCIP_VERSION} SoPlex=${SOPLEX_VERSION} GCG=${GCG_VERSION} IPOPT=${IPOPT_VERSION}"
