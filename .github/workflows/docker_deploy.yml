@@ -10,7 +10,7 @@ on:
       version:
         description: 'The version of SCIPOptSuite like #.#.#'
         required: true
-        type: number
+        type: string
 
 env:
   IMAGE_NAME: scipoptsuite

@@ -115,12 +115,16 @@ git add "$WORKFLOW"
 git commit -m "$MSG"
 git push -u origin "$BRANCH"
 
-# --- Trigger build workflow ---
+# --- Create PR and trigger build workflow ---
+
+echo "Creating pull request..."
+PR_URL=$(gh pr create --title "$MSG" --body "Automated release branch created by release.sh" --base main)
 
 echo "Triggering build workflow..."
 gh workflow run build_binaries.yml --ref "$BRANCH"
 
 echo ""
 echo "Done! Release branch '${BRANCH}' created and builds triggered."
+echo "PR: ${PR_URL}"
 echo "Docker deploy will run automatically after builds succeed."
 echo "Monitor at: gh run list --workflow=build_binaries.yml"
