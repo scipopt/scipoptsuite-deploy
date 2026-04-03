@@ -35,15 +35,14 @@ validate_version() {
     fi
 }
 
-# Prompt for a version, keeping current value if enter is pressed
+# Prompt for a version, keeping current value if enter is pressed.
+# Writes result to the variable named by $3.
 prompt_version() {
-    local label="$1" key="$2"
+    local label="$1" key="$2" outvar="$3"
     local current
     current=$(current_default "$key")
     read -rp "${label} [${current}]: " value
-    value="${value:-$current}"
-    validate_version "$value"
-    echo "$value"
+    printf -v "$outvar" '%s' "${value:-$current}"
 }
 
 # --- Prompt for versions ---
@@ -56,10 +55,15 @@ OLD_SOPLEX=$(current_default "soplex_version")
 OLD_GCG=$(current_default "gcg_version")
 OLD_IPOPT=$(current_default "ipopt_version")
 
-SCIP_VERSION=$(prompt_version "SCIP" "scip_version")
-SOPLEX_VERSION=$(prompt_version "SoPlex" "soplex_version")
-GCG_VERSION=$(prompt_version "GCG" "gcg_version")
-IPOPT_VERSION=$(prompt_version "IPOPT" "ipopt_version")
+prompt_version "SCIP" "scip_version" SCIP_VERSION
+prompt_version "SoPlex" "soplex_version" SOPLEX_VERSION
+prompt_version "GCG" "gcg_version" GCG_VERSION
+prompt_version "IPOPT" "ipopt_version" IPOPT_VERSION
+
+# Validate all versions
+for v in "$SCIP_VERSION" "$SOPLEX_VERSION" "$GCG_VERSION" "$IPOPT_VERSION"; do
+    validate_version "$v"
+done
 
 echo ""
 echo "Versions: SCIP=${SCIP_VERSION} SoPlex=${SOPLEX_VERSION} GCG=${GCG_VERSION} IPOPT=${IPOPT_VERSION}"
