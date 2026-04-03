@@ -54,6 +54,13 @@ prompt_version() {
 
 # --- Prompt for versions ---
 
+echo "This script will:"
+echo "  1. Prompt for new component versions (press enter to keep current)"
+echo "  2. Create a release-X.Y.Z branch from main"
+echo "  3. Update version defaults in build_binaries.yml, commit, and push"
+echo "  4. Open a PR and trigger the build workflow"
+echo "  5. Docker deploy will auto-trigger after builds succeed"
+echo ""
 echo "Current versions from ${WORKFLOW}:"
 echo ""
 
