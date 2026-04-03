@@ -42,7 +42,9 @@ prompt_version() {
     local current
     current=$(current_default "$key")
     read -rp "${label} [${current}]: " value
-    printf -v "$outvar" '%s' "${value:-$current}"
+    value="${value:-$current}"
+    validate_version "$value"
+    printf -v "$outvar" '%s' "$value"
 }
 
 # --- Prompt for versions ---
@@ -59,11 +61,6 @@ prompt_version "SCIP" "scip_version" SCIP_VERSION
 prompt_version "SoPlex" "soplex_version" SOPLEX_VERSION
 prompt_version "GCG" "gcg_version" GCG_VERSION
 prompt_version "IPOPT" "ipopt_version" IPOPT_VERSION
-
-# Validate all versions
-for v in "$SCIP_VERSION" "$SOPLEX_VERSION" "$GCG_VERSION" "$IPOPT_VERSION"; do
-    validate_version "$v"
-done
 
 echo ""
 echo "Versions: SCIP=${SCIP_VERSION} SoPlex=${SOPLEX_VERSION} GCG=${GCG_VERSION} IPOPT=${IPOPT_VERSION}"
