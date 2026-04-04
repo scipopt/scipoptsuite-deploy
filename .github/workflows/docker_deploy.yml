@@ -1,16 +1,12 @@
 name: Build And Push Docker Image
 
 on:
-  workflow_run:
-    workflows: ["Build Binaries"]
-    types: [completed]
-    branches: ["release-*"]
   workflow_dispatch:
     inputs:
       version:
         description: 'The version of SCIPOptSuite like #.#.#'
         required: true
-        type: string
+        type: number
 
 env:
   IMAGE_NAME: scipoptsuite
@@ -19,40 +15,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Determine version
-      id: version
-      run: |
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          echo "value=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
-        else
-          # Extract version from branch name (release-X.Y.Z -> X.Y.Z)
-          BRANCH="${{ github.event.workflow_run.head_branch }}"
-          echo "value=${BRANCH#release-}" >> "$GITHUB_OUTPUT"
-        fi
-
-    - name: Verify upstream .deb packages exist
-      run: |
-        VERSION="${{ steps.version.outputs.value }}"
-        TAG_NO_DOTS=$(echo "v${VERSION}" | tr -d '.')
-        BASE="https://github.com/scipopt/scip/releases/download/${TAG_NO_DOTS}"
-        for suffix in "Linux-debian.deb" "Linux-arm64.deb"; do
-          URL="${BASE}/SCIPOptSuite-${VERSION}-${suffix}"
-          echo "Checking ${URL}..."
-          STATUS=$(curl -sL -o /dev/null -w "%{http_code}" "$URL")
-          if [ "$STATUS" != "200" ] && [ "$STATUS" != "302" ]; then
-            echo "Error: upstream package not found (HTTP ${STATUS}): ${URL}"
-            echo "The upstream SCIP release may not have been published yet."
-            exit 1
-          fi
-        done
-        echo "Both packages found."
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
@@ -73,7 +38,7 @@ jobs:
         images: ${{ env.REPOSITORY_NAME }}/${{ env.IMAGE_NAME }}
         tags: |
           type=raw,value=latest
-          type=raw,value=${{ steps.version.outputs.value }}
+          type=raw,value=${{ github.event.inputs.version }}
 
     - name: Build and push
       uses: docker/build-push-action@v3
@@ -82,4 +47,4 @@ jobs:
         platforms: linux/amd64,linux/arm64
         push: true
         tags: ${{ steps.metadata.outputs.tags }}
-        build-args: TAG=${{ steps.version.outputs.value }}
+        build-args: TAG=${{ github.event.inputs.version }}
