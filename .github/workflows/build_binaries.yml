@@ -1,16 +1,16 @@
 name: Build Binaries
 
-
-# Authors: 
+# Authors:
 # Mark Turner
-# Mohammed Ghannam 
+# Mohammed Ghannam
 # Stefan Vigerske
 # Franziska Schloesser
 # Julian Manns
 # Michael Winkler
+# Andrea Nardi-Dei
 #
 # This is the base workflow script for generating SCIP libraries.
-# These libraries intended purpose is to be shipped with the various 
+# These libraries intended purpose is to be shipped with the various
 # SCIP interfaces for different programming languages (e.g. Python and Rust).
 # These libraries enable users of those interfaces to not have to install SCIP themselves outside of
 # the traditional package managers of their preferred programming languages.
@@ -77,9 +77,9 @@ on:
                 description: Run tests
                 default: true
             # static:
-                # type: boolean
-                # description: Build static libraries
-                # default: false
+            # type: boolean
+            # description: Build static libraries
+            # default: false
             use_cached_dependencies:
                 type: boolean
                 description: Use cached dependencies
@@ -87,246 +87,84 @@ on:
 
 jobs:
     print-inputs:
-      runs-on: ubuntu-latest
-      steps:
-          - name: Print inputs
-            run: |
-              echo "SCIP version: ${{github.event.inputs.scip_version}}"
-              echo "GCG version: ${{github.event.inputs.gcg_version}}"
-              echo "Soplex version: ${{github.event.inputs.soplex_version}}"
-              echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
-              echo "Debug?: ${{github.event.inputs.debug}}"
-              echo "Static?: ${{github.event.inputs.static}}"
-              echo "Use cached dependncies?: ${{github.event.inputs.use_cached_dependencies}}"
-
-    macos-arm-build-binaries:
-        runs-on: macos-14
-        if: github.event.inputs.macos == 'true'
-        steps:
-            - uses: actions/checkout@v4
-            - name: Build and install SCIP
-              run: |
-                export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
-                export SCIP_VERSION_FULL="${{ github.event.inputs.scip_version }}"
-                export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
-                export GCG_VERSION_FULL="${{ github.event.inputs.gcg_version }}"
-                export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-                export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
-                export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                if [ "${{github.event.inputs.debug}}" = "true" ]; then
-                    export BUILD_MODE=Debug
-                else
-                    export BUILD_MODE=Release
-                fi
-                if [ "${{github.event.inputs.static}}" = "true" ]; then
-                    export SHARED=OFF
-                else
-                    export SHARED=ON
-                fi
-                
-                if [ "${{github.event.inputs.tests}}" = "true" ]; then
-                    export TESTS=ON
-                fi
-
-                if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
-                    export USE_CACHED_DEPENDENCIES=OFF
-                else
-                    export USE_CACHED_DEPENDENCIES=ON
-                fi 
-
-                tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
-                bash -x .github/workflows/scripts/macos_arm.bash
-
-            - uses: actions/upload-artifact@v4
-              with:
-                name: macos-arm
-                path: ${{ github.workspace }}/libscip-macos-arm.zip
-
-    macos-intel-build-binaries:
-      runs-on: macos-15-intel
-      if: github.event.inputs.macos == 'true'
-      steps:
-        - uses: actions/checkout@v4
-        - uses: fortran-lang/setup-fortran@v1
-          id: setup-fortran
-          with:
-            compiler: gcc
-            version: 13
-        - name: Build and install SCIP
-          run: |
-            export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
-            export SCIP_VERSION_FULL="${{ github.event.inputs.scip_version }}"
-            export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
-            export GCG_VERSION_FULL="${{ github.event.inputs.gcg_version }}"
-            export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-            export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
-            export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-            if [ "${{github.event.inputs.debug}}" = "true" ]; then
-                export BUILD_MODE=Debug
-            else
-                export BUILD_MODE=Release
-            fi
-            if [ "${{github.event.inputs.static}}" = "true" ]; then
-                export SHARED=OFF
-            else
-                export SHARED=ON
-            fi
-            
-            if [ "${{github.event.inputs.tests}}" = "true" ]; then
-                export TESTS=ON
-            fi
-
-            if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
-                export USE_CACHED_DEPENDENCIES=OFF
-            else
-                export USE_CACHED_DEPENDENCIES=ON
-            fi            
-            
-
-            tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C $GITHUB_WORKSPACE
-            bash -x .github/workflows/scripts/macos.bash
-
-        - uses: actions/upload-artifact@v4
-          with:
-            name: macos-intel
-            path: ${{ github.workspace }}/libscip-macos-intel.zip
-
-    linux-build-binaries:
         runs-on: ubuntu-latest
-        if: github.event.inputs.linux == 'true'
-        container: quay.io/pypa/manylinux_2_28_x86_64
+        steps:
+            - name: Print inputs
+              run: |
+                  echo "SCIP version: ${{github.event.inputs.scip_version}}"
+                  echo "GCG version: ${{github.event.inputs.gcg_version}}"
+                  echo "Soplex version: ${{github.event.inputs.soplex_version}}"
+                  echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
+                  echo "Debug?: ${{github.event.inputs.debug}}"
+                  echo "Static?: ${{github.event.inputs.static}}"
+                  echo "Use cached dependncies?: ${{github.event.inputs.use_cached_dependencies}}"
+
+    build:
+        strategy:
+            matrix:
+                os: ["windows"]
+                architecture: ["x86_64", "arm"]
+                gmp: [true]
+                exclude:
+                    - os: windows
+                      architecture: arm
+
+        runs-on: |
+            ${{ fromJson('{ "macos": { "arm": "macos-14", "x86_64": "macos-15-intel" }, "linux": { "arm": "ubuntu-24.04-arm", "x86_64": "ubuntu-latest" }, "windows": { "x86_64": "windows-latest" } }')[matrix.os][matrix.architecture] }}
+        container:
+            image: |
+                ${{ fromJson('{ "macos": { "arm": null, "x86_64": null }, "linux": { "arm": "quay.io/pypa/manylinux_2_28_aarch64", "x86_64": "quay.io/pypa/manylinux_2_28_x86_64" }, "windows": { "x86_64": null } }')[matrix.os][matrix.architecture] }}
+        defaults:
+            run:
+                shell: |
+                    ${{ fromJson('{ "macos": "bash", "linux": "bash", "windows": "msys2 {0}" }')[matrix.os] }}
         steps:
             - uses: actions/checkout@v4
+            - uses: msys2/setup-msys2@v2
+              with:
+                msystem: ucrt64
+              if: matrix.os == 'windows'
             - name: Build and install SCIP
               run: |
-                export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
-                export SCIP_VERSION_FULL="${{ github.event.inputs.scip_version }}"
-                export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
-                export GCG_VERSION_FULL="${{ github.event.inputs.gcg_version }}"
-                export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-                export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
-                export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                if [ "${{github.event.inputs.debug}}" = "true" ]; then
-                    export BUILD_MODE=Debug
-                else
-                    export BUILD_MODE=Release
-                fi
-                if [ "${{github.event.inputs.static}}" = "true" ]; then
-                    export SHARED=OFF
-                else
-                    export SHARED=ON
-                fi
+                  export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
+                  export SCIP_VERSION_FULL="${{ github.event.inputs.scip_version }}"
+                  export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
+                  export GCG_VERSION_FULL="${{ github.event.inputs.gcg_version }}"
+                  export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
+                  export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
+                  export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
 
-                if [ "${{github.event.inputs.tests}}" = "true" ]; then
-                    export TESTS=ON
-                fi
+                  export OS="${{matrix.os}}"
+                  export ARCHITECTURE="${{matrix.architecture}}"
+                  export GMP="${{matrix.gmp}}"
 
-                if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
-                    export USE_CACHED_DEPENDENCIES=OFF
-                else
-                    export USE_CACHED_DEPENDENCIES=ON
-                fi
+                  export FILENAME=libscip-$OS-$ARCHITECTURE-$GMP.zip
 
-                export ARM=OFF
+                  if [ "${{github.event.inputs.debug}}" = "true" ]; then
+                      export BUILD_MODE=Debug
+                  else
+                      export BUILD_MODE=Release
+                  fi
+                  if [ "${{github.event.inputs.static}}" = "true" ]; then
+                      export SHARED=OFF
+                  else
+                      export SHARED=ON
+                  fi
 
-                bash -x .github/workflows/scripts/linux.bash
+                  if [ "${{github.event.inputs.tests}}" = "true" ]; then
+                      export TESTS=ON
+                  fi
+
+                  if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
+                      export USE_CACHED_DEPENDENCIES=OFF
+                  else
+                      export USE_CACHED_DEPENDENCIES=ON
+                  fi 
+
+                  bash -x .github/workflows/scripts/${{ fromJson('{ "macos": { "arm": "macos_arm.bash", "x86_64": "macos.bash" }, "linux": { "arm": "linux.bash", "x86_64": "linux.bash" }, "windows": { "x86_64": "windows.bash" } }')[matrix.os][matrix.architecture] }}
+
             - uses: actions/upload-artifact@v4
               with:
-                name: linux
-                path: ${{ github.workspace }}/libscip-linux.zip
+                  name: ${{ matrix.os }}-${{ matrix.architecture }}-${{ matrix.gmp }} #TODO change
+                  path: ${{ github.workspace }}/libscip-${{ matrix.os }}-${{ matrix.architecture }}-${{ matrix.gmp }}.zip #TODO change
 
-    linux-arm-build-binaries:
-        runs-on: ubuntu-24.04-arm
-        if: github.event.inputs.linux == 'true'
-        container: quay.io/pypa/manylinux_2_28_aarch64
-        steps:
-            - uses: actions/checkout@v4
-            - name: Build and install SCIP
-              run: |
-                export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
-                export SCIP_VERSION_FULL="${{ github.event.inputs.scip_version }}"
-                export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
-                export GCG_VERSION_FULL="${{ github.event.inputs.gcg_version }}"
-                export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-                export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
-                export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                if [ "${{github.event.inputs.debug}}" = "true" ]; then
-                    export BUILD_MODE=Debug
-                else
-                    export BUILD_MODE=Release
-                fi
-                if [ "${{github.event.inputs.static}}" = "true" ]; then
-                    export SHARED=OFF
-                else
-                    export SHARED=ON
-                fi
-
-                if [ "${{github.event.inputs.tests}}" = "true" ]; then
-                    export TESTS=ON
-                fi
-
-                if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
-                    export USE_CACHED_DEPENDENCIES=OFF
-                else
-                    export USE_CACHED_DEPENDENCIES=ON
-                fi
-
-                export ARM=ON
-                bash -x .github/workflows/scripts/linux.bash
-            - uses: actions/upload-artifact@v4
-              with:
-                name: linux-arm
-                path: ${{ github.workspace }}/libscip-linux-arm.zip
-
-    windows-build-binaries:
-        runs-on: windows-latest
-        if: github.event.inputs.windows == 'true'
-        steps:
-          - uses: actions/checkout@v4
-          - uses: msys2/setup-msys2@v2
-
-          - name: Build and install SCIP
-            run:  |
-              export SCIP_VERSION=$(echo "${{github.event.inputs.scip_version}}" | tr -d '.')
-              export SCIP_VERSION_FULL="${{ github.event.inputs.scip_version }}"
-              export GCG_VERSION=$(echo "${{github.event.inputs.gcg_version}}" | tr -d '.')
-              export GCG_VERSION_FULL="${{ github.event.inputs.gcg_version }}"
-              export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
-              export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
-              export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-              if [ "${{github.event.inputs.debug}}" = "true" ]; then
-                  export BUILD_MODE=Debug
-              else
-                  export BUILD_MODE=Release
-              fi
-              if [ "${{github.event.inputs.static}}" = "true" ]; then
-                  export SHARED=OFF
-              else
-                  export SHARED=ON
-              fi
-
-              if [ "${{github.event.inputs.tests}}" = "true" ]; then
-                  export TESTS=ON
-              fi
-
-              if [ "${{github.event.inputs.use_cached_dependencies}}" = "true" ]; then
-                  export USE_CACHED_DEPENDENCIES=OFF
-              else
-                  export USE_CACHED_DEPENDENCIES=ON
-              fi
-              
-              bash -x .github/workflows/scripts/windows.bash
-            shell: msys2 {0}
-
-          - uses: actions/upload-artifact@v4
-            with:
-              name: windows
-              path: ${{ github.workspace }}/libscip-windows.zip
-
-    merge_artifacts:
-      name: Merge Artifacts
-      needs: [ windows-build-binaries, linux-build-binaries, linux-arm-build-binaries, macos-intel-build-binaries, macos-arm-build-binaries ]
-      runs-on: ubuntu-latest
-      steps:
-        - name: Merge Artifacts
-          uses: actions/upload-artifact/merge@v4

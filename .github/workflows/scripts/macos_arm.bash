@@ -1,5 +1,7 @@
 # Enable exit on error - script will stop if any command fails
-set -e
+#set -e
+
+tar -xvf .github/workflows/metis-dependency/metis-5.1.0.tar.gz -C ./
 
 rm -rf /usr/local/include/boost/*
 
@@ -28,11 +30,15 @@ with_metis_cflags=\"-I${GITHUB_WORKSPACE}/scip_install/include\"
 with_metis_lflags=\"-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis\"" > scip_install/share/config.site
 
 rm -f /usr/local/lib/libgmp*
-#wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
-#tar xvf gmp-6.3.0.tar.xz
-#cd gmp-6.3.0
-#./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
-#make install -j
+if [ "$GMP" = "true" ]; then
+    wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
+    tar xvf gmp-6.3.0.tar.xz
+    cd gmp-6.3.0
+    ./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
+    make -j$(nproc)
+    make check
+    make install
+fi
 
 cd $GITHUB_WORKSPACE
 mkdir $GITHUB_WORKSPACE/metis
@@ -68,7 +74,7 @@ unzip v$SOPLEX_VERSION_FULL.zip
 cd soplex-$SOPLEX_VERSION_FULL
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=$GMP -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j2
 if [ "$TESTS" = "ON" ]; then
     make test
@@ -81,7 +87,7 @@ unzip v$SCIP_VERSION_FULL.zip
 cd scip-$SCIP_VERSION_FULL
 mkdir build
 cd build
-cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=$GMP -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j2
 if [ "$TESTS" = "ON" ]; then
     make test
@@ -94,7 +100,7 @@ unzip v$GCG_VERSION_FULL.zip
 cd gcg-$GCG_VERSION_FULL
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=$GMP -DSYM=none -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j2
 if [ "$TESTS" = "ON" ]; then
     make test
@@ -102,4 +108,5 @@ fi
 make install
 
 cd $GITHUB_WORKSPACE
-zip -r $GITHUB_WORKSPACE/libscip-macos-arm.zip scip_install/lib scip_install/include scip_install/bin
+
+zip -r $GITHUB_WORKSPACE/$FILENAME scip_install/lib scip_install/include scip_install/bin
