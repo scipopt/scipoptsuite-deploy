@@ -1,0 +1,126 @@
+name: Create Release
+
+# Triggered when a release PR is merged to main (build_binaries.yml has changed).
+# Finds the matching successful Build Binaries run on the release-X.Y.Z branch,
+# downloads its artifacts, and publishes a GitHub release tagged on the merge commit.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build_binaries.yml'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read versions from workflow file
+        id: versions
+        run: |
+          file=".github/workflows/build_binaries.yml"
+          read_default() {
+              sed -n "/${1}:/,/default:/{s/.*default: \"\(.*\)\"/\1/p;}" "$file"
+          }
+          {
+              echo "scip=$(read_default scip_version)"
+              echo "soplex=$(read_default soplex_version)"
+              echo "gcg=$(read_default gcg_version)"
+              echo "ipopt=$(read_default ipopt_version)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Skip if a release for these versions already exists
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="SCIP ${{ steps.versions.outputs.scip }} SOPLEX ${{ steps.versions.outputs.soplex }} GCG ${{ steps.versions.outputs.gcg }} IPOPT ${{ steps.versions.outputs.ipopt }}"
+          if gh release list --json name --jq '.[].name' | grep -Fxq "$title"; then
+              echo "Release '$title' already exists; skipping."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+              echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Find the merged PR and its head commit
+        if: steps.check.outputs.skip != 'true'
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find the PR whose merge commit matches this push
+          pr_head=$(gh pr list --state merged --base main \
+              --json mergeCommit,headRefOid \
+              --jq ".[] | select(.mergeCommit.oid == \"$GITHUB_SHA\") | .headRefOid")
+          if [[ -z "$pr_head" ]]; then
+              echo "Error: could not find merged PR for commit $GITHUB_SHA"
+              exit 1
+          fi
+          echo "head_sha=$pr_head" >> "$GITHUB_OUTPUT"
+
+      - name: Find successful Build Binaries run for that commit
+        if: steps.check.outputs.skip != 'true'
+        id: run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          run_id=$(gh run list \
+              --workflow=build_binaries.yml \
+              --commit "${{ steps.pr.outputs.head_sha }}" \
+              --status success \
+              --limit 1 \
+              --json databaseId \
+              --jq '.[0].databaseId')
+          if [[ -z "$run_id" ]]; then
+              echo "Error: no successful Build Binaries run found for commit ${{ steps.pr.outputs.head_sha }}."
+              echo "Builds must complete successfully on the release branch before merging."
+              exit 1
+          fi
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Download artifacts from build run
+        if: steps.check.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh run download "${{ steps.run.outputs.run_id }}" --dir artifacts
+
+      - name: Compute next release tag
+        if: steps.check.outputs.skip != 'true'
+        id: tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          latest=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+          if [[ "$latest" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+              next="v${BASH_REMATCH[1]}.$((BASH_REMATCH[2] + 1)).0"
+          else
+              echo "Error: could not parse latest release tag '$latest' (expected vX.Y.Z)"
+              exit 1
+          fi
+          echo "tag=$next" >> "$GITHUB_OUTPUT"
+          echo "Next release tag: $next"
+
+      - name: Bundle merged-artifacts.zip
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          (cd artifacts/merged-artifacts && zip -r ../../merged-artifacts.zip .)
+
+      - name: Create GitHub release
+        if: steps.check.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="SCIP ${{ steps.versions.outputs.scip }} SOPLEX ${{ steps.versions.outputs.soplex }} GCG ${{ steps.versions.outputs.gcg }} IPOPT ${{ steps.versions.outputs.ipopt }}"
+          gh release create "${{ steps.tag.outputs.tag }}" \
+              --title "$title" \
+              --target "$GITHUB_SHA" \
+              artifacts/linux/libscip-linux.zip \
+              artifacts/linux-arm/libscip-linux-arm.zip \
+              artifacts/macos-intel/libscip-macos-intel.zip \
+              artifacts/macos-arm/libscip-macos-arm.zip \
+              artifacts/windows/libscip-windows.zip \
+              merged-artifacts.zip
