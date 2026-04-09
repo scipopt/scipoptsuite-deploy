@@ -46,22 +46,37 @@ jobs:
               echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Find latest successful Build Binaries run on release branch
+      - name: Find the merged PR and its head commit
+        if: steps.check.outputs.skip != 'true'
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find the PR whose merge commit matches this push
+          pr_head=$(gh pr list --state merged --base main \
+              --json mergeCommit,headRefOid \
+              --jq ".[] | select(.mergeCommit.oid == \"$GITHUB_SHA\") | .headRefOid")
+          if [[ -z "$pr_head" ]]; then
+              echo "Error: could not find merged PR for commit $GITHUB_SHA"
+              exit 1
+          fi
+          echo "head_sha=$pr_head" >> "$GITHUB_OUTPUT"
+
+      - name: Find successful Build Binaries run for that commit
         if: steps.check.outputs.skip != 'true'
         id: run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          branch="release-${{ steps.versions.outputs.scip }}"
           run_id=$(gh run list \
               --workflow=build_binaries.yml \
-              --branch "$branch" \
+              --commit "${{ steps.pr.outputs.head_sha }}" \
               --status success \
               --limit 1 \
               --json databaseId \
               --jq '.[0].databaseId')
           if [[ -z "$run_id" ]]; then
-              echo "Error: no successful Build Binaries run found on branch '$branch'."
+              echo "Error: no successful Build Binaries run found for commit ${{ steps.pr.outputs.head_sha }}."
               echo "Builds must complete successfully on the release branch before merging."
               exit 1
           fi
