@@ -46,24 +46,31 @@ jobs:
               echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Find the merged PR and its head commit
+      - name: Find the merged PR and check it's a release
         if: steps.check.outputs.skip != 'true'
         id: pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Find the PR whose merge commit matches this push
-          pr_head=$(gh pr list --state merged --base main \
-              --json mergeCommit,headRefOid \
-              --jq ".[] | select(.mergeCommit.oid == \"$GITHUB_SHA\") | .headRefOid")
+          read -r pr_head pr_branch < <(gh pr list --state merged --base main \
+              --json mergeCommit,headRefOid,headRefName \
+              --jq ".[] | select(.mergeCommit.oid == \"$GITHUB_SHA\") | \"\(.headRefOid) \(.headRefName)\"")
           if [[ -z "$pr_head" ]]; then
-              echo "Error: could not find merged PR for commit $GITHUB_SHA"
-              exit 1
+              echo "No merged PR found for commit $GITHUB_SHA; skipping."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
           fi
+          if [[ "$pr_branch" != release-* ]]; then
+              echo "PR branch '$pr_branch' is not a release branch; skipping."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
           echo "head_sha=$pr_head" >> "$GITHUB_OUTPUT"
 
       - name: Find successful Build Binaries run for that commit
-        if: steps.check.outputs.skip != 'true'
+        if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
         id: run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -83,13 +90,13 @@ jobs:
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
 
       - name: Download artifacts from build run
-        if: steps.check.outputs.skip != 'true'
+        if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh run download "${{ steps.run.outputs.run_id }}" --dir artifacts
 
       - name: Compute next release tag
-        if: steps.check.outputs.skip != 'true'
+        if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
         id: tag
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -105,12 +112,12 @@ jobs:
           echo "Next release tag: $next"
 
       - name: Bundle merged-artifacts.zip
-        if: steps.check.outputs.skip != 'true'
+        if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
         run: |
           (cd artifacts/merged-artifacts && zip -r ../../merged-artifacts.zip .)
 
       - name: Create GitHub release
-        if: steps.check.outputs.skip != 'true'
+        if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
