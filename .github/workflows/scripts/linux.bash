@@ -68,7 +68,8 @@ git clone https://github.com/coin-or-tools/ThirdParty-Mumps.git
 cd ThirdParty-Mumps
 ./get.Mumps
 ./configure --enable-shared=no --enable-static=yes --prefix=$GITHUB_WORKSPACE/scip_install
-make -j
+# serial: MUMPS Fortran module deps race under parallel make
+make -j1
 make install
 
 cd $GITHUB_WORKSPACE
