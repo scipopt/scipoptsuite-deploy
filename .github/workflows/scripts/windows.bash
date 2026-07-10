@@ -8,8 +8,6 @@ export PATH="/c/Program Files/CMake/bin:$PATH"
 # cmake can't auto-detect VS from the MSYS2 shell and the installed VS version
 # drifts (2022 vs 2026). Query vswhere and pass the exact generator + instance.
 VSWHERE="/c/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe"
-"$VSWHERE" -all -property installationPath || true
-cmake --help | grep -i "Visual Studio" || true
 VS_INSTANCE=$("$VSWHERE" -latest -property installationPath | tr -d '\r' | tr '\\' '/')
 VS_MAJOR=$("$VSWHERE" -latest -property installationVersion | tr -d '\r' | cut -d. -f1)
 case "$VS_MAJOR" in
