@@ -3,9 +3,12 @@ set -e
 
 pacman -S --noconfirm unzip git mingw-w64-x86_64-zlib zip mingw-w64-x86_64-boost
 
-# use the runner's native cmake (finds VS via vswhere), not the MSYS2 one
+# native cmake + point it straight at the VS install (MSYS2 bash hides
+# ProgramFiles(x86), so cmake's vswhere-based auto-detection can't find VS)
 export PATH="/c/Program Files/CMake/bin:$PATH"
-cmake --version
+export CMAKE_GENERATOR_INSTANCE="C:/Program Files/Microsoft Visual Studio/2022/Enterprise"
+which -a cmake || true
+"/c/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -property installationPath || echo "VSWHERE_FAILED"
 
 cd $GITHUB_WORKSPACE
 wget https://github.com/coin-or/Ipopt/releases/download/releases%2F$IPOPT_VERSION/Ipopt-$IPOPT_VERSION-win64-msvs2022-md.zip
