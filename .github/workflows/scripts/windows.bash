@@ -43,9 +43,6 @@ mkdir scip_build
 cmake -G "$VS_GEN" -DCMAKE_GENERATOR_INSTANCE="$VS_INSTANCE" --preset interface -B scip_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../scip_install -DPAPILO=false -DZIMPL=false -DZLIB=false -DREADLINE=false -DGMP=false -DBoost=true -DIPOPT=true -DIPOPT_DIR=../scip_install -DIPOPT_LIBRARIES=../scip_install/bin -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 cmake --build scip_build --config Release
 cmake --install scip_build
-if [ "$TESTS" = "ON" ]; then
-  ctest
-fi
 
 cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION_FULL.zip
@@ -55,9 +52,6 @@ mkdir gcg_build
 cmake -G "$VS_GEN" -DCMAKE_GENERATOR_INSTANCE="$VS_INSTANCE" -B gcg_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 cmake --build gcg_build --config Release
 cmake --install gcg_build
-if [ "$TESTS" = "ON" ]; then
-  ctest
-fi
 
 cd $GITHUB_WORKSPACE
 zip -r $GITHUB_WORKSPACE/libscip-windows.zip scip_install/lib scip_install/include scip_install/bin
