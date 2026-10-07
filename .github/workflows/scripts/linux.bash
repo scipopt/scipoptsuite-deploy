@@ -20,7 +20,7 @@ cd lapack
 mkdir build
 cd build
 cmake ..
-make -j
+make -j$(nproc)
 mv lib/libblas.a /usr/lib64/.
 
 cd $GITHUB_WORKSPACE
