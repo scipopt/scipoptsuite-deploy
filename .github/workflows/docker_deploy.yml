@@ -40,10 +40,9 @@ jobs:
     - name: Verify upstream .deb packages exist
       run: |
         VERSION="${{ steps.version.outputs.value }}"
-        TAG_NO_DOTS=$(echo "v${VERSION}" | tr -d '.')
-        BASE="https://github.com/scipopt/scip/releases/download/${TAG_NO_DOTS}"
-        for suffix in "Linux-debian.deb" "Linux-arm64.deb"; do
-          URL="${BASE}/SCIPOptSuite-${VERSION}-${suffix}"
+        BASE="https://github.com/scipopt/scip/releases/download/v${VERSION}"
+        for arch in amd64 aarch64; do
+          URL="${BASE}/scipoptsuite_${VERSION}-1+bookworm_${arch}.deb"
           echo "Checking ${URL}..."
           STATUS=$(curl -sL -o /dev/null -w "%{http_code}" "$URL")
           if [ "$STATUS" != "200" ] && [ "$STATUS" != "302" ]; then
