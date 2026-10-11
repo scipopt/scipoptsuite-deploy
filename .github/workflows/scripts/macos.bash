@@ -61,7 +61,7 @@ cd Ipopt-releases-$IPOPT_VERSION
 mkdir build
 cd build
 ../configure --prefix=$GITHUB_WORKSPACE/scip_install/ --disable-java --enable-shared=no --disable-sipopt --enable-static=yes --with-metis-cflags="-I${GITHUB_WORKSPACE}/scip_install/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis"
-make -j
+make -j$(sysctl -n hw.ncpu)
 if [ "$TESTS" = "ON" ]; then
     make test
 fi
@@ -75,7 +75,7 @@ cd soplex-$SOPLEX_VERSION_FULL
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-make -j
+make -j$(sysctl -n hw.ncpu)
 if [ "$TESTS" = "ON" ]; then
     make test
 fi
@@ -89,7 +89,7 @@ cd scip-$SCIP_VERSION_FULL
 mkdir build
 cd build
 cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 -DCMAKE_CXX_FLAGS=-DFlt_Rounds=0 -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-make -j
+make -j$(sysctl -n hw.ncpu)
 if [ "$TESTS" = "ON" ]; then
     make test
 fi
@@ -102,7 +102,7 @@ cd gcg-$GCG_VERSION_FULL
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-make -j
+make -j$(sysctl -n hw.ncpu)
 if [ "$TESTS" = "ON" ]; then
     make test
 fi
