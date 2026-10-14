@@ -22,7 +22,7 @@ enable_java=no
 enable_sipopt=no
 with_pic=yes
 with_metis_cflags=\"-I${GITHUB_WORKSPACE}/scip_install/include\"
-with_metis_lflags=\"-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis\"" > $GITHUB_WORKSPACE/scip_install/share/config.site
+with_metis_lflags=\"-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis -lGKlib\"" > $GITHUB_WORKSPACE/scip_install/share/config.site
 
 wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.bz2
 tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
@@ -37,10 +37,26 @@ rm -f /usr/local/lib/libgmp*
 #make install -j
 
 cd $GITHUB_WORKSPACE
-mkdir $GITHUB_WORKSPACE/metis
-cd $GITHUB_WORKSPACE/metis-5.1.0
+# METIS 5.1.0 writes one entry past adjncy/adjwgt in CreateCoarseGraph (scipopt/scip#211); 5.2.1 fixes it.
+# GKlib has no 5.2.1 tag, so pin the commit current at the METIS 5.2.1 release.
+# Both builds add -march=native under gcc, which would tie the library to the build machine.
+GKLIB_COMMIT=8bd6bad750b2b0d90800c632cf18e8ee93ad72d7
+wget https://github.com/KarypisLab/METIS/archive/refs/tags/v5.2.1.tar.gz
+tar -xvf v5.2.1.tar.gz
+wget https://github.com/KarypisLab/GKlib/archive/$GKLIB_COMMIT.tar.gz
+tar -xvf $GKLIB_COMMIT.tar.gz
+cd GKlib-$GKLIB_COMMIT
+sed -i '' 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
+sed -i '' 's/-march=native//' GKlibSystem.cmake
+# GKlib's Makefile passes cc (default gcc, i.e. Apple clang) as the compiler; it must match METIS'
+make config cc=/usr/local/bin/gcc-13 prefix=$GITHUB_WORKSPACE/scip_install/
+make
+make install
+
+cd $GITHUB_WORKSPACE/METIS-5.2.1
 sed -i '' 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_C_COMPILER=\/usr\/local\/bin\/gcc-13 -DCMAKE_CXX_COMPILER=\/usr\/local\/bin\/g++-13/' Makefile
-make config prefix=$GITHUB_WORKSPACE/scip_install/
+sed -i '' 's/-march=native//' conf/gkbuild.cmake
+make config prefix=$GITHUB_WORKSPACE/scip_install/ gklib_path=$GITHUB_WORKSPACE/scip_install/
 make
 make install
 
@@ -49,7 +65,7 @@ cd $GITHUB_WORKSPACE
 git clone https://github.com/coin-or-tools/ThirdParty-Mumps.git
 cd ThirdParty-Mumps
 ./get.Mumps
-./configure --enable-shared=no --enable-static=yes --prefix=$GITHUB_WORKSPACE/scip_install --with-metis-cflags="-I${GITHUB_WORKSPACE}/scip_install/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis"
+./configure --enable-shared=no --enable-static=yes --prefix=$GITHUB_WORKSPACE/scip_install --with-metis-cflags="-I${GITHUB_WORKSPACE}/scip_install/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis -lGKlib"
 make
 make install
 
@@ -60,7 +76,7 @@ unzip $IPOPT_VERSION.zip
 cd Ipopt-releases-$IPOPT_VERSION
 mkdir build
 cd build
-../configure --prefix=$GITHUB_WORKSPACE/scip_install/ --disable-java --enable-shared=no --disable-sipopt --enable-static=yes --with-metis-cflags="-I${GITHUB_WORKSPACE}/scip_install/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis"
+../configure --prefix=$GITHUB_WORKSPACE/scip_install/ --disable-java --enable-shared=no --disable-sipopt --enable-static=yes --with-metis-cflags="-I${GITHUB_WORKSPACE}/scip_install/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis -lGKlib"
 make -j$(sysctl -n hw.ncpu)
 if [ "$TESTS" = "ON" ]; then
     make test
