@@ -33,7 +33,7 @@ enable_java=no
 enable_sipopt=no
 with_pic=yes
 with_metis_cflags=\"-I${GITHUB_WORKSPACE}/metis/include/\"
-with_metis_lflags=\"-L${GITHUB_WORKSPACE}/metis/lib -lmetis -lm\"
+with_metis_lflags=\"-L${GITHUB_WORKSPACE}/metis/lib -lmetis -lGKlib -lm\"
 with_lapack_lflags=\"-llapack_pic -lblas -lgfortran -lm\"
 LT_LDFLAGS=-all-static
 LDFLAGS=-static" > $GITHUB_WORKSPACE/scip_install/share/config.site
@@ -45,21 +45,24 @@ LDFLAGS=-static" > $GITHUB_WORKSPACE/scip_install/share/config.site
 #make install -j
 
 cd $GITHUB_WORKSPACE
-wget https://github.com/KarypisLab/METIS/archive/refs/tags/v5.1.1-DistDGL-v0.5.tar.gz
-tar -xvf v5.1.1-DistDGL-v0.5.tar.gz
-wget https://github.com/KarypisLab/GKlib/archive/refs/tags/METIS-v5.1.1-DistDGL-0.5.tar.gz
-tar -xvf METIS-v5.1.1-DistDGL-0.5.tar.gz
+GKLIB_COMMIT=8bd6bad750b2b0d90800c632cf18e8ee93ad72d7  # GKlib has no 5.2.1 tag
+wget https://github.com/KarypisLab/METIS/archive/refs/tags/v5.2.1.tar.gz
+tar -xvf v5.2.1.tar.gz
+wget https://github.com/KarypisLab/GKlib/archive/$GKLIB_COMMIT.tar.gz
+tar -xvf $GKLIB_COMMIT.tar.gz
 mkdir $GITHUB_WORKSPACE/metis
-cd GKlib-METIS-v5.1.1-DistDGL-0.5
+cd GKlib-$GKLIB_COMMIT
 sed -i 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
-make config prefix=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
+sed -i 's/-march=native//' GKlibSystem.cmake  # portable binaries
+make config prefix=$GITHUB_WORKSPACE/metis
 make
 make install
 
 cd $GITHUB_WORKSPACE
-cd METIS-5.1.1-DistDGL-v0.5
+cd METIS-5.2.1
 sed -i 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
-make config prefix=$GITHUB_WORKSPACE/metis gklib_path=$GITHUB_WORKSPACE/GKlib-METIS-v5.1.1-DistDGL-0.5
+sed -i 's/-march=native//' conf/gkbuild.cmake
+make config prefix=$GITHUB_WORKSPACE/metis gklib_path=$GITHUB_WORKSPACE/metis
 make
 make install
 
