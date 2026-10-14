@@ -37,19 +37,15 @@ rm -f /usr/local/lib/libgmp*
 #make install -j
 
 cd $GITHUB_WORKSPACE
-# METIS 5.1.0 writes one entry past adjncy/adjwgt in CreateCoarseGraph (scipopt/scip#211); 5.2.1 fixes it.
-# GKlib has no 5.2.1 tag, so pin the commit current at the METIS 5.2.1 release.
-# Both builds add -march=native under gcc, which would tie the library to the build machine.
-GKLIB_COMMIT=8bd6bad750b2b0d90800c632cf18e8ee93ad72d7
+GKLIB_COMMIT=8bd6bad750b2b0d90800c632cf18e8ee93ad72d7  # GKlib has no 5.2.1 tag
 wget https://github.com/KarypisLab/METIS/archive/refs/tags/v5.2.1.tar.gz
 tar -xvf v5.2.1.tar.gz
 wget https://github.com/KarypisLab/GKlib/archive/$GKLIB_COMMIT.tar.gz
 tar -xvf $GKLIB_COMMIT.tar.gz
 cd GKlib-$GKLIB_COMMIT
 sed -i '' 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
-sed -i '' 's/-march=native//' GKlibSystem.cmake
-# GKlib's Makefile passes cc (default gcc, i.e. Apple clang) as the compiler; it must match METIS'
-make config cc=/usr/local/bin/gcc-13 prefix=$GITHUB_WORKSPACE/scip_install/
+sed -i '' 's/-march=native//' GKlibSystem.cmake  # portable binaries
+make config cc=/usr/local/bin/gcc-13 prefix=$GITHUB_WORKSPACE/scip_install/  # default is Apple clang
 make
 make install
 

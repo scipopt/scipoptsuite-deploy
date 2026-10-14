@@ -45,11 +45,7 @@ LDFLAGS=-static" > $GITHUB_WORKSPACE/scip_install/share/config.site
 #make install -j
 
 cd $GITHUB_WORKSPACE
-# METIS 5.1.1-DistDGL-v0.5 writes one entry past adjncy/adjwgt in CreateCoarseGraph,
-# which corrupts the heap during MUMPS orderings (scipopt/scip#211). 5.2.1 fixes it.
-# GKlib has no 5.2.1 tag, so pin the commit current at the METIS 5.2.1 release.
-# Both builds add -march=native under gcc, which would tie the library to the build machine.
-GKLIB_COMMIT=8bd6bad750b2b0d90800c632cf18e8ee93ad72d7
+GKLIB_COMMIT=8bd6bad750b2b0d90800c632cf18e8ee93ad72d7  # GKlib has no 5.2.1 tag
 wget https://github.com/KarypisLab/METIS/archive/refs/tags/v5.2.1.tar.gz
 tar -xvf v5.2.1.tar.gz
 wget https://github.com/KarypisLab/GKlib/archive/$GKLIB_COMMIT.tar.gz
@@ -57,7 +53,7 @@ tar -xvf $GKLIB_COMMIT.tar.gz
 mkdir $GITHUB_WORKSPACE/metis
 cd GKlib-$GKLIB_COMMIT
 sed -i 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
-sed -i 's/-march=native//' GKlibSystem.cmake
+sed -i 's/-march=native//' GKlibSystem.cmake  # portable binaries
 make config prefix=$GITHUB_WORKSPACE/metis
 make
 make install
