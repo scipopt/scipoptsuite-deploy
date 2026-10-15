@@ -85,7 +85,7 @@ cd ..
 
 EXACT_FLAGS=""
 SCIP_EXACT_FLAGS=""
-if [ "$BUILD_CONFIG" = "exact" ]; then
+if [ "$EXACT" = "ON" ]; then
     # Shared, not static: the LGPLv3 relinking requirement is met by shipping them as separate libraries.
     # CONFIG_SITE=/dev/null: scip_install/share/config.site forces static builds for every configure under that prefix.
     cd $GITHUB_WORKSPACE

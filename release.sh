@@ -136,10 +136,8 @@ git push -u origin "$BRANCH"
 echo "Creating pull request..."
 PR_URL=$(gh pr create --title "$MSG" --body "Automated release branch created by release.sh" --base main)
 
-echo "Triggering build workflows (release, debug, exact)..."
-for config in release debug exact; do
-    gh workflow run build_binaries.yml --ref "$BRANCH" -f build_config="$config"
-done
+echo "Triggering build workflow..."
+gh workflow run build_binaries.yml --ref "$BRANCH"
 
 echo ""
 echo "Done! Release branch '${BRANCH}' created and builds triggered."

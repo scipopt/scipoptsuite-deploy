@@ -32,7 +32,7 @@ mv scip_install/lib/ipopt.dll.lib scip_install/lib/ipopt.lib
 
 EXACT_FLAGS=""
 SCIP_EXACT_FLAGS=""
-if [ "$BUILD_CONFIG" = "exact" ]; then
+if [ "$EXACT" = "ON" ]; then
     # Same approach as ZIB's official Windows build: GMP and MPFR built with Visual Studio,
     # here via vcpkg, which is preinstalled on GitHub's Windows runners.
     VCPKG="$(cygpath -u "$VCPKG_INSTALLATION_ROOT")"

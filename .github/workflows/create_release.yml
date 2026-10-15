@@ -1,7 +1,7 @@
 name: Create Release
 
 # Triggered when a release PR is merged to main (build_binaries.yml has changed).
-# Finds the matching successful Build Binaries run on the release-X.Y.Z branch,
+# Finds the matching successful Build Binaries run (all build configs) on the release-X.Y.Z branch,
 # downloads its artifacts, and publishes a GitHub release tagged on the merge commit.
 
 on:
@@ -69,50 +69,43 @@ jobs:
           echo "skip=false" >> "$GITHUB_OUTPUT"
           echo "head_sha=$pr_head" >> "$GITHUB_OUTPUT"
 
-      - name: Find successful Build Binaries runs for that commit
+      - name: Find the successful Build Binaries run for that commit
         if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
         id: run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Runs are told apart by their run-name, "Build Binaries (<config>)".
-          find_run() {
-              gh run list \
+          # One run builds every config. Take the newest successful one that built the
+          # release config (it has merged-artifacts); runs that built only variants don't count.
+          for id in $(gh run list \
                   --workflow=build_binaries.yml \
                   --commit "${{ steps.pr.outputs.head_sha }}" \
                   --status success \
                   --limit 20 \
-                  --json databaseId,displayTitle \
-                  --jq "[.[] | select(.displayTitle == \"Build Binaries ($1)\")][0].databaseId // empty"
-          }
-          release_id=$(find_run release)
-          if [[ -z "$release_id" ]]; then
-              echo "Error: no successful release Build Binaries run found for commit ${{ steps.pr.outputs.head_sha }}."
-              echo "Builds must complete successfully on the release branch before merging."
-              exit 1
-          fi
-          echo "release=$release_id" >> "$GITHUB_OUTPUT"
-          # Variants are optional: a missing or failed variant must not block the release.
-          for config in debug exact; do
-              id=$(find_run "$config")
-              if [[ -n "$id" ]]; then
-                  echo "$config=$id" >> "$GITHUB_OUTPUT"
-              else
-                  echo "::warning::No successful $config build for this commit; releasing without it."
+                  --json databaseId --jq '.[].databaseId'); do
+              if gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id/artifacts" \
+                      --jq '.artifacts[].name' | grep -Fxq merged-artifacts; then
+                  echo "id=$id" >> "$GITHUB_OUTPUT"
+                  exit 0
               fi
           done
+          echo "Error: no successful Build Binaries run with the release build found for commit ${{ steps.pr.outputs.head_sha }}."
+          echo "Builds must complete successfully on the release branch before merging."
+          exit 1
 
-      - name: Download artifacts from build runs
+      - name: Download artifacts from the build run
         if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEBUG_RUN: ${{ steps.run.outputs.debug }}
-          EXACT_RUN: ${{ steps.run.outputs.exact }}
         run: |
-          gh run download "${{ steps.run.outputs.release }}" --dir artifacts
-          [[ -n "$DEBUG_RUN" ]] && gh run download "$DEBUG_RUN" --dir artifacts-debug
-          [[ -n "$EXACT_RUN" ]] && gh run download "$EXACT_RUN" --dir artifacts-exact
-          true
+          gh run download "${{ steps.run.outputs.id }}" --dir artifacts
+          # variants are optional: a failed one doesn't fail the run, it's just missing here
+          for config in debug exact; do
+              for platform in linux linux-arm macos-arm macos-intel windows; do
+                  [[ -f "artifacts/$platform-$config/libscip-$platform-$config.zip" ]] ||
+                      echo "::warning::No $config build for $platform; releasing without it."
+              done
+          done
 
       - name: Compute next release tag
         if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
@@ -142,7 +135,7 @@ jobs:
         run: |
           title="SCIP ${{ steps.versions.outputs.scip }} SOPLEX ${{ steps.versions.outputs.soplex }} GCG ${{ steps.versions.outputs.gcg }} IPOPT ${{ steps.versions.outputs.ipopt }}"
           # every per-platform zip from every downloaded run; merged-artifacts holds duplicates
-          mapfile -t zips < <(find artifacts* -name 'libscip-*.zip' -not -path '*/merged-artifacts/*' | sort)
+          mapfile -t zips < <(find artifacts -name 'libscip-*.zip' -not -path '*/merged-artifacts/*' | sort)
           printf 'Attaching %s\n' "${zips[@]}"
           gh release create "${{ steps.tag.outputs.tag }}" \
               --title "$title" \
