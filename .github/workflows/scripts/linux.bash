@@ -105,7 +105,9 @@ if [ "$BUILD_CONFIG" = "exact" ]; then
 
     export GMP_DIR=$GITHUB_WORKSPACE/scip_install
     export MPFR_DIR=$GITHUB_WORKSPACE/scip_install
-    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBOOST_ROOT=/usr/include/boost"
+    # CMake only accepts Boost's package file here; b2 installed it next to the Boost build above
+    BOOST_CMAKE_DIR=$(dirname "$(find /usr/include/boost -name BoostConfig.cmake | head -1)")
+    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR"
     SCIP_EXACT_FLAGS="-DEXACTSOLVE=on -DLPSEXACT=spx"
 fi
 

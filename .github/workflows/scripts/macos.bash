@@ -109,7 +109,11 @@ if [ "$BUILD_CONFIG" = "exact" ]; then
 
     export GMP_DIR=$GITHUB_WORKSPACE/scip_install
     export MPFR_DIR=$GITHUB_WORKSPACE/scip_install
-    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBOOST_ROOT=/usr/local"
+    # CMake only accepts Boost's package file, and the Boost headers downloaded above have none.
+    # Homebrew's Boost does; its link step may clash with those headers, but the package itself installs.
+    brew install boost || true
+    BOOST_CMAKE_DIR=$(ls -d "$(brew --prefix boost)"/lib/cmake/Boost-* | head -1)
+    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR"
     # libscip finds libgmp/libmpfr next to itself
     SCIP_EXACT_FLAGS="-DEXACTSOLVE=on -DLPSEXACT=spx -DCMAKE_INSTALL_RPATH=@loader_path"
 fi
@@ -118,6 +122,11 @@ cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
 unzip v$SOPLEX_VERSION_FULL.zip
 cd soplex-$SOPLEX_VERSION_FULL
+if [ "$BUILD_MODE" = "Debug" ]; then
+    # SoPlex's debug-only checks call isnan/isinf without std::, which GCC rejects on macOS
+    grep -rlE "(^|[^:a-zA-Z_])is(nan|inf)\(" src --include='*.h' --include='*.hpp' --include='*.cpp' | grep -v /external/ \
+        | xargs sed -i '' -E 's/(^|[^:a-zA-Z_])(isnan|isinf)\(/\1std::\2(/g'
+fi
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS
