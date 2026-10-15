@@ -8,9 +8,10 @@ rm -f /usr/lib64/libblas.*
 rm -rf /usr/include/boost
 mkdir /usr/include/boost
 
-wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz
-tar -xvf $GITHUB_WORKSPACE/boost_1_82_0.tar.gz
-cd boost_1_82_0
+# 1.86+: older Boost redefines numeric_limits<__float128>, which GCC 14's libstdc++ already defines
+wget https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.gz
+tar -xvf $GITHUB_WORKSPACE/boost_1_86_0.tar.gz
+cd boost_1_86_0
 ./bootstrap.sh --prefix=/usr/include/boost --with-libraries=program_options,serialization,iostreams,regex
 ./b2 --prefix=/usr/include/boost -j8 install
 cd ..
