@@ -70,7 +70,7 @@ on:
                 default: true
             build_config:
                 type: choice
-                description: "release: normal build. debug: assertions on. exact: exact rational solving with GMP/MPFR (Linux and macOS only)"
+                description: "release: normal build. debug: assertions on. exact: exact rational solving with GMP/MPFR"
                 required: true
                 default: release
                 options: [release, debug, exact]
@@ -266,7 +266,7 @@ jobs:
 
     windows-build-binaries:
         runs-on: windows-latest
-        if: github.event.inputs.windows == 'true' && github.event.inputs.build_config != 'exact'
+        if: github.event.inputs.windows == 'true'
         steps:
           - uses: actions/checkout@v4
           - uses: msys2/setup-msys2@v2
@@ -307,7 +307,7 @@ jobs:
     merge_artifacts:
       name: Merge Artifacts
       needs: [ windows-build-binaries, linux-build-binaries, linux-arm-build-binaries, macos-intel-build-binaries, macos-arm-build-binaries ]
-      # still merge when some platforms were skipped (e.g. Windows for exact)
+      # still merge when some platforms were skipped
       if: ${{ !cancelled() && !contains(needs.*.result, 'failure') }}
       runs-on: ubuntu-latest
       steps:

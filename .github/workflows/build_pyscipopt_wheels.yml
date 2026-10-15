@@ -60,8 +60,12 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                # exact has no Windows libraries yet
-                include: ${{ fromJSON(inputs.build_config == 'exact' && '[{"os":"ubuntu-22.04","arch":"x86_64"},{"os":"ubuntu-24.04-arm","arch":"aarch64"},{"os":"macos-14","arch":"arm64"},{"os":"macos-15-intel","arch":"x86_64"}]' || '[{"os":"ubuntu-22.04","arch":"x86_64"},{"os":"ubuntu-24.04-arm","arch":"aarch64"},{"os":"macos-14","arch":"arm64"},{"os":"macos-15-intel","arch":"x86_64"},{"os":"windows-latest","arch":"AMD64"}]') }}
+                include:
+                    - {os: ubuntu-22.04, arch: x86_64}
+                    - {os: ubuntu-24.04-arm, arch: aarch64}
+                    - {os: macos-14, arch: arm64}
+                    - {os: macos-15-intel, arch: x86_64}
+                    - {os: windows-latest, arch: AMD64}
         steps:
             # explicit: in a called workflow a bare checkout would fetch the caller's repo
             - uses: actions/checkout@v4
