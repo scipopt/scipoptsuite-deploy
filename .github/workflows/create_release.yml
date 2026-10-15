@@ -69,31 +69,50 @@ jobs:
           echo "skip=false" >> "$GITHUB_OUTPUT"
           echo "head_sha=$pr_head" >> "$GITHUB_OUTPUT"
 
-      - name: Find successful Build Binaries run for that commit
+      - name: Find successful Build Binaries runs for that commit
         if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
         id: run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          run_id=$(gh run list \
-              --workflow=build_binaries.yml \
-              --commit "${{ steps.pr.outputs.head_sha }}" \
-              --status success \
-              --limit 1 \
-              --json databaseId \
-              --jq '.[0].databaseId')
-          if [[ -z "$run_id" ]]; then
-              echo "Error: no successful Build Binaries run found for commit ${{ steps.pr.outputs.head_sha }}."
+          # Runs are told apart by their run-name, "Build Binaries (<config>)".
+          find_run() {
+              gh run list \
+                  --workflow=build_binaries.yml \
+                  --commit "${{ steps.pr.outputs.head_sha }}" \
+                  --status success \
+                  --limit 20 \
+                  --json databaseId,displayTitle \
+                  --jq "[.[] | select(.displayTitle == \"Build Binaries ($1)\")][0].databaseId // empty"
+          }
+          release_id=$(find_run release)
+          if [[ -z "$release_id" ]]; then
+              echo "Error: no successful release Build Binaries run found for commit ${{ steps.pr.outputs.head_sha }}."
               echo "Builds must complete successfully on the release branch before merging."
               exit 1
           fi
-          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "release=$release_id" >> "$GITHUB_OUTPUT"
+          # Variants are optional: a missing or failed variant must not block the release.
+          for config in debug exact; do
+              id=$(find_run "$config")
+              if [[ -n "$id" ]]; then
+                  echo "$config=$id" >> "$GITHUB_OUTPUT"
+              else
+                  echo "::warning::No successful $config build for this commit; releasing without it."
+              fi
+          done
 
-      - name: Download artifacts from build run
+      - name: Download artifacts from build runs
         if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh run download "${{ steps.run.outputs.run_id }}" --dir artifacts
+          DEBUG_RUN: ${{ steps.run.outputs.debug }}
+          EXACT_RUN: ${{ steps.run.outputs.exact }}
+        run: |
+          gh run download "${{ steps.run.outputs.release }}" --dir artifacts
+          [[ -n "$DEBUG_RUN" ]] && gh run download "$DEBUG_RUN" --dir artifacts-debug
+          [[ -n "$EXACT_RUN" ]] && gh run download "$EXACT_RUN" --dir artifacts-exact
+          true
 
       - name: Compute next release tag
         if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
@@ -122,12 +141,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           title="SCIP ${{ steps.versions.outputs.scip }} SOPLEX ${{ steps.versions.outputs.soplex }} GCG ${{ steps.versions.outputs.gcg }} IPOPT ${{ steps.versions.outputs.ipopt }}"
+          # every per-platform zip from every downloaded run; merged-artifacts holds duplicates
+          mapfile -t zips < <(find artifacts* -name 'libscip-*.zip' -not -path '*/merged-artifacts/*' | sort)
+          printf 'Attaching %s\n' "${zips[@]}"
           gh release create "${{ steps.tag.outputs.tag }}" \
               --title "$title" \
               --target "$GITHUB_SHA" \
-              artifacts/linux/libscip-linux.zip \
-              artifacts/linux-arm/libscip-linux-arm.zip \
-              artifacts/macos-intel/libscip-macos-intel.zip \
-              artifacts/macos-arm/libscip-macos-arm.zip \
-              artifacts/windows/libscip-windows.zip \
+              "${zips[@]}" \
               merged-artifacts.zip

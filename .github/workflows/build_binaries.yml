@@ -1,4 +1,5 @@
 name: Build Binaries
+run-name: Build Binaries (${{ github.event.inputs.build_config }})
 
 
 # Authors: 
@@ -67,11 +68,12 @@ on:
                 description: Build for Windows
                 required: false
                 default: true
-            debug:
-                type: boolean
-                description: Build in debug mode
-                required: false
-                default: false
+            build_config:
+                type: choice
+                description: "release: normal build. debug: assertions on. exact: exact rational solving with GMP/MPFR (Linux and macOS only)"
+                required: true
+                default: release
+                options: [release, debug, exact]
             tests:
                 type: boolean
                 description: Run tests
@@ -85,6 +87,12 @@ on:
                 description: Use cached dependencies
                 default: true
 
+env:
+    BUILD_CONFIG: ${{ github.event.inputs.build_config }}
+    BUILD_MODE: ${{ github.event.inputs.build_config == 'debug' && 'Debug' || 'Release' }}
+    # release artifacts keep their historical names; variants get a suffix so they never collide
+    SUFFIX: ${{ github.event.inputs.build_config != 'release' && format('-{0}', github.event.inputs.build_config) || '' }}
+
 jobs:
     print-inputs:
       runs-on: ubuntu-latest
@@ -95,7 +103,7 @@ jobs:
               echo "GCG version: ${{github.event.inputs.gcg_version}}"
               echo "Soplex version: ${{github.event.inputs.soplex_version}}"
               echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
-              echo "Debug?: ${{github.event.inputs.debug}}"
+              echo "Build config: ${{github.event.inputs.build_config}}"
               echo "Static?: ${{github.event.inputs.static}}"
               echo "Use cached dependncies?: ${{github.event.inputs.use_cached_dependencies}}"
 
@@ -113,11 +121,6 @@ jobs:
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                if [ "${{github.event.inputs.debug}}" = "true" ]; then
-                    export BUILD_MODE=Debug
-                else
-                    export BUILD_MODE=Release
-                fi
                 if [ "${{github.event.inputs.static}}" = "true" ]; then
                     export SHARED=OFF
                 else
@@ -138,8 +141,8 @@ jobs:
 
             - uses: actions/upload-artifact@v4
               with:
-                name: macos-arm
-                path: ${{ github.workspace }}/libscip-macos-arm.zip
+                name: macos-arm${{ env.SUFFIX }}
+                path: ${{ github.workspace }}/libscip-macos-arm${{ env.SUFFIX }}.zip
 
     macos-intel-build-binaries:
       runs-on: macos-15-intel
@@ -160,11 +163,6 @@ jobs:
             export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
             export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
             export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-            if [ "${{github.event.inputs.debug}}" = "true" ]; then
-                export BUILD_MODE=Debug
-            else
-                export BUILD_MODE=Release
-            fi
             if [ "${{github.event.inputs.static}}" = "true" ]; then
                 export SHARED=OFF
             else
@@ -186,8 +184,8 @@ jobs:
 
         - uses: actions/upload-artifact@v4
           with:
-            name: macos-intel
-            path: ${{ github.workspace }}/libscip-macos-intel.zip
+            name: macos-intel${{ env.SUFFIX }}
+            path: ${{ github.workspace }}/libscip-macos-intel${{ env.SUFFIX }}.zip
 
     linux-build-binaries:
         runs-on: ubuntu-latest
@@ -204,11 +202,6 @@ jobs:
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                if [ "${{github.event.inputs.debug}}" = "true" ]; then
-                    export BUILD_MODE=Debug
-                else
-                    export BUILD_MODE=Release
-                fi
                 if [ "${{github.event.inputs.static}}" = "true" ]; then
                     export SHARED=OFF
                 else
@@ -230,8 +223,8 @@ jobs:
                 bash -x .github/workflows/scripts/linux.bash
             - uses: actions/upload-artifact@v4
               with:
-                name: linux
-                path: ${{ github.workspace }}/libscip-linux.zip
+                name: linux${{ env.SUFFIX }}
+                path: ${{ github.workspace }}/libscip-linux${{ env.SUFFIX }}.zip
 
     linux-arm-build-binaries:
         runs-on: ubuntu-24.04-arm
@@ -248,11 +241,6 @@ jobs:
                 export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
                 export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
                 export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-                if [ "${{github.event.inputs.debug}}" = "true" ]; then
-                    export BUILD_MODE=Debug
-                else
-                    export BUILD_MODE=Release
-                fi
                 if [ "${{github.event.inputs.static}}" = "true" ]; then
                     export SHARED=OFF
                 else
@@ -273,12 +261,12 @@ jobs:
                 bash -x .github/workflows/scripts/linux.bash
             - uses: actions/upload-artifact@v4
               with:
-                name: linux-arm
-                path: ${{ github.workspace }}/libscip-linux-arm.zip
+                name: linux-arm${{ env.SUFFIX }}
+                path: ${{ github.workspace }}/libscip-linux-arm${{ env.SUFFIX }}.zip
 
     windows-build-binaries:
         runs-on: windows-latest
-        if: github.event.inputs.windows == 'true'
+        if: github.event.inputs.windows == 'true' && github.event.inputs.build_config != 'exact'
         steps:
           - uses: actions/checkout@v4
           - uses: msys2/setup-msys2@v2
@@ -292,11 +280,6 @@ jobs:
               export SOPLEX_VERSION=$(echo "${{github.event.inputs.soplex_version}}" | tr -d '.')
               export SOPLEX_VERSION_FULL="${{ github.event.inputs.soplex_version }}"
               export IPOPT_VERSION=${{ github.event.inputs.ipopt_version }}
-              if [ "${{github.event.inputs.debug}}" = "true" ]; then
-                  export BUILD_MODE=Debug
-              else
-                  export BUILD_MODE=Release
-              fi
               if [ "${{github.event.inputs.static}}" = "true" ]; then
                   export SHARED=OFF
               else
@@ -318,12 +301,14 @@ jobs:
 
           - uses: actions/upload-artifact@v4
             with:
-              name: windows
-              path: ${{ github.workspace }}/libscip-windows.zip
+              name: windows${{ env.SUFFIX }}
+              path: ${{ github.workspace }}/libscip-windows${{ env.SUFFIX }}.zip
 
     merge_artifacts:
       name: Merge Artifacts
       needs: [ windows-build-binaries, linux-build-binaries, linux-arm-build-binaries, macos-intel-build-binaries, macos-arm-build-binaries ]
+      # still merge when some platforms were skipped (e.g. Windows for exact)
+      if: ${{ !cancelled() && !contains(needs.*.result, 'failure') }}
       runs-on: ubuntu-latest
       steps:
         - name: Merge Artifacts
