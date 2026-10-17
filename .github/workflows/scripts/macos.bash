@@ -122,10 +122,10 @@ cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
 unzip v$SOPLEX_VERSION_FULL.zip
 cd soplex-$SOPLEX_VERSION_FULL
-if [ "$BUILD_MODE" = "Debug" ]; then
-    # SoPlex's debug-only checks call isnan/isinf without std::, which GCC rejects on macOS
-    grep -rlE "(^|[^:a-zA-Z_])is(nan|inf)\(" src --include='*.h' --include='*.hpp' --include='*.cpp' | grep -v /external/ \
-        | xargs sed -i '' -E 's/(^|[^:a-zA-Z_])(isnan|isinf)\(/\1std::\2(/g'
+# SoPlex 8.1.0 calls isnan/isinf unqualified in debug-only checks, which GCC on macOS rejects
+SOPLEX_PATCH=$GITHUB_WORKSPACE/.github/workflows/patches/soplex-$SOPLEX_VERSION_FULL-isnan.patch
+if [ -f "$SOPLEX_PATCH" ]; then
+    patch -p1 < "$SOPLEX_PATCH"
 fi
 mkdir build
 cd build

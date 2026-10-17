@@ -75,8 +75,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # One run builds every config. Take the newest successful one that built the
-          # release config (it has merged-artifacts); runs that built only variants don't count.
+          # One run builds every config; take the newest successful one.
           for id in $(gh run list \
                   --workflow=build_binaries.yml \
                   --commit "${{ steps.pr.outputs.head_sha }}" \
@@ -100,7 +99,7 @@ jobs:
         run: |
           gh run download "${{ steps.run.outputs.id }}" --dir artifacts
           # variants are optional: a failed one doesn't fail the run, it's just missing here
-          for config in debug exact; do
+          for config in debug exact exact-debug; do
               for platform in linux linux-arm macos-arm macos-intel windows; do
                   [[ -f "artifacts/$platform-$config/libscip-$platform-$config.zip" ]] ||
                       echo "::warning::No $config build for $platform; releasing without it."

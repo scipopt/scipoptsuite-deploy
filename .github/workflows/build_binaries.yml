@@ -67,23 +67,15 @@ on:
                 description: Build for Windows
                 required: false
                 default: true
-            # Each build config is independent: debug toggles assertions, exact toggles exact rational solving.
-            release:
-                type: boolean
-                description: "Build release (normal build)"
-                default: true
+            # Every combination of the two is built: release, plus debug, exact and exact-debug when checked.
             debug:
                 type: boolean
-                description: "Build debug (assertions on)"
+                description: "Also build with assertions on (debug)"
                 default: true
             exact:
                 type: boolean
-                description: "Build exact (exact rational solving with GMP/MPFR)"
+                description: "Also build with exact rational solving, using GMP/MPFR (exact)"
                 default: true
-            exact_debug:
-                type: boolean
-                description: "Build exact-debug (exact, with assertions on)"
-                default: false
             tests:
                 type: boolean
                 description: Run tests
@@ -100,8 +92,6 @@ on:
 jobs:
     print-inputs:
       runs-on: ubuntu-latest
-      outputs:
-          configs: ${{ steps.configs.outputs.configs }}
       steps:
           - name: Print inputs
             run: |
@@ -109,39 +99,27 @@ jobs:
               echo "GCG version: ${{github.event.inputs.gcg_version}}"
               echo "Soplex version: ${{github.event.inputs.soplex_version}}"
               echo "IPOPT version: ${{github.event.inputs.ipopt_version}}"
-              echo "Build configs: release=${{inputs.release}} debug=${{inputs.debug}} exact=${{inputs.exact}} exact_debug=${{inputs.exact_debug}}"
+              echo "Debug builds?: ${{inputs.debug}}"
+              echo "Exact builds?: ${{inputs.exact}}"
               echo "Static?: ${{github.event.inputs.static}}"
               echo "Use cached dependncies?: ${{github.event.inputs.use_cached_dependencies}}"
-          - name: Select build configs
-            id: configs
-            run: |
-              # release artifacts keep their historical names; the others get a suffix so they never collide
-              configs=()
-              [ "${{ inputs.release }}" = true ] && configs+=('{"name":"release","debug":false,"exact":false,"suffix":""}')
-              [ "${{ inputs.debug }}" = true ] && configs+=('{"name":"debug","debug":true,"exact":false,"suffix":"-debug"}')
-              [ "${{ inputs.exact }}" = true ] && configs+=('{"name":"exact","debug":false,"exact":true,"suffix":"-exact"}')
-              [ "${{ inputs.exact_debug }}" = true ] && configs+=('{"name":"exact-debug","debug":true,"exact":true,"suffix":"-exact-debug"}')
-              if [ ${#configs[@]} -eq 0 ]; then
-                  echo "::error::Select at least one build config."
-                  exit 1
-              fi
-              echo "configs=[$(IFS=,; echo "${configs[*]}")]" >> "$GITHUB_OUTPUT"
 
     macos-arm-build-binaries:
         runs-on: macos-14
         if: github.event.inputs.macos == 'true'
-        name: macOS ARM (${{ matrix.config.name }})
-        needs: print-inputs
+        name: macOS ARM${{ matrix.exact && ' exact' || '' }}${{ matrix.debug && ' debug' || '' }}
         strategy:
           fail-fast: false
           matrix:
-            config: ${{ fromJSON(needs.print-inputs.outputs.configs) }}
+            debug: ${{ fromJSON(inputs.debug && '[false, true]' || '[false]') }}
+            exact: ${{ fromJSON(inputs.exact && '[false, true]' || '[false]') }}
         # only the release build is required; a failed variant leaves the run green and is just not published
-        continue-on-error: ${{ matrix.config.name != 'release' }}
+        continue-on-error: ${{ matrix.debug || matrix.exact }}
         env:
-          BUILD_MODE: ${{ matrix.config.debug && 'Debug' || 'Release' }}
-          EXACT: ${{ matrix.config.exact && 'ON' || 'OFF' }}
-          SUFFIX: ${{ matrix.config.suffix }}
+          BUILD_MODE: ${{ matrix.debug && 'Debug' || 'Release' }}
+          EXACT: ${{ matrix.exact && 'ON' || 'OFF' }}
+          # release zips keep their historical names; the others get -exact, -debug or -exact-debug
+          SUFFIX: ${{ matrix.exact && '-exact' || '' }}${{ matrix.debug && '-debug' || '' }}
         steps:
             - uses: actions/checkout@v4
             - name: Build and install SCIP
@@ -173,24 +151,25 @@ jobs:
 
             - uses: actions/upload-artifact@v4
               with:
-                name: macos-arm${{ matrix.config.suffix }}
-                path: ${{ github.workspace }}/libscip-macos-arm${{ matrix.config.suffix }}.zip
+                name: macos-arm${{ env.SUFFIX }}
+                path: ${{ github.workspace }}/libscip-macos-arm${{ env.SUFFIX }}.zip
 
     macos-intel-build-binaries:
       runs-on: macos-15-intel
       if: github.event.inputs.macos == 'true'
-      name: macOS Intel (${{ matrix.config.name }})
-      needs: print-inputs
+      name: macOS Intel${{ matrix.exact && ' exact' || '' }}${{ matrix.debug && ' debug' || '' }}
       strategy:
         fail-fast: false
         matrix:
-          config: ${{ fromJSON(needs.print-inputs.outputs.configs) }}
+          debug: ${{ fromJSON(inputs.debug && '[false, true]' || '[false]') }}
+          exact: ${{ fromJSON(inputs.exact && '[false, true]' || '[false]') }}
       # only the release build is required; a failed variant leaves the run green and is just not published
-      continue-on-error: ${{ matrix.config.name != 'release' }}
+      continue-on-error: ${{ matrix.debug || matrix.exact }}
       env:
-        BUILD_MODE: ${{ matrix.config.debug && 'Debug' || 'Release' }}
-        EXACT: ${{ matrix.config.exact && 'ON' || 'OFF' }}
-        SUFFIX: ${{ matrix.config.suffix }}
+        BUILD_MODE: ${{ matrix.debug && 'Debug' || 'Release' }}
+        EXACT: ${{ matrix.exact && 'ON' || 'OFF' }}
+        # release zips keep their historical names; the others get -exact, -debug or -exact-debug
+        SUFFIX: ${{ matrix.exact && '-exact' || '' }}${{ matrix.debug && '-debug' || '' }}
       steps:
         - uses: actions/checkout@v4
         - uses: fortran-lang/setup-fortran@v1
@@ -228,24 +207,25 @@ jobs:
 
         - uses: actions/upload-artifact@v4
           with:
-            name: macos-intel${{ matrix.config.suffix }}
-            path: ${{ github.workspace }}/libscip-macos-intel${{ matrix.config.suffix }}.zip
+            name: macos-intel${{ env.SUFFIX }}
+            path: ${{ github.workspace }}/libscip-macos-intel${{ env.SUFFIX }}.zip
 
     linux-build-binaries:
         runs-on: ubuntu-latest
         if: github.event.inputs.linux == 'true'
-        name: Linux (${{ matrix.config.name }})
-        needs: print-inputs
+        name: Linux${{ matrix.exact && ' exact' || '' }}${{ matrix.debug && ' debug' || '' }}
         strategy:
           fail-fast: false
           matrix:
-            config: ${{ fromJSON(needs.print-inputs.outputs.configs) }}
+            debug: ${{ fromJSON(inputs.debug && '[false, true]' || '[false]') }}
+            exact: ${{ fromJSON(inputs.exact && '[false, true]' || '[false]') }}
         # only the release build is required; a failed variant leaves the run green and is just not published
-        continue-on-error: ${{ matrix.config.name != 'release' }}
+        continue-on-error: ${{ matrix.debug || matrix.exact }}
         env:
-          BUILD_MODE: ${{ matrix.config.debug && 'Debug' || 'Release' }}
-          EXACT: ${{ matrix.config.exact && 'ON' || 'OFF' }}
-          SUFFIX: ${{ matrix.config.suffix }}
+          BUILD_MODE: ${{ matrix.debug && 'Debug' || 'Release' }}
+          EXACT: ${{ matrix.exact && 'ON' || 'OFF' }}
+          # release zips keep their historical names; the others get -exact, -debug or -exact-debug
+          SUFFIX: ${{ matrix.exact && '-exact' || '' }}${{ matrix.debug && '-debug' || '' }}
         container: quay.io/pypa/manylinux_2_28_x86_64
         steps:
             - uses: actions/checkout@v4
@@ -279,24 +259,25 @@ jobs:
                 bash -x .github/workflows/scripts/linux.bash
             - uses: actions/upload-artifact@v4
               with:
-                name: linux${{ matrix.config.suffix }}
-                path: ${{ github.workspace }}/libscip-linux${{ matrix.config.suffix }}.zip
+                name: linux${{ env.SUFFIX }}
+                path: ${{ github.workspace }}/libscip-linux${{ env.SUFFIX }}.zip
 
     linux-arm-build-binaries:
         runs-on: ubuntu-24.04-arm
         if: github.event.inputs.linux == 'true'
-        name: Linux ARM (${{ matrix.config.name }})
-        needs: print-inputs
+        name: Linux ARM${{ matrix.exact && ' exact' || '' }}${{ matrix.debug && ' debug' || '' }}
         strategy:
           fail-fast: false
           matrix:
-            config: ${{ fromJSON(needs.print-inputs.outputs.configs) }}
+            debug: ${{ fromJSON(inputs.debug && '[false, true]' || '[false]') }}
+            exact: ${{ fromJSON(inputs.exact && '[false, true]' || '[false]') }}
         # only the release build is required; a failed variant leaves the run green and is just not published
-        continue-on-error: ${{ matrix.config.name != 'release' }}
+        continue-on-error: ${{ matrix.debug || matrix.exact }}
         env:
-          BUILD_MODE: ${{ matrix.config.debug && 'Debug' || 'Release' }}
-          EXACT: ${{ matrix.config.exact && 'ON' || 'OFF' }}
-          SUFFIX: ${{ matrix.config.suffix }}
+          BUILD_MODE: ${{ matrix.debug && 'Debug' || 'Release' }}
+          EXACT: ${{ matrix.exact && 'ON' || 'OFF' }}
+          # release zips keep their historical names; the others get -exact, -debug or -exact-debug
+          SUFFIX: ${{ matrix.exact && '-exact' || '' }}${{ matrix.debug && '-debug' || '' }}
         container: quay.io/pypa/manylinux_2_28_aarch64
         steps:
             - uses: actions/checkout@v4
@@ -329,24 +310,25 @@ jobs:
                 bash -x .github/workflows/scripts/linux.bash
             - uses: actions/upload-artifact@v4
               with:
-                name: linux-arm${{ matrix.config.suffix }}
-                path: ${{ github.workspace }}/libscip-linux-arm${{ matrix.config.suffix }}.zip
+                name: linux-arm${{ env.SUFFIX }}
+                path: ${{ github.workspace }}/libscip-linux-arm${{ env.SUFFIX }}.zip
 
     windows-build-binaries:
         runs-on: windows-latest
         if: github.event.inputs.windows == 'true'
-        name: Windows (${{ matrix.config.name }})
-        needs: print-inputs
+        name: Windows${{ matrix.exact && ' exact' || '' }}${{ matrix.debug && ' debug' || '' }}
         strategy:
           fail-fast: false
           matrix:
-            config: ${{ fromJSON(needs.print-inputs.outputs.configs) }}
+            debug: ${{ fromJSON(inputs.debug && '[false, true]' || '[false]') }}
+            exact: ${{ fromJSON(inputs.exact && '[false, true]' || '[false]') }}
         # only the release build is required; a failed variant leaves the run green and is just not published
-        continue-on-error: ${{ matrix.config.name != 'release' }}
+        continue-on-error: ${{ matrix.debug || matrix.exact }}
         env:
-          BUILD_MODE: ${{ matrix.config.debug && 'Debug' || 'Release' }}
-          EXACT: ${{ matrix.config.exact && 'ON' || 'OFF' }}
-          SUFFIX: ${{ matrix.config.suffix }}
+          BUILD_MODE: ${{ matrix.debug && 'Debug' || 'Release' }}
+          EXACT: ${{ matrix.exact && 'ON' || 'OFF' }}
+          # release zips keep their historical names; the others get -exact, -debug or -exact-debug
+          SUFFIX: ${{ matrix.exact && '-exact' || '' }}${{ matrix.debug && '-debug' || '' }}
         steps:
           - uses: actions/checkout@v4
           - uses: msys2/setup-msys2@v2
@@ -381,14 +363,14 @@ jobs:
 
           - uses: actions/upload-artifact@v4
             with:
-              name: windows${{ matrix.config.suffix }}
-              path: ${{ github.workspace }}/libscip-windows${{ matrix.config.suffix }}.zip
+              name: windows${{ env.SUFFIX }}
+              path: ${{ github.workspace }}/libscip-windows${{ env.SUFFIX }}.zip
 
     merge_artifacts:
       name: Merge Artifacts
       needs: [ windows-build-binaries, linux-build-binaries, linux-arm-build-binaries, macos-intel-build-binaries, macos-arm-build-binaries ]
       # merged-artifacts holds the release build only, as before
-      if: ${{ !cancelled() && inputs.release }}
+      if: ${{ !cancelled() }}
       runs-on: ubuntu-latest
       steps:
         - name: Merge Artifacts
