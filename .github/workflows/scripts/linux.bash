@@ -8,9 +8,10 @@ rm -f /usr/lib64/libblas.*
 rm -rf /usr/include/boost
 mkdir /usr/include/boost
 
-wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz
-tar -xvf $GITHUB_WORKSPACE/boost_1_82_0.tar.gz
-cd boost_1_82_0
+# 1.86+: older Boost redefines numeric_limits<__float128>, which GCC 14's libstdc++ already defines
+wget https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.gz
+tar -xvf $GITHUB_WORKSPACE/boost_1_86_0.tar.gz
+cd boost_1_86_0
 ./bootstrap.sh --prefix=/usr/include/boost --with-libraries=program_options,serialization,iostreams,regex
 ./b2 --prefix=/usr/include/boost -j8 install
 cd ..
@@ -37,12 +38,6 @@ with_metis_lflags=\"-L${GITHUB_WORKSPACE}/metis/lib -lmetis -lGKlib -lm\"
 with_lapack_lflags=\"-llapack_pic -lblas -lgfortran -lm\"
 LT_LDFLAGS=-all-static
 LDFLAGS=-static" > $GITHUB_WORKSPACE/scip_install/share/config.site
-
-#wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
-#tar xvf gmp-6.3.0.tar.xz
-#cd gmp-6.3.0
-#./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
-#make install -j
 
 cd $GITHUB_WORKSPACE
 GKLIB_COMMIT=8bd6bad750b2b0d90800c632cf18e8ee93ad72d7  # GKlib has no 5.2.1 tag
@@ -87,12 +82,43 @@ fi
 make install
 cd ..
 cd ..
+
+EXACT_FLAGS=""
+SCIP_EXACT_FLAGS=""
+if [ "$EXACT" = "ON" ]; then
+    # Shared, not static: the LGPLv3 relinking requirement is met by shipping them as separate libraries.
+    # CONFIG_SITE=/dev/null: scip_install/share/config.site forces static builds for every configure under that prefix.
+    cd $GITHUB_WORKSPACE
+    wget https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.bz2
+    tar -xf gmp-6.3.0.tar.bz2
+    cd gmp-6.3.0
+    CONFIG_SITE=/dev/null ./configure --prefix=$GITHUB_WORKSPACE/scip_install --enable-shared --disable-static --enable-cxx
+    make -j$(nproc)
+    make install
+
+    cd $GITHUB_WORKSPACE
+    wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.1.tar.bz2
+    tar -xf mpfr-4.2.1.tar.bz2
+    cd mpfr-4.2.1
+    CONFIG_SITE=/dev/null ./configure --prefix=$GITHUB_WORKSPACE/scip_install --enable-shared --disable-static --with-gmp=$GITHUB_WORKSPACE/scip_install
+    make -j$(nproc)
+    make install
+
+    export GMP_DIR=$GITHUB_WORKSPACE/scip_install
+    export MPFR_DIR=$GITHUB_WORKSPACE/scip_install
+    # CMake only accepts Boost's package file here; b2 installed it next to the Boost build above
+    BOOST_CMAKE_DIR=$(dirname "$(find /usr/include/boost -name BoostConfig.cmake | head -1)")
+    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR"
+    SCIP_EXACT_FLAGS="-DEXACTSOLVE=on -DLPSEXACT=spx"
+fi
+
+cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
 unzip v$SOPLEX_VERSION_FULL.zip
 cd soplex-$SOPLEX_VERSION_FULL
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DBOOST=true
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DPAPILO=false -DBOOST=true $EXACT_FLAGS
 make -j$(nproc)
 if [ "$TESTS" = "ON" ]; then
     make test
@@ -105,7 +131,7 @@ unzip v$SCIP_VERSION_FULL.zip
 cd scip-$SCIP_VERSION_FULL
 mkdir build
 cd build
-cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DTPI=tny -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DTPI=tny -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS $SCIP_EXACT_FLAGS
 make -j$(nproc)
 if [ "$TESTS" = "ON" ]; then
     make test
@@ -132,9 +158,9 @@ mv scip_install/lib64/* scip_install/lib/.
 
 # Detect architecture and set appropriate filename
 if [[ "$ARM" == "ON" ]]; then
-    FILENAME="libscip-linux-arm.zip"
+    FILENAME="libscip-linux-arm${SUFFIX}.zip"
 else
-    FILENAME="libscip-linux.zip"
+    FILENAME="libscip-linux${SUFFIX}.zip"
 fi
 
 zip -r $GITHUB_WORKSPACE/$FILENAME scip_install/lib scip_install/include scip_install/bin

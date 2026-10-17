@@ -1,0 +1,14 @@
+diff -ru a/src/soplex/spxdefines.h b/src/soplex/spxdefines.h
+--- a/src/soplex/spxdefines.h	2026-10-17 09:06:34
++++ b/src/soplex/spxdefines.h	2026-10-17 09:06:34
+@@ -87,6 +87,10 @@
+ 
+ namespace soplex
+ {
++// unqualified isnan/isinf are not guaranteed by <cmath>; this keeps ADL for non-std number types
++using std::isnan;
++using std::isinf;
++
+ // Overloaded EQ function
+ bool EQ(int a, int b);
+ 

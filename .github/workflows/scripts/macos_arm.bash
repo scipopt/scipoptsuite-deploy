@@ -28,11 +28,6 @@ with_metis_cflags=\"-I${GITHUB_WORKSPACE}/scip_install/include\"
 with_metis_lflags=\"-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis -lGKlib\"" > scip_install/share/config.site
 
 rm -f /usr/local/lib/libgmp*
-#wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
-#tar xvf gmp-6.3.0.tar.xz
-#cd gmp-6.3.0
-#./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
-#make install -j
 
 cd $GITHUB_WORKSPACE
 GKLIB_COMMIT=8bd6bad750b2b0d90800c632cf18e8ee93ad72d7  # GKlib has no 5.2.1 tag
@@ -74,13 +69,52 @@ if [ "$TESTS" = "ON" ]; then
 fi
 make install
 
+EXACT_FLAGS=""
+SCIP_EXACT_FLAGS=""
+if [ "$EXACT" = "ON" ]; then
+    # Shared, not static: the LGPLv3 relinking requirement is met by shipping them as separate libraries.
+    # CONFIG_SITE=/dev/null: scip_install/share/config.site forces static builds for every configure under that prefix.
+    cd $GITHUB_WORKSPACE
+    wget https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.bz2
+    tar -xf gmp-6.3.0.tar.bz2
+    cd gmp-6.3.0
+    CONFIG_SITE=/dev/null ./configure --prefix=$GITHUB_WORKSPACE/scip_install --enable-shared --disable-static --enable-cxx
+    make -j$(sysctl -n hw.ncpu)
+    make install
+
+    cd $GITHUB_WORKSPACE
+    wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.1.tar.bz2
+    tar -xf mpfr-4.2.1.tar.bz2
+    cd mpfr-4.2.1
+    CONFIG_SITE=/dev/null ./configure --prefix=$GITHUB_WORKSPACE/scip_install --enable-shared --disable-static --with-gmp=$GITHUB_WORKSPACE/scip_install
+    make -j$(sysctl -n hw.ncpu)
+    make install
+
+    # libtool records absolute install names, which break once consumers move the folder
+    # (PySCIPOpt moves it to src/scip). Rewrite to @rpath before SoPlex/SCIP link against them.
+    cd $GITHUB_WORKSPACE/scip_install/lib
+    for f in $(find . -maxdepth 1 -type f \( -name 'libgmp*.dylib' -o -name 'libmpfr*.dylib' \)); do
+        install_name_tool -id "@rpath/$(basename "$(otool -D "$f" | tail -1)")" "$f"
+        for dep in $(otool -L "$f" | awk 'NR>1 {print $1}' | grep "^$GITHUB_WORKSPACE/scip_install/lib/" || true); do
+            install_name_tool -change "$dep" "@rpath/$(basename "$dep")" "$f"
+        done
+        codesign --force --sign - "$f"
+    done
+
+    export GMP_DIR=$GITHUB_WORKSPACE/scip_install
+    export MPFR_DIR=$GITHUB_WORKSPACE/scip_install
+    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBOOST_ROOT=$(brew --prefix boost)"
+    # libscip finds libgmp/libmpfr next to itself
+    SCIP_EXACT_FLAGS="-DEXACTSOLVE=on -DLPSEXACT=spx -DCMAKE_INSTALL_RPATH=@loader_path"
+fi
+
 cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
 unzip v$SOPLEX_VERSION_FULL.zip
 cd soplex-$SOPLEX_VERSION_FULL
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS
 make -j2
 if [ "$TESTS" = "ON" ]; then
     make test
@@ -93,7 +127,7 @@ unzip v$SCIP_VERSION_FULL.zip
 cd scip-$SCIP_VERSION_FULL
 mkdir build
 cd build
-cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS $SCIP_EXACT_FLAGS
 make -j2
 if [ "$TESTS" = "ON" ]; then
     make test
@@ -114,4 +148,4 @@ fi
 make install
 
 cd $GITHUB_WORKSPACE
-zip -r $GITHUB_WORKSPACE/libscip-macos-arm.zip scip_install/lib scip_install/include scip_install/bin
+zip -r $GITHUB_WORKSPACE/libscip-macos-arm${SUFFIX}.zip scip_install/lib scip_install/include scip_install/bin
