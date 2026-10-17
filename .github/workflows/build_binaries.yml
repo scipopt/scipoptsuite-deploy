@@ -71,11 +71,11 @@ on:
             debug:
                 type: boolean
                 description: "Also build with assertions on (debug)"
-                default: true
+                default: false
             exact:
                 type: boolean
                 description: "Also build with exact rational solving, using GMP/MPFR (exact)"
-                default: true
+                default: false
             tests:
                 type: boolean
                 description: Run tests

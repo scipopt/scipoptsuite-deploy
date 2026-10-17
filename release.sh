@@ -137,7 +137,7 @@ echo "Creating pull request..."
 PR_URL=$(gh pr create --title "$MSG" --body "Automated release branch created by release.sh" --base main)
 
 echo "Triggering build workflow..."
-gh workflow run build_binaries.yml --ref "$BRANCH"
+gh workflow run build_binaries.yml --ref "$BRANCH" -f debug=true -f exact=true
 
 echo ""
 echo "Done! Release branch '${BRANCH}' created and builds triggered."
