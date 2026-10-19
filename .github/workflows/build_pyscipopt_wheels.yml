@@ -11,7 +11,8 @@ run-name: Build PySCIPOpt wheels (${{ inputs.build_config }}, ${{ inputs.pyscipo
 # Callable from other repos (PySCIPOpt keeps its own button) via workflow_call,
 # with `secrets: inherit` so the PyPI tokens stay in the calling repo.
 # Note: PySCIPOpt's Windows settings hardcode D:\a\PySCIPOpt\PySCIPOpt, so
-# Windows wheels only build when the caller is the PySCIPOpt repo.
+# Windows wheels only build when the caller is the PySCIPOpt repo; from anywhere
+# else that build may fail without blocking the upload of the other wheels.
 
 on:
     workflow_call:
@@ -66,6 +67,7 @@ jobs:
                     - {os: macos-14, arch: arm64}
                     - {os: macos-15-intel, arch: x86_64}
                     - {os: windows-latest, arch: AMD64}
+        continue-on-error: ${{ matrix.os == 'windows-latest' && github.repository != 'scipopt/PySCIPOpt' }}
         steps:
             # explicit: in a called workflow a bare checkout would fetch the caller's repo
             - uses: actions/checkout@v4
@@ -81,6 +83,8 @@ jobs:
               uses: pypa/cibuildwheel@v3.2.1
               env:
                   CIBW_ARCHS: ${{ matrix.arch }}
+                  # Linux builds run in a container that doesn't inherit the runner's env
+                  CIBW_ENVIRONMENT_PASS_LINUX: SCIP_DEPLOY_TAG SCIP_ARTIFACT_SUFFIX
                   CIBW_BEFORE_TEST: "pip install -r {project}/requirements/test.txt"
                   CIBW_TEST_COMMAND: "pytest {project}/tests"
 

@@ -86,29 +86,14 @@ cd ..
 EXACT_FLAGS=""
 SCIP_EXACT_FLAGS=""
 if [ "$EXACT" = "ON" ]; then
-    # Shared, not static: the LGPLv3 relinking requirement is met by shipping them as separate libraries.
-    # CONFIG_SITE=/dev/null: scip_install/share/config.site forces static builds for every configure under that prefix.
-    cd $GITHUB_WORKSPACE
-    wget https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.bz2
-    tar -xf gmp-6.3.0.tar.bz2
-    cd gmp-6.3.0
-    CONFIG_SITE=/dev/null ./configure --prefix=$GITHUB_WORKSPACE/scip_install --enable-shared --disable-static --enable-cxx
-    make -j$(nproc)
-    make install
-
-    cd $GITHUB_WORKSPACE
-    wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.1.tar.bz2
-    tar -xf mpfr-4.2.1.tar.bz2
-    cd mpfr-4.2.1
-    CONFIG_SITE=/dev/null ./configure --prefix=$GITHUB_WORKSPACE/scip_install --enable-shared --disable-static --with-gmp=$GITHUB_WORKSPACE/scip_install
-    make -j$(nproc)
-    make install
+    bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/build_gmp_mpfr.bash
 
     export GMP_DIR=$GITHUB_WORKSPACE/scip_install
     export MPFR_DIR=$GITHUB_WORKSPACE/scip_install
     # CMake only accepts Boost's package file here; b2 installed it next to the Boost build above
     BOOST_CMAKE_DIR=$(dirname "$(find /usr/include/boost -name BoostConfig.cmake | head -1)")
-    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR"
+    # libraries find libgmp/libmpfr next to themselves, executables in ../lib (lib64 is moved there below)
+    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR -DCMAKE_INSTALL_RPATH=\$ORIGIN;\$ORIGIN/../lib"
     SCIP_EXACT_FLAGS="-DEXACTSOLVE=on -DLPSEXACT=spx"
 fi
 

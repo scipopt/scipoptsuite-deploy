@@ -78,34 +78,7 @@ make install
 EXACT_FLAGS=""
 SCIP_EXACT_FLAGS=""
 if [ "$EXACT" = "ON" ]; then
-    # Shared, not static: the LGPLv3 relinking requirement is met by shipping them as separate libraries.
-    # CONFIG_SITE=/dev/null: scip_install/share/config.site forces static builds for every configure under that prefix.
-    cd $GITHUB_WORKSPACE
-    wget https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.bz2
-    tar -xf gmp-6.3.0.tar.bz2
-    cd gmp-6.3.0
-    CONFIG_SITE=/dev/null ./configure --prefix=$GITHUB_WORKSPACE/scip_install --enable-shared --disable-static --enable-cxx
-    make -j$(sysctl -n hw.ncpu)
-    make install
-
-    cd $GITHUB_WORKSPACE
-    wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.1.tar.bz2
-    tar -xf mpfr-4.2.1.tar.bz2
-    cd mpfr-4.2.1
-    CONFIG_SITE=/dev/null ./configure --prefix=$GITHUB_WORKSPACE/scip_install --enable-shared --disable-static --with-gmp=$GITHUB_WORKSPACE/scip_install
-    make -j$(sysctl -n hw.ncpu)
-    make install
-
-    # libtool records absolute install names, which break once consumers move the folder
-    # (PySCIPOpt moves it to src/scip). Rewrite to @rpath before SoPlex/SCIP link against them.
-    cd $GITHUB_WORKSPACE/scip_install/lib
-    for f in $(find . -maxdepth 1 -type f \( -name 'libgmp*.dylib' -o -name 'libmpfr*.dylib' \)); do
-        install_name_tool -id "@rpath/$(basename "$(otool -D "$f" | tail -1)")" "$f"
-        for dep in $(otool -L "$f" | awk 'NR>1 {print $1}' | grep "^$GITHUB_WORKSPACE/scip_install/lib/" || true); do
-            install_name_tool -change "$dep" "@rpath/$(basename "$dep")" "$f"
-        done
-        codesign --force --sign - "$f"
-    done
+    bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/build_gmp_mpfr.bash
 
     export GMP_DIR=$GITHUB_WORKSPACE/scip_install
     export MPFR_DIR=$GITHUB_WORKSPACE/scip_install
@@ -113,9 +86,9 @@ if [ "$EXACT" = "ON" ]; then
     # Homebrew's Boost does; its link step may clash with those headers, but the package itself installs.
     brew install boost || true
     BOOST_CMAKE_DIR=$(ls -d "$(brew --prefix boost)"/lib/cmake/Boost-* | head -1)
-    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR"
-    # libscip finds libgmp/libmpfr next to itself
-    SCIP_EXACT_FLAGS="-DEXACTSOLVE=on -DLPSEXACT=spx -DCMAKE_INSTALL_RPATH=@loader_path"
+    # libraries find libgmp/libmpfr next to themselves, executables in ../lib
+    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR -DCMAKE_INSTALL_RPATH=@loader_path;@loader_path/../lib"
+    SCIP_EXACT_FLAGS="-DEXACTSOLVE=on -DLPSEXACT=spx"
 fi
 
 cd $GITHUB_WORKSPACE
