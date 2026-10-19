@@ -136,5 +136,6 @@ if [ "$TESTS" = "ON" ]; then
 fi
 make install
 
+bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/relocatable_bin.bash
 cd ../..
 zip -r $GITHUB_WORKSPACE/libscip-macos-intel${SUFFIX}.zip scip_install/lib scip_install/include scip_install/bin

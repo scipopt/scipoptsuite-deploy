@@ -141,6 +141,8 @@ mkdir -p scip_install/lib
 rm -rf scip_install/lib64/cmake
 mv scip_install/lib64/* scip_install/lib/.
 
+bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/relocatable_bin.bash
+
 # Detect architecture and set appropriate filename
 if [[ "$ARM" == "ON" ]]; then
     FILENAME="libscip-linux-arm${SUFFIX}.zip"
