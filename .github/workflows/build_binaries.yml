@@ -67,14 +67,18 @@ on:
                 description: Build for Windows
                 required: false
                 default: true
+            # release is always built; these add debug, exact and exact-debug builds
             debug:
                 type: boolean
-                description: Build in debug mode
-                required: false
+                description: "Also build with assertions on (debug)"
+                default: false
+            exact:
+                type: boolean
+                description: "Also build with exact rational solving, using GMP/MPFR (exact)"
                 default: false
             tests:
                 type: boolean
-                description: Run tests
+                description: Run tests (release builds; debug/exact get a quick check)
                 default: true
             rebuild:
                 type: boolean
@@ -110,7 +114,7 @@ jobs:
 
     build-binaries:
       needs: setup
-      name: ${{ matrix.platform.name }}
+      name: ${{ matrix.platform.name }}${{ matrix.exact && ' exact' || '' }}${{ matrix.debug && ' debug' || '' }}
       runs-on: ${{ matrix.platform.os }}
       # none on macOS and Windows
       container:
@@ -122,15 +126,22 @@ jobs:
         fail-fast: false
         matrix:
           platform: ${{ fromJSON(needs.setup.outputs.platforms) }}
+          debug: ${{ fromJSON(inputs.debug && '[false, true]' || '[false]') }}
+          exact: ${{ fromJSON(inputs.exact && '[false, true]' || '[false]') }}
+      # a failed debug/exact build doesn't fail the run
+      continue-on-error: ${{ matrix.debug || matrix.exact }}
       env:
         SCIP_VERSION_FULL: ${{ inputs.scip_version }}
         SOPLEX_VERSION_FULL: ${{ inputs.soplex_version }}
         GCG_VERSION_FULL: ${{ inputs.gcg_version }}
         IPOPT_VERSION: ${{ inputs.ipopt_version }}
         SHARED: "ON"  # the static input is disabled above
-        BUILD_MODE: ${{ inputs.debug && 'Debug' || 'Release' }}
-        TESTS: ${{ inputs.tests && 'ON' || 'OFF' }}
-        ZIP: libscip-${{ matrix.platform.id }}.zip
+        BUILD_MODE: ${{ matrix.debug && 'Debug' || 'Release' }}
+        EXACT: ${{ matrix.exact && 'ON' || 'OFF' }}
+        # '', -exact, -debug or -exact-debug
+        SUFFIX: ${{ matrix.exact && '-exact' || '' }}${{ matrix.debug && '-debug' || '' }}
+        TESTS: ${{ inputs.tests && !matrix.debug && !matrix.exact && 'ON' || 'OFF' }}
+        ZIP: libscip-${{ matrix.platform.id }}${{ matrix.exact && '-exact' || '' }}${{ matrix.debug && '-debug' || '' }}.zip
       steps:
         - uses: actions/checkout@v4
 
@@ -140,7 +151,7 @@ jobs:
           if: ${{ !inputs.rebuild }}
           with:
             path: ${{ env.ZIP }}
-            key: ${{ env.ZIP }}-${{ env.BUILD_MODE }}-scip${{ env.SCIP_VERSION_FULL }}-soplex${{ env.SOPLEX_VERSION_FULL }}-gcg${{ env.GCG_VERSION_FULL }}-ipopt${{ env.IPOPT_VERSION }}-tests${{ env.TESTS }}-${{ hashFiles(format('.github/workflows/scripts/{0}', matrix.platform.script), format('.github/workflows/scripts/deps/{0}', matrix.platform.script), '.github/workflows/scripts/build_suite.bash') }}
+            key: ${{ env.ZIP }}-scip${{ env.SCIP_VERSION_FULL }}-soplex${{ env.SOPLEX_VERSION_FULL }}-gcg${{ env.GCG_VERSION_FULL }}-ipopt${{ env.IPOPT_VERSION }}-tests${{ env.TESTS }}-${{ hashFiles(format('.github/workflows/scripts/{0}', matrix.platform.script), format('.github/workflows/scripts/deps/{0}', matrix.platform.script), '.github/workflows/scripts/build_suite.bash', '.github/workflows/scripts/build_gmp_mpfr.bash', '.github/workflows/patches/**') }}
 
         # deps.tar: MUMPS, Ipopt, METIS (and Boost, LAPACK on Linux), see scripts/deps
         - uses: actions/cache/restore@v4
@@ -170,15 +181,28 @@ jobs:
             path: deps.tar
             key: ${{ steps.deps.outputs.cache-primary-key }}
 
+        # debug/exact skip the test suites; check that scip runs and solves a small problem
+        - name: Quick check
+          if: steps.zip.outputs.cache-hit != 'true' && env.TESTS == 'OFF'
+          run: |
+            exact=""
+            if [ "$EXACT" = "ON" ]; then exact="set exact enable TRUE"; fi
+            scip_install/bin/scip -c "$exact read scip-$SCIP_VERSION_FULL/check/instances/MIP/flugpl.mps optimize quit" | tee scip.log
+            grep -q "optimal solution found" scip.log
+
         - uses: actions/upload-artifact@v4
           with:
-            name: ${{ matrix.platform.id }}
+            name: ${{ matrix.platform.id }}${{ env.SUFFIX }}
             path: ${{ github.workspace }}/${{ env.ZIP }}
 
     merge_artifacts:
       name: Merge Artifacts
       needs: build-binaries
+      # release builds only
+      if: ${{ !cancelled() }}
       runs-on: ubuntu-latest
       steps:
         - name: Merge Artifacts
           uses: actions/upload-artifact/merge@v4
+          with:
+            pattern: "{linux,linux-arm,macos-arm,macos-intel,windows}"

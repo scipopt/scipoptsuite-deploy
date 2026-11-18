@@ -1,6 +1,10 @@
 # Enable exit on error - script will stop if any command fails
 set -e
 
+# Visual Studio ignores CMAKE_BUILD_TYPE, so the builds below pass --config.
+# Debug keeps the release C runtime: the debug one can't be redistributed.
+RUNTIME_FLAGS="-DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL"
+
 pacman -S --noconfirm unzip git mingw-w64-x86_64-zlib zip mingw-w64-x86_64-boost
 
 export PATH="/c/Program Files/CMake/bin:$PATH"
@@ -24,14 +28,31 @@ unzip Ipopt-$IPOPT_VERSION-win64-msvs2022-md.zip
 mv Ipopt-$IPOPT_VERSION-win64-msvs2022-md/ scip_install
 mv scip_install/lib/ipopt.dll.lib scip_install/lib/ipopt.lib
 
+EXACT_FLAGS=""
+if [ "$EXACT" = "ON" ]; then
+    # vcpkg is preinstalled on the runners; ZIB's Windows build also uses MSVC-built GMP/MPFR
+    VCPKG="$(cygpath -u "$VCPKG_INSTALLATION_ROOT")"
+    "$VCPKG/vcpkg.exe" install gmp mpfr boost-multiprecision --triplet x64-windows
+    DEPS="$(cygpath -m "$VCPKG/installed/x64-windows")"
+    export GMP_DIR="$DEPS"
+    export MPFR_DIR="$DEPS"
+    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost=true -DBOOST_ROOT=$DEPS -DEXACTSOLVE=on -DLPSEXACT=spx"
+
+    # ship them in the zip
+    mkdir -p scip_install/bin scip_install/lib scip_install/include
+    cp "$VCPKG"/installed/x64-windows/bin/{gmp,mpfr}*.dll scip_install/bin/
+    cp "$VCPKG"/installed/x64-windows/lib/{gmp,mpfr}*.lib scip_install/lib/
+    cp "$VCPKG"/installed/x64-windows/include/{gmp,mpfr}*.h scip_install/include/
+fi
+
 cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
 unzip v$SOPLEX_VERSION_FULL.zip
 cd soplex-$SOPLEX_VERSION_FULL
 mkdir soplex_build
-cmake -G "$VS_GEN" -DCMAKE_GENERATOR_INSTANCE="$VS_INSTANCE" -B soplex_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=Release -DBoost=true -DPAPILO=false -DGMP=false -DZLIB=false -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-cmake --build soplex_build --config Release
-cmake --install soplex_build
+cmake -G "$VS_GEN" -DCMAKE_GENERATOR_INSTANCE="$VS_INSTANCE" -B soplex_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DBoost=true -DPAPILO=false -DGMP=false -DZLIB=false -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $RUNTIME_FLAGS $EXACT_FLAGS
+cmake --build soplex_build --config $BUILD_MODE
+cmake --install soplex_build --config $BUILD_MODE
 
 
 cd $GITHUB_WORKSPACE
@@ -39,18 +60,18 @@ wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION_FULL.zip
 unzip v$SCIP_VERSION_FULL.zip
 cd scip-$SCIP_VERSION_FULL
 mkdir scip_build
-cmake -G "$VS_GEN" -DCMAKE_GENERATOR_INSTANCE="$VS_INSTANCE" --preset interface -B scip_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../scip_install -DPAPILO=false -DZIMPL=false -DZLIB=false -DREADLINE=false -DGMP=false -DBoost=true -DIPOPT=true -DIPOPT_DIR=../scip_install -DIPOPT_LIBRARIES=../scip_install/bin -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-cmake --build scip_build --config Release
-cmake --install scip_build
+cmake -G "$VS_GEN" -DCMAKE_GENERATOR_INSTANCE="$VS_INSTANCE" --preset interface -B scip_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../scip_install -DPAPILO=false -DZIMPL=false -DZLIB=false -DREADLINE=false -DGMP=false -DBoost=true -DIPOPT=true -DIPOPT_DIR=../scip_install -DIPOPT_LIBRARIES=../scip_install/bin -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $RUNTIME_FLAGS $EXACT_FLAGS
+cmake --build scip_build --config $BUILD_MODE
+cmake --install scip_build --config $BUILD_MODE
 
 cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION_FULL.zip
 unzip v$GCG_VERSION_FULL.zip
 cd gcg-$GCG_VERSION_FULL
 mkdir gcg_build
-cmake -G "$VS_GEN" -DCMAKE_GENERATOR_INSTANCE="$VS_INSTANCE" -B gcg_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-cmake --build gcg_build --config Release
-cmake --install gcg_build
+cmake -G "$VS_GEN" -DCMAKE_GENERATOR_INSTANCE="$VS_INSTANCE" -B gcg_build -DCMAKE_INSTALL_PREFIX=../scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $RUNTIME_FLAGS
+cmake --build gcg_build --config $BUILD_MODE
+cmake --install gcg_build --config $BUILD_MODE
 
 cd $GITHUB_WORKSPACE
 zip -r $GITHUB_WORKSPACE/$ZIP scip_install/lib scip_install/include scip_install/bin
