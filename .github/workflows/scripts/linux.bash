@@ -104,7 +104,9 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DPAPILO=false -DBOOST=true $EXACT_FLAGS
 make -j$(nproc)
 if [ "$TESTS" = "ON" ]; then
-    ctest -j$(nproc) --output-on-failure
+    # examples rebuild libscip, so they run one at a time
+    ctest -j$(nproc) --output-on-failure -E "^examples-"
+    ctest --output-on-failure -R "^examples-"
 fi
 make install
 
@@ -117,7 +119,9 @@ cd build
 cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DTPI=tny -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS
 make -j$(nproc)
 if [ "$TESTS" = "ON" ]; then
-    ctest -j$(nproc) --output-on-failure
+    # examples rebuild libscip, so they run one at a time
+    ctest -j$(nproc) --output-on-failure -E "^examples-"
+    ctest --output-on-failure -R "^examples-"
 fi
 make install
 
@@ -130,7 +134,9 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DSHARED=$SHARED -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j$(nproc)
 if [ "$TESTS" = "ON" ]; then
-    ctest -j$(nproc) --output-on-failure
+    # examples rebuild libscip, so they run one at a time
+    ctest -j$(nproc) --output-on-failure -E "^examples-"
+    ctest --output-on-failure -R "^examples-"
 fi
 make install
 
