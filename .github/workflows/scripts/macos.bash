@@ -91,18 +91,20 @@ if [ "$EXACT" = "ON" ]; then
     SCIP_EXACT_FLAGS="-DEXACTSOLVE=on -DLPSEXACT=spx"
 fi
 
+# SoPlex and SCIP call isnan/isinf/isfinite unqualified in debug-only checks, which GCC on macOS
+# rejects (upstream bug); the header makes the std:: versions visible. See the header for details.
+CMATH_FIX=""
+if [ "$BUILD_MODE" = "Debug" ]; then
+    CMATH_FIX="-include $GITHUB_WORKSPACE/.github/workflows/patches/macos_gcc_cmath.h"
+fi
+
 cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
 unzip v$SOPLEX_VERSION_FULL.zip
 cd soplex-$SOPLEX_VERSION_FULL
-# SoPlex 8.1.0 calls isnan/isinf unqualified in debug-only checks, which GCC on macOS rejects
-SOPLEX_PATCH=$GITHUB_WORKSPACE/.github/workflows/patches/soplex-$SOPLEX_VERSION_FULL-isnan.patch
-if [ -f "$SOPLEX_PATCH" ]; then
-    patch -p1 < "$SOPLEX_PATCH"
-fi
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS
+cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 "-DCMAKE_CXX_FLAGS=$CMATH_FIX" -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS
 make -j$(sysctl -n hw.ncpu)
 if [ "$TESTS" = "ON" ]; then
     make test
@@ -116,7 +118,7 @@ unzip v$SCIP_VERSION_FULL.zip
 cd scip-$SCIP_VERSION_FULL
 mkdir build
 cd build
-cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 -DCMAKE_CXX_FLAGS=-DFlt_Rounds=0 -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS $SCIP_EXACT_FLAGS
+cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 "-DCMAKE_CXX_FLAGS=-DFlt_Rounds=0 $CMATH_FIX" -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS $SCIP_EXACT_FLAGS
 make -j$(sysctl -n hw.ncpu)
 if [ "$TESTS" = "ON" ]; then
     make test

@@ -111,8 +111,10 @@ jobs:
           # variants are optional: a failed one doesn't fail the run, it's just missing here
           for config in debug exact exact-debug; do
               for platform in linux linux-arm macos-arm macos-intel windows; do
-                  [[ -f "artifacts/$platform-$config/libscip-$platform-$config.zip" ]] ||
+                  if [[ ! -f "artifacts/$platform-$config/libscip-$platform-$config.zip" ]]; then
                       echo "::warning::No $config build for $platform; releasing without it."
+                      echo "- \`libscip-$platform-$config.zip\`" >> missing.md
+                  fi
               done
           done
 
@@ -146,8 +148,13 @@ jobs:
           # every per-platform zip from every downloaded run; merged-artifacts holds duplicates
           mapfile -t zips < <(find artifacts -name 'libscip-*.zip' -not -path '*/merged-artifacts/*' | sort)
           printf 'Attaching %s\n' "${zips[@]}"
+          notes=""
+          if [[ -s missing.md ]]; then
+              notes="These debug/exact builds failed and are not in this release:"$'\n\n'"$(cat missing.md)"
+          fi
           gh release create "${{ steps.tag.outputs.tag }}" \
               --title "$title" \
+              --notes "$notes" \
               --target "$GITHUB_SHA" \
               "${zips[@]}" \
               merged-artifacts.zip
