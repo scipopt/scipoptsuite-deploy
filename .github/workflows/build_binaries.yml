@@ -121,7 +121,7 @@ jobs:
                   {id: "linux",       name: "Linux",       os: "ubuntu-latest",    container: "quay.io/pypa/manylinux_2_28_x86_64",  shell: "bash",      script: "linux.bash",     enabled: $linux},
                   {id: "linux-arm",   name: "Linux ARM",   os: "ubuntu-24.04-arm", container: "quay.io/pypa/manylinux_2_28_aarch64", shell: "bash",      script: "linux.bash",     enabled: $linux},
                   {id: "macos-intel", name: "macOS Intel", os: "macos-15-intel",   container: null,                                  shell: "bash",      script: "macos.bash",     enabled: $macos},
-                  {id: "macos-arm",   name: "macOS ARM",   os: "macos-14",         container: null,                                  shell: "bash",      script: "macos_arm.bash", enabled: $macos},
+                  {id: "macos-arm",   name: "macOS ARM",   os: "macos-15",         container: null,                                  shell: "bash",      script: "macos_arm.bash", enabled: $macos},
                   {id: "windows",     name: "Windows",     os: "windows-latest",   container: null,                                  shell: "msys2 {0}", script: "windows.bash",   enabled: $windows}
                 ] | map(select(.enabled))')
               echo "$platforms"
