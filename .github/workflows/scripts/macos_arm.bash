@@ -5,7 +5,6 @@ rm -rf /usr/local/include/boost/*
 
 brew install boost
 export MACOSX_DEPLOYMENT_TARGET=14.0
-export DEVELOPER_DIR=/Applications/Xcode_15.0.1.app/Contents/Developer
 brew reinstall gcc
 export FC=/opt/homebrew/bin/gfortran
 export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
@@ -16,8 +15,6 @@ gfortran --version || echo "gfortran command not working"
 # tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
 # mv $GITHUB_WORKSPACE/boost_1_82_0/boost /usr/local/include/boost
 
-wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/$IPOPT_VERSION.zip
-unzip $IPOPT_VERSION.zip
 mkdir scip_install
 mkdir scip_install/share
 echo "enable_shared=no
@@ -28,51 +25,17 @@ with_metis_cflags=\"-I${GITHUB_WORKSPACE}/scip_install/include\"
 with_metis_lflags=\"-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis -lGKlib\"" > scip_install/share/config.site
 
 rm -f /usr/local/lib/libgmp*
-#wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
-#tar xvf gmp-6.3.0.tar.xz
-#cd gmp-6.3.0
-#./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
-#make install -j
 
-cd $GITHUB_WORKSPACE
-GKLIB_COMMIT=8bd6bad750b2b0d90800c632cf18e8ee93ad72d7  # GKlib has no 5.2.1 tag
-wget https://github.com/KarypisLab/METIS/archive/refs/tags/v5.2.1.tar.gz
-tar -xvf v5.2.1.tar.gz
-wget https://github.com/KarypisLab/GKlib/archive/$GKLIB_COMMIT.tar.gz
-tar -xvf $GKLIB_COMMIT.tar.gz
-cd GKlib-$GKLIB_COMMIT
-sed -i '' 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
-sed -i '' 's/-march=native//' GKlibSystem.cmake  # portable binaries
-make config prefix=$GITHUB_WORKSPACE/scip_install/
-make
-make install
-
-cd $GITHUB_WORKSPACE/METIS-5.2.1
-sed -i '' 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
-sed -i '' 's/-march=native//' conf/gkbuild.cmake
-make config prefix=$GITHUB_WORKSPACE/scip_install/ gklib_path=$GITHUB_WORKSPACE/scip_install/
-make
-make install
-
-cd $GITHUB_WORKSPACE
-git clone https://github.com/coin-or-tools/ThirdParty-Mumps.git
-cd ThirdParty-Mumps
-./get.Mumps
-./configure --enable-shared=no --enable-static=yes --prefix=$GITHUB_WORKSPACE/scip_install --with-metis-cflags="-I${GITHUB_WORKSPACE}/scip_install/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis -lGKlib"
-make
-make install
-
-
-cd $GITHUB_WORKSPACE
-cd Ipopt-releases-$IPOPT_VERSION
-mkdir build
-cd build
-../configure --prefix=$GITHUB_WORKSPACE/scip_install/ --disable-java --enable-shared=no --disable-sipopt --enable-static=yes --with-metis-cflags="-I${GITHUB_WORKSPACE}/scip_install/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis -lGKlib"
-make -j2
-if [ "$TESTS" = "ON" ]; then
-    make test
+# dependencies: restored from the cache, or built and saved for the next run
+if [ -f $GITHUB_WORKSPACE/deps.tar ]; then
+    tar -xPf $GITHUB_WORKSPACE/deps.tar
+else
+    bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/deps/macos_arm.bash
+    tar -cPf $GITHUB_WORKSPACE/deps.tar $GITHUB_WORKSPACE/scip_install
 fi
-make install
+if [ "$DEPS_ONLY" = "true" ]; then
+    exit 0
+fi
 
 cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
@@ -83,7 +46,9 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j2
 if [ "$TESTS" = "ON" ]; then
-    make test
+    # examples rebuild libscip, so they run one at a time
+    ctest -j$(sysctl -n hw.ncpu) --output-on-failure -E "^examples-"
+    ctest --output-on-failure -R "^examples-"
 fi
 make install
 
@@ -96,7 +61,9 @@ cd build
 cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j2
 if [ "$TESTS" = "ON" ]; then
-    make test
+    # examples rebuild libscip, so they run one at a time
+    ctest -j$(sysctl -n hw.ncpu) --output-on-failure -E "^examples-"
+    ctest --output-on-failure -R "^examples-"
 fi
 make install
 
@@ -109,9 +76,12 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j2
 if [ "$TESTS" = "ON" ]; then
-    make test
+    # examples rebuild libscip, so they run one at a time
+    ctest -j$(sysctl -n hw.ncpu) --output-on-failure -E "^examples-"
+    ctest --output-on-failure -R "^examples-"
 fi
 make install
 
+bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/relocatable_bin.bash
 cd $GITHUB_WORKSPACE
 zip -r $GITHUB_WORKSPACE/libscip-macos-arm.zip scip_install/lib scip_install/include scip_install/bin

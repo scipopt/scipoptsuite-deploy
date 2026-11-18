@@ -6,28 +6,9 @@ yum install gcc gcc-c++ libgfortran git patch wget lapack-static unzip zip make 
 rm -f /usr/lib64/liblapack.s*
 rm -f /usr/lib64/libblas.*
 rm -rf /usr/include/boost
-mkdir /usr/include/boost
 
-wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz
-tar -xvf $GITHUB_WORKSPACE/boost_1_82_0.tar.gz
-cd boost_1_82_0
-./bootstrap.sh --prefix=/usr/include/boost --with-libraries=program_options,serialization,iostreams,regex
-./b2 --prefix=/usr/include/boost -j8 install
-cd ..
-
-git clone https://github.com/Reference-LAPACK/lapack.git
-cd lapack
-mkdir build
-cd build
-cmake ..
-make -j$(nproc)
-mv lib/libblas.a /usr/lib64/.
-
-cd $GITHUB_WORKSPACE
 mkdir scip_install
 mkdir scip_install/share
-wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/$IPOPT_VERSION.zip
-unzip $IPOPT_VERSION.zip
 echo "enable_shared=no
 enable_java=no
 enable_sipopt=no
@@ -38,55 +19,18 @@ with_lapack_lflags=\"-llapack_pic -lblas -lgfortran -lm\"
 LT_LDFLAGS=-all-static
 LDFLAGS=-static" > $GITHUB_WORKSPACE/scip_install/share/config.site
 
-#wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
-#tar xvf gmp-6.3.0.tar.xz
-#cd gmp-6.3.0
-#./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
-#make install -j
-
-cd $GITHUB_WORKSPACE
-GKLIB_COMMIT=8bd6bad750b2b0d90800c632cf18e8ee93ad72d7  # GKlib has no 5.2.1 tag
-wget https://github.com/KarypisLab/METIS/archive/refs/tags/v5.2.1.tar.gz
-tar -xvf v5.2.1.tar.gz
-wget https://github.com/KarypisLab/GKlib/archive/$GKLIB_COMMIT.tar.gz
-tar -xvf $GKLIB_COMMIT.tar.gz
-mkdir $GITHUB_WORKSPACE/metis
-cd GKlib-$GKLIB_COMMIT
-sed -i 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
-sed -i 's/-march=native//' GKlibSystem.cmake  # portable binaries
-make config prefix=$GITHUB_WORKSPACE/metis
-make
-make install
-
-cd $GITHUB_WORKSPACE
-cd METIS-5.2.1
-sed -i 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
-sed -i 's/-march=native//' conf/gkbuild.cmake
-make config prefix=$GITHUB_WORKSPACE/metis gklib_path=$GITHUB_WORKSPACE/metis
-make
-make install
-
-cd $GITHUB_WORKSPACE
-git clone https://github.com/coin-or-tools/ThirdParty-Mumps.git
-cd ThirdParty-Mumps
-./get.Mumps
-./configure --enable-shared=no --enable-static=yes --prefix=$GITHUB_WORKSPACE/scip_install
-# serial: MUMPS Fortran module deps race under parallel make
-make -j1
-make install
-
-cd $GITHUB_WORKSPACE
-cd Ipopt-releases-$IPOPT_VERSION
-mkdir build
-cd build
-../configure --prefix=$GITHUB_WORKSPACE/scip_install/
-make -j$(nproc)
-if [ "$TESTS" = "ON" ]; then
-    make test V=1 || :
+# dependencies: restored from the cache, or built and saved for the next run
+if [ -f $GITHUB_WORKSPACE/deps.tar ]; then
+    tar -xPf $GITHUB_WORKSPACE/deps.tar
+else
+    bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/deps/linux.bash
+    tar -cPf $GITHUB_WORKSPACE/deps.tar /usr/include/boost /usr/lib64/libblas.a $GITHUB_WORKSPACE/metis $GITHUB_WORKSPACE/scip_install
 fi
-make install
-cd ..
-cd ..
+if [ "$DEPS_ONLY" = "true" ]; then
+    exit 0
+fi
+
+cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
 unzip v$SOPLEX_VERSION_FULL.zip
 cd soplex-$SOPLEX_VERSION_FULL
@@ -95,7 +39,9 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false -DBOOST=true
 make -j$(nproc)
 if [ "$TESTS" = "ON" ]; then
-    make test
+    # examples rebuild libscip, so they run one at a time
+    ctest -j$(nproc) --output-on-failure -E "^examples-"
+    ctest --output-on-failure -R "^examples-"
 fi
 make install
 
@@ -108,7 +54,9 @@ cd build
 cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DTPI=tny -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j$(nproc)
 if [ "$TESTS" = "ON" ]; then
-    make test
+    # examples rebuild libscip, so they run one at a time
+    ctest -j$(nproc) --output-on-failure -E "^examples-"
+    ctest --output-on-failure -R "^examples-"
 fi
 make install
 
@@ -121,7 +69,9 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DSHARED=$SHARED -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j$(nproc)
 if [ "$TESTS" = "ON" ]; then
-    make test
+    # examples rebuild libscip, so they run one at a time
+    ctest -j$(nproc) --output-on-failure -E "^examples-"
+    ctest --output-on-failure -R "^examples-"
 fi
 make install
 
@@ -129,6 +79,8 @@ cd $GITHUB_WORKSPACE
 mkdir -p scip_install/lib
 rm -rf scip_install/lib64/cmake
 mv scip_install/lib64/* scip_install/lib/.
+
+bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/relocatable_bin.bash
 
 # Detect architecture and set appropriate filename
 if [[ "$ARM" == "ON" ]]; then
