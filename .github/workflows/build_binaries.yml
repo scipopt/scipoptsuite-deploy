@@ -78,8 +78,12 @@ on:
                 default: false
             tests:
                 type: boolean
-                description: Run tests
+                description: Run tests (release builds; debug/exact get a quick check)
                 default: true
+            rebuild:
+                type: boolean
+                description: Rebuild even if a cached build exists
+                default: false
             # static:
                 # type: boolean
                 # description: Build static libraries
@@ -91,7 +95,6 @@ env:
     GCG_VERSION_FULL: ${{ inputs.gcg_version }}
     IPOPT_VERSION: ${{ inputs.ipopt_version }}
     SHARED: "ON"  # the static input is disabled above
-    TESTS: ${{ inputs.tests && 'ON' || 'OFF' }}
 
 jobs:
     setup:
@@ -151,25 +154,45 @@ jobs:
         # '', -exact, -debug or -exact-debug
         SUFFIX: ${{ matrix.exact && '-exact' || '' }}${{ matrix.debug && '-debug' || '' }}
         ARM: ${{ matrix.platform.id == 'linux-arm' && 'ON' || 'OFF' }}
+        TESTS: ${{ inputs.tests && !matrix.debug && !matrix.exact && 'ON' || 'OFF' }}
+        ZIP: libscip-${{ matrix.platform.id }}${{ matrix.exact && '-exact' || '' }}${{ matrix.debug && '-debug' || '' }}.zip
       steps:
         - uses: actions/checkout@v4
 
-        - if: matrix.platform.id == 'macos-intel'
+        # reuse the zip if the versions and this platform's scripts haven't changed
+        - uses: actions/cache@v4
+          id: cache
+          if: ${{ !inputs.rebuild }}
+          with:
+            path: ${{ env.ZIP }}
+            key: ${{ env.ZIP }}-scip${{ inputs.scip_version }}-soplex${{ inputs.soplex_version }}-gcg${{ inputs.gcg_version }}-ipopt${{ inputs.ipopt_version }}-tests${{ env.TESTS }}-${{ hashFiles(format('.github/workflows/scripts/{0}', matrix.platform.script), '.github/workflows/scripts/build_gmp_mpfr.bash', '.github/workflows/scripts/relocatable_bin.bash', '.github/workflows/patches/**') }}
+
+        - if: steps.cache.outputs.cache-hit != 'true' && matrix.platform.id == 'macos-intel'
           uses: fortran-lang/setup-fortran@v1
           with:
             compiler: gcc
             version: 13
 
-        - if: matrix.platform.id == 'windows'
+        - if: steps.cache.outputs.cache-hit != 'true' && matrix.platform.id == 'windows'
           uses: msys2/setup-msys2@v2
 
         - name: Build and install SCIP
+          if: steps.cache.outputs.cache-hit != 'true'
           run: bash -x .github/workflows/scripts/${{ matrix.platform.script }}
+
+        # debug/exact skip the test suites; check that scip runs and solves a small problem
+        - name: Quick check
+          if: steps.cache.outputs.cache-hit != 'true' && env.TESTS == 'OFF'
+          run: |
+            exact=""
+            if [ "$EXACT" = "ON" ]; then exact="set exact enable TRUE"; fi
+            scip_install/bin/scip -c "$exact read scip-$SCIP_VERSION_FULL/check/instances/MIP/flugpl.mps optimize quit" | tee scip.log
+            grep -q "optimal solution found" scip.log
 
         - uses: actions/upload-artifact@v4
           with:
             name: ${{ matrix.platform.id }}${{ env.SUFFIX }}
-            path: ${{ github.workspace }}/libscip-${{ matrix.platform.id }}${{ env.SUFFIX }}.zip
+            path: ${{ github.workspace }}/${{ env.ZIP }}
 
     merge_artifacts:
       name: Merge Artifacts
