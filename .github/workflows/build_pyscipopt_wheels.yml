@@ -1,18 +1,10 @@
 name: Build PySCIPOpt wheels
 run-name: Build PySCIPOpt wheels (${{ inputs.build_config }}, ${{ inputs.pyscipopt_ref }})
 
-# Builds PySCIPOpt wheels against a scipoptsuite-deploy release, for one build config:
-#   release -> PySCIPOpt          (import pyscipopt)
-#   debug   -> PySCIPOpt-debug    (import pyscipopt_debug)
-#   exact   -> PySCIPOpt-exact    (import pyscipopt_exact)
-# PySCIPOpt's own pyproject.toml drives cibuildwheel; this only picks the SCIP
-# artifact and, for variants, renames the package first.
-#
-# Callable from other repos (PySCIPOpt keeps its own button) via workflow_call,
-# with `secrets: inherit` so the PyPI tokens stay in the calling repo.
-# Note: PySCIPOpt's Windows settings hardcode D:\a\PySCIPOpt\PySCIPOpt, so
-# Windows wheels only build when the caller is the PySCIPOpt repo; from anywhere
-# else that build may fail without blocking the upload of the other wheels.
+# Builds PySCIPOpt wheels against a release of this repo:
+#   release -> pyscipopt, debug -> pyscipopt_debug, exact -> pyscipopt_exact
+# PySCIPOpt can call it with `secrets: inherit` to use its PyPI tokens.
+# Windows only works when called from PySCIPOpt (its config hardcodes that repo's path).
 
 on:
     workflow_call:
@@ -69,7 +61,7 @@ jobs:
                     - {os: windows-latest, arch: AMD64}
         continue-on-error: ${{ matrix.os == 'windows-latest' && github.repository != 'scipopt/PySCIPOpt' }}
         steps:
-            # explicit: in a called workflow a bare checkout would fetch the caller's repo
+            # PySCIPOpt even when called from another repo
             - uses: actions/checkout@v4
               with:
                   repository: scipopt/PySCIPOpt
@@ -83,7 +75,7 @@ jobs:
               uses: pypa/cibuildwheel@v3.2.1
               env:
                   CIBW_ARCHS: ${{ matrix.arch }}
-                  # Linux builds run in a container that doesn't inherit the runner's env
+                  # the Linux container doesn't see the runner's env
                   CIBW_ENVIRONMENT_PASS_LINUX: SCIP_DEPLOY_TAG SCIP_ARTIFACT_SUFFIX
                   CIBW_BEFORE_TEST: "pip install -r {project}/requirements/test.txt"
                   CIBW_TEST_COMMAND: "pytest {project}/tests"
@@ -94,7 +86,7 @@ jobs:
                   path: ./wheelhouse/*.whl
 
     build_sdist:
-        # variants ship wheels only: built from source they would link whatever SCIP is installed
+        # debug/exact are wheels only
         if: inputs.build_config == 'release'
         name: Build source distribution
         runs-on: ubuntu-22.04

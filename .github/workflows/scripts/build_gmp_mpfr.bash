@@ -1,6 +1,6 @@
-# Builds GMP and MPFR into scip_install for exact builds on Linux and macOS (Windows uses vcpkg).
-# Shared, not static: the LGPLv3 relinking requirement is met by shipping them as separate libraries.
-# CONFIG_SITE=/dev/null: scip_install/share/config.site forces static builds for every configure under that prefix.
+# GMP and MPFR for exact builds on Linux and macOS (Windows uses vcpkg).
+# Shared libraries, so the zip can ship them under the LGPL.
+# CONFIG_SITE=/dev/null because our config.site forces static builds.
 
 # Enable exit on error - script will stop if any command fails
 set -e
@@ -25,8 +25,7 @@ make -j$JOBS
 make install
 
 if [ "$(uname)" = "Darwin" ]; then
-    # libtool records absolute install names, which break once consumers move the folder
-    # (PySCIPOpt moves it to src/scip). Rewrite to @rpath before SoPlex/SCIP link against them.
+    # use @rpath so they still load after the folder is moved
     cd $PREFIX/lib
     for f in $(find . -maxdepth 1 -type f \( -name 'libgmp*.dylib' -o -name 'libmpfr*.dylib' \)); do
         install_name_tool -id "@rpath/$(basename "$(otool -D "$f" | tail -1)")" "$f"

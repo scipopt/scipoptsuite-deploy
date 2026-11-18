@@ -1,6 +1,5 @@
-# SCIP, SoPlex and GCG set their executables' install rpath to the absolute install prefix,
-# overriding CMAKE_INSTALL_RPATH, so bin/ only finds lib/ on the build machine.
-# Point them at ../lib so the zip works wherever it is unpacked.
+# CMake gives the executables an absolute rpath to the build machine.
+# Point them at ../lib so they work wherever the zip is unpacked.
 
 # Enable exit on error - script will stop if any command fails
 set -e

@@ -8,7 +8,7 @@ rm -f /usr/lib64/libblas.*
 rm -rf /usr/include/boost
 mkdir /usr/include/boost
 
-# 1.86+: older Boost redefines numeric_limits<__float128>, which GCC 14's libstdc++ already defines
+# older Boost doesn't compile with GCC 14
 wget https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.gz
 tar -xvf $GITHUB_WORKSPACE/boost_1_86_0.tar.gz
 cd boost_1_86_0
@@ -84,17 +84,15 @@ cd ..
 cd ..
 
 EXACT_FLAGS=""
-SCIP_EXACT_FLAGS=""
 if [ "$EXACT" = "ON" ]; then
     bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/build_gmp_mpfr.bash
 
     export GMP_DIR=$GITHUB_WORKSPACE/scip_install
     export MPFR_DIR=$GITHUB_WORKSPACE/scip_install
-    # CMake only accepts Boost's package file here; b2 installed it next to the Boost build above
+    # CMake needs BoostConfig.cmake
     BOOST_CMAKE_DIR=$(dirname "$(find /usr/include/boost -name BoostConfig.cmake | head -1)")
-    # libraries find libgmp/libmpfr next to themselves, executables in ../lib (lib64 is moved there below)
-    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR -DCMAKE_INSTALL_RPATH=\$ORIGIN;\$ORIGIN/../lib"
-    SCIP_EXACT_FLAGS="-DEXACTSOLVE=on -DLPSEXACT=spx"
+    # so lib/ and bin/ find libgmp/libmpfr
+    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR -DCMAKE_INSTALL_RPATH=\$ORIGIN;\$ORIGIN/../lib -DEXACTSOLVE=on -DLPSEXACT=spx"
 fi
 
 cd $GITHUB_WORKSPACE
@@ -106,7 +104,7 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DPAPILO=false -DBOOST=true $EXACT_FLAGS
 make -j$(nproc)
 if [ "$TESTS" = "ON" ]; then
-    make test
+    ctest -j$(nproc) --output-on-failure
 fi
 make install
 
@@ -116,10 +114,10 @@ unzip v$SCIP_VERSION_FULL.zip
 cd scip-$SCIP_VERSION_FULL
 mkdir build
 cd build
-cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DTPI=tny -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS $SCIP_EXACT_FLAGS
+cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$GITHUB_WORKSPACE/scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=$GITHUB_WORKSPACE/scip_install -DTPI=tny -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS
 make -j$(nproc)
 if [ "$TESTS" = "ON" ]; then
-    make test
+    ctest -j$(nproc) --output-on-failure
 fi
 make install
 
@@ -132,7 +130,7 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DSHARED=$SHARED -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j$(nproc)
 if [ "$TESTS" = "ON" ]; then
-    make test
+    ctest -j$(nproc) --output-on-failure
 fi
 make install
 

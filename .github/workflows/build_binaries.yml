@@ -67,7 +67,7 @@ on:
                 description: Build for Windows
                 required: false
                 default: true
-            # Every combination of the two is built: release, plus debug, exact and exact-debug when checked.
+            # release is always built; these add debug, exact and exact-debug builds
             debug:
                 type: boolean
                 description: "Also build with assertions on (debug)"
@@ -109,7 +109,7 @@ jobs:
               echo "Debug builds?: ${{ inputs.debug }}"
               echo "Exact builds?: ${{ inputs.exact }}"
 
-          # the enabled platforms; the build job crosses them with the debug/exact configs
+          # the ticked platforms
           - name: Platforms
             id: matrix
             env:
@@ -131,7 +131,7 @@ jobs:
       needs: setup
       name: ${{ matrix.platform.name }}${{ matrix.exact && ' exact' || '' }}${{ matrix.debug && ' debug' || '' }}
       runs-on: ${{ matrix.platform.os }}
-      # null for macOS and Windows, which build on the runner itself
+      # none on macOS and Windows
       container:
         image: ${{ matrix.platform.container }}
       defaults:
@@ -139,17 +139,16 @@ jobs:
           shell: ${{ matrix.platform.shell }}
       strategy:
         fail-fast: false
-        # every enabled platform x release, plus debug, exact and exact-debug when checked
         matrix:
           platform: ${{ fromJSON(needs.setup.outputs.platforms) }}
           debug: ${{ fromJSON(inputs.debug && '[false, true]' || '[false]') }}
           exact: ${{ fromJSON(inputs.exact && '[false, true]' || '[false]') }}
-      # only the release build is required; a failed variant leaves the run green and is just not published
+      # a failed debug/exact build doesn't fail the run
       continue-on-error: ${{ matrix.debug || matrix.exact }}
       env:
         BUILD_MODE: ${{ matrix.debug && 'Debug' || 'Release' }}
         EXACT: ${{ matrix.exact && 'ON' || 'OFF' }}
-        # release zips keep their historical names; the others get -exact, -debug or -exact-debug
+        # '', -exact, -debug or -exact-debug
         SUFFIX: ${{ matrix.exact && '-exact' || '' }}${{ matrix.debug && '-debug' || '' }}
         ARM: ${{ matrix.platform.id == 'linux-arm' && 'ON' || 'OFF' }}
       steps:
@@ -175,7 +174,7 @@ jobs:
     merge_artifacts:
       name: Merge Artifacts
       needs: build-binaries
-      # merged-artifacts holds the release build only, as before
+      # release builds only
       if: ${{ !cancelled() }}
       runs-on: ubuntu-latest
       steps:

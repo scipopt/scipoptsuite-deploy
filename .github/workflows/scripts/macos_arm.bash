@@ -5,7 +5,6 @@ rm -rf /usr/local/include/boost/*
 
 brew install boost
 export MACOSX_DEPLOYMENT_TARGET=14.0
-# the runner image's default Xcode; the deployment target keeps the libraries loadable on macOS 14
 brew reinstall gcc
 export FC=/opt/homebrew/bin/gfortran
 export DYLD_LIBRARY_PATH=$GITHUB_WORKSPACE/scip_install/lib
@@ -70,17 +69,15 @@ fi
 make install
 
 EXACT_FLAGS=""
-SCIP_EXACT_FLAGS=""
 if [ "$EXACT" = "ON" ]; then
     bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/build_gmp_mpfr.bash
 
     export GMP_DIR=$GITHUB_WORKSPACE/scip_install
     export MPFR_DIR=$GITHUB_WORKSPACE/scip_install
-    # CMake only accepts Boost's package file
+    # CMake needs BoostConfig.cmake
     BOOST_CMAKE_DIR=$(ls -d "$(brew --prefix boost)"/lib/cmake/Boost-* | head -1)
-    # libraries find libgmp/libmpfr next to themselves, executables in ../lib
-    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR -DCMAKE_INSTALL_RPATH=@loader_path;@loader_path/../lib"
-    SCIP_EXACT_FLAGS="-DEXACTSOLVE=on -DLPSEXACT=spx"
+    # so lib/ and bin/ find libgmp/libmpfr
+    EXACT_FLAGS="-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR -DCMAKE_INSTALL_RPATH=@loader_path;@loader_path/../lib -DEXACTSOLVE=on -DLPSEXACT=spx"
 fi
 
 cd $GITHUB_WORKSPACE
@@ -92,7 +89,7 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS
 make -j2
 if [ "$TESTS" = "ON" ]; then
-    make test
+    ctest -j$(sysctl -n hw.ncpu) --output-on-failure
 fi
 make install
 
@@ -102,10 +99,10 @@ unzip v$SCIP_VERSION_FULL.zip
 cd scip-$SCIP_VERSION_FULL
 mkdir build
 cd build
-cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS $SCIP_EXACT_FLAGS
+cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $EXACT_FLAGS
 make -j2
 if [ "$TESTS" = "ON" ]; then
-    make test
+    ctest -j$(sysctl -n hw.ncpu) --output-on-failure
 fi
 make install
 
@@ -118,7 +115,7 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make -j2
 if [ "$TESTS" = "ON" ]; then
-    make test
+    ctest -j$(sysctl -n hw.ncpu) --output-on-failure
 fi
 make install
 
