@@ -26,9 +26,6 @@ else
     bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/deps/linux.bash
     tar -cPf $GITHUB_WORKSPACE/deps.tar /usr/include/boost /usr/lib64/libblas.a $GITHUB_WORKSPACE/metis $GITHUB_WORKSPACE/scip_install
 fi
-if [ "$DEPS_ONLY" = "true" ]; then
-    exit 0
-fi
 
 cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip

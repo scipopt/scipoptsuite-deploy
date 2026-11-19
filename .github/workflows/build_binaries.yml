@@ -30,13 +30,6 @@ name: Build Binaries
 #
 
 on:
-    # scheduled and push runs only build the dependencies, to keep their cache on main
-    # (caches from main are shared with every branch; unused ones expire after 7 days)
-    schedule:
-        - cron: "0 4 * * 1"
-    push:
-        branches: [main]
-        paths: [".github/workflows/scripts/deps/**"]
     workflow_dispatch:
         inputs:
             gcg_version:
@@ -97,39 +90,13 @@ jobs:
       runs-on: ubuntu-latest
       outputs:
         platforms: ${{ steps.platforms.outputs.platforms }}
-        scip: ${{ steps.versions.outputs.scip }}
-        soplex: ${{ steps.versions.outputs.soplex }}
-        gcg: ${{ steps.versions.outputs.gcg }}
-        ipopt: ${{ steps.versions.outputs.ipopt }}
       steps:
-          - uses: actions/checkout@v4
-
-          # scheduled and push runs have no inputs: use the defaults above
-          - name: Versions
-            id: versions
-            env:
-              SCIP: ${{ inputs.scip_version }}
-              SOPLEX: ${{ inputs.soplex_version }}
-              GCG: ${{ inputs.gcg_version }}
-              IPOPT: ${{ inputs.ipopt_version }}
-            run: |
-              default() {
-                  sed -n "/$1:/,/default:/{s/.*default: \"\(.*\)\"/\1/p;}" .github/workflows/build_binaries.yml | head -1
-              }
-              {
-                  echo "scip=${SCIP:-$(default scip_version)}"
-                  echo "soplex=${SOPLEX:-$(default soplex_version)}"
-                  echo "gcg=${GCG:-$(default gcg_version)}"
-                  echo "ipopt=${IPOPT:-$(default ipopt_version)}"
-              } | tee -a "$GITHUB_OUTPUT"
-
-          # Windows has no dependencies to cache, so it only builds on manual runs
           - name: Platforms
             id: platforms
             env:
-              LINUX: ${{ inputs.linux != false }}
-              MACOS: ${{ inputs.macos != false }}
-              WINDOWS: ${{ github.event_name == 'workflow_dispatch' && inputs.windows }}
+              LINUX: ${{ inputs.linux }}
+              MACOS: ${{ inputs.macos }}
+              WINDOWS: ${{ inputs.windows }}
             run: |
               platforms=$(jq -nc --argjson linux "$LINUX" --argjson macos "$MACOS" --argjson windows "$WINDOWS" '[
                   {id: "linux",       name: "Linux",       os: "ubuntu-latest",    container: "quay.io/pypa/manylinux_2_28_x86_64",  shell: "bash",      script: "linux.bash",     enabled: $linux},
@@ -156,15 +123,14 @@ jobs:
         matrix:
           platform: ${{ fromJSON(needs.setup.outputs.platforms) }}
       env:
-        SCIP_VERSION_FULL: ${{ needs.setup.outputs.scip }}
-        SOPLEX_VERSION_FULL: ${{ needs.setup.outputs.soplex }}
-        GCG_VERSION_FULL: ${{ needs.setup.outputs.gcg }}
-        IPOPT_VERSION: ${{ needs.setup.outputs.ipopt }}
+        SCIP_VERSION_FULL: ${{ inputs.scip_version }}
+        SOPLEX_VERSION_FULL: ${{ inputs.soplex_version }}
+        GCG_VERSION_FULL: ${{ inputs.gcg_version }}
+        IPOPT_VERSION: ${{ inputs.ipopt_version }}
         SHARED: "ON"  # the static input is disabled above
         BUILD_MODE: ${{ inputs.debug && 'Debug' || 'Release' }}
-        TESTS: ${{ inputs.tests != false && 'ON' || 'OFF' }}
+        TESTS: ${{ inputs.tests && 'ON' || 'OFF' }}
         ARM: ${{ matrix.platform.id == 'linux-arm' && 'ON' || 'OFF' }}
-        DEPS_ONLY: ${{ github.event_name != 'workflow_dispatch' }}
         ZIP: libscip-${{ matrix.platform.id }}.zip
       steps:
         - uses: actions/checkout@v4
@@ -172,13 +138,14 @@ jobs:
         # the zip from an earlier run, if the versions and this platform's scripts are unchanged
         - uses: actions/cache@v4
           id: zip
-          if: ${{ env.DEPS_ONLY != 'true' && !inputs.rebuild }}
+          if: ${{ !inputs.rebuild }}
           with:
             path: ${{ env.ZIP }}
             key: ${{ env.ZIP }}-${{ env.BUILD_MODE }}-scip${{ env.SCIP_VERSION_FULL }}-soplex${{ env.SOPLEX_VERSION_FULL }}-gcg${{ env.GCG_VERSION_FULL }}-ipopt${{ env.IPOPT_VERSION }}-tests${{ env.TESTS }}-${{ hashFiles(format('.github/workflows/scripts/{0}', matrix.platform.script), format('.github/workflows/scripts/deps/{0}', matrix.platform.script), '.github/workflows/scripts/relocatable_bin.bash') }}
 
         # deps.tar: MUMPS, Ipopt, METIS (and Boost, LAPACK on Linux), see scripts/deps
-        - uses: actions/cache@v4
+        - uses: actions/cache/restore@v4
+          id: deps
           if: ${{ steps.zip.outputs.cache-hit != 'true' && matrix.platform.id != 'windows' && !inputs.rebuild }}
           with:
             path: deps.tar
@@ -197,8 +164,14 @@ jobs:
           if: steps.zip.outputs.cache-hit != 'true'
           run: bash -x .github/workflows/scripts/${{ matrix.platform.script }}
 
+        # saved even if the build fails later, so a rerun skips the dependencies
+        - uses: actions/cache/save@v4
+          if: ${{ always() && steps.deps.outcome == 'success' && steps.deps.outputs.cache-hit != 'true' && hashFiles('deps.tar') != '' }}
+          with:
+            path: deps.tar
+            key: ${{ steps.deps.outputs.cache-primary-key }}
+
         - uses: actions/upload-artifact@v4
-          if: env.DEPS_ONLY != 'true'
           with:
             name: ${{ matrix.platform.id }}
             path: ${{ github.workspace }}/${{ env.ZIP }}
@@ -206,7 +179,6 @@ jobs:
     merge_artifacts:
       name: Merge Artifacts
       needs: build-binaries
-      if: github.event_name == 'workflow_dispatch'
       runs-on: ubuntu-latest
       steps:
         - name: Merge Artifacts

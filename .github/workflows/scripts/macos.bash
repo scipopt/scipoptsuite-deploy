@@ -33,9 +33,6 @@ else
     bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/deps/macos.bash
     tar -cPf $GITHUB_WORKSPACE/deps.tar /usr/local/include/boost $GITHUB_WORKSPACE/scip_install
 fi
-if [ "$DEPS_ONLY" = "true" ]; then
-    exit 0
-fi
 
 cd $GITHUB_WORKSPACE
 wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
