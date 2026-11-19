@@ -130,7 +130,6 @@ jobs:
         SHARED: "ON"  # the static input is disabled above
         BUILD_MODE: ${{ inputs.debug && 'Debug' || 'Release' }}
         TESTS: ${{ inputs.tests && 'ON' || 'OFF' }}
-        ARM: ${{ matrix.platform.id == 'linux-arm' && 'ON' || 'OFF' }}
         ZIP: libscip-${{ matrix.platform.id }}.zip
       steps:
         - uses: actions/checkout@v4
@@ -141,7 +140,7 @@ jobs:
           if: ${{ !inputs.rebuild }}
           with:
             path: ${{ env.ZIP }}
-            key: ${{ env.ZIP }}-${{ env.BUILD_MODE }}-scip${{ env.SCIP_VERSION_FULL }}-soplex${{ env.SOPLEX_VERSION_FULL }}-gcg${{ env.GCG_VERSION_FULL }}-ipopt${{ env.IPOPT_VERSION }}-tests${{ env.TESTS }}-${{ hashFiles(format('.github/workflows/scripts/{0}', matrix.platform.script), format('.github/workflows/scripts/deps/{0}', matrix.platform.script), '.github/workflows/scripts/relocatable_bin.bash') }}
+            key: ${{ env.ZIP }}-${{ env.BUILD_MODE }}-scip${{ env.SCIP_VERSION_FULL }}-soplex${{ env.SOPLEX_VERSION_FULL }}-gcg${{ env.GCG_VERSION_FULL }}-ipopt${{ env.IPOPT_VERSION }}-tests${{ env.TESTS }}-${{ hashFiles(format('.github/workflows/scripts/{0}', matrix.platform.script), format('.github/workflows/scripts/deps/{0}', matrix.platform.script), '.github/workflows/scripts/build_suite.bash') }}
 
         # deps.tar: MUMPS, Ipopt, METIS (and Boost, LAPACK on Linux), see scripts/deps
         - uses: actions/cache/restore@v4
