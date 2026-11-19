@@ -24,101 +24,12 @@ with_pic=yes
 with_metis_cflags=\"-I${GITHUB_WORKSPACE}/scip_install/include\"
 with_metis_lflags=\"-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis -lGKlib\"" > $GITHUB_WORKSPACE/scip_install/share/config.site
 
-wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.bz2
-tar --bzip2 -xf $GITHUB_WORKSPACE/boost_1_82_0.tar.bz2
-rm -rf /usr/local/include/boost
-mv $GITHUB_WORKSPACE/boost_1_82_0/boost /usr/local/include/boost
-
 rm -f /usr/local/lib/libgmp*
-#wget https://github.com/pmmp/DependencyMirror/releases/download/mirror/gmp-6.3.0.tar.xz
-#tar xvf gmp-6.3.0.tar.xz
-#cd gmp-6.3.0
-#./configure --with-pic --disable-shared --enable-cxx --prefix=$GITHUB_WORKSPACE/scip_install
-#make install -j
 
-cd $GITHUB_WORKSPACE
-GKLIB_COMMIT=8bd6bad750b2b0d90800c632cf18e8ee93ad72d7  # GKlib has no 5.2.1 tag
-wget https://github.com/KarypisLab/METIS/archive/refs/tags/v5.2.1.tar.gz
-tar -xvf v5.2.1.tar.gz
-wget https://github.com/KarypisLab/GKlib/archive/$GKLIB_COMMIT.tar.gz
-tar -xvf $GKLIB_COMMIT.tar.gz
-cd GKlib-$GKLIB_COMMIT
-sed -i '' 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5/' Makefile
-sed -i '' 's/-march=native//' GKlibSystem.cmake  # portable binaries
-make config cc=/usr/local/bin/gcc-13 prefix=$GITHUB_WORKSPACE/scip_install/  # default is Apple clang
-make
-make install
-
-cd $GITHUB_WORKSPACE/METIS-5.2.1
-sed -i '' 's/^CONFIG_FLAGS =/CONFIG_FLAGS = -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_C_COMPILER=\/usr\/local\/bin\/gcc-13 -DCMAKE_CXX_COMPILER=\/usr\/local\/bin\/g++-13/' Makefile
-sed -i '' 's/-march=native//' conf/gkbuild.cmake
-make config prefix=$GITHUB_WORKSPACE/scip_install/ gklib_path=$GITHUB_WORKSPACE/scip_install/
-make
-make install
-
-
-cd $GITHUB_WORKSPACE
-git clone https://github.com/coin-or-tools/ThirdParty-Mumps.git
-cd ThirdParty-Mumps
-./get.Mumps
-./configure --enable-shared=no --enable-static=yes --prefix=$GITHUB_WORKSPACE/scip_install --with-metis-cflags="-I${GITHUB_WORKSPACE}/scip_install/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis -lGKlib"
-make
-make install
-
-
-cd $GITHUB_WORKSPACE
-wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/$IPOPT_VERSION.zip
-unzip $IPOPT_VERSION.zip
-cd Ipopt-releases-$IPOPT_VERSION
-mkdir build
-cd build
-../configure --prefix=$GITHUB_WORKSPACE/scip_install/ --disable-java --enable-shared=no --disable-sipopt --enable-static=yes --with-metis-cflags="-I${GITHUB_WORKSPACE}/scip_install/include" --with-metis-lflags="-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis -lGKlib"
-make -j$(sysctl -n hw.ncpu)
-if [ "$TESTS" = "ON" ]; then
-    make test
-fi
-make install
-
-
-cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/soplex/archive/refs/tags/v$SOPLEX_VERSION_FULL.zip
-unzip v$SOPLEX_VERSION_FULL.zip
-cd soplex-$SOPLEX_VERSION_FULL
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 -DGMP=false -DPAPILO=false -DMPFR=false -DBOOST=false -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-make -j$(sysctl -n hw.ncpu)
-if [ "$TESTS" = "ON" ]; then
-    make test
-fi
-make install
-
-
-cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION_FULL.zip
-unzip v$SCIP_VERSION_FULL.zip
-cd scip-$SCIP_VERSION_FULL
-mkdir build
-cd build
-cmake .. --preset interface -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_BUILD_TYPE=$BUILD_MODE -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-13 -DCMAKE_CXX_FLAGS=-DFlt_Rounds=0 -DSHARED=$SHARED -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=../../scip_install -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false -DIPOPT=true -DIPOPT_DIR=../../scip_install -DBOOST=false -DTPI=tny -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-make -j$(sysctl -n hw.ncpu)
-if [ "$TESTS" = "ON" ]; then
-    make test
-fi
-make install
-
-cd $GITHUB_WORKSPACE
-wget https://github.com/scipopt/gcg/archive/refs/tags/v$GCG_VERSION_FULL.zip
-unzip v$GCG_VERSION_FULL.zip
-cd gcg-$GCG_VERSION_FULL
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/scip_install -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-make -j$(sysctl -n hw.ncpu)
-if [ "$TESTS" = "ON" ]; then
-    make test
-fi
-make install
-
-cd ../..
-zip -r $GITHUB_WORKSPACE/libscip-macos-intel.zip scip_install/lib scip_install/include scip_install/bin
+# what deps/macos.bash installs, for the dependency cache
+DEPS_PATHS=(/usr/local/include/boost $GITHUB_WORKSPACE/scip_install)
+SOPLEX_FLAGS=(-DMPFR=false -DBOOST=false)
+SCIP_FLAGS=(-DCMAKE_CXX_FLAGS=-DFlt_Rounds=0 -DBOOST=false)
+# GCG uses Apple's clang, the rest GCC 13 (CC/CXX above)
+GCG_FLAGS=(-DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++)
+source $GITHUB_WORKSPACE/.github/workflows/scripts/build_suite.bash

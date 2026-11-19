@@ -35,7 +35,6 @@ cmake --install soplex_build
 
 
 cd $GITHUB_WORKSPACE
-mkdir $GITHUB_WORKSPACE/scip_build
 wget https://github.com/scipopt/scip/archive/refs/tags/v$SCIP_VERSION_FULL.zip
 unzip v$SCIP_VERSION_FULL.zip
 cd scip-$SCIP_VERSION_FULL
@@ -54,4 +53,4 @@ cmake --build gcg_build --config Release
 cmake --install gcg_build
 
 cd $GITHUB_WORKSPACE
-zip -r $GITHUB_WORKSPACE/libscip-windows.zip scip_install/lib scip_install/include scip_install/bin
+zip -r $GITHUB_WORKSPACE/$ZIP scip_install/lib scip_install/include scip_install/bin
