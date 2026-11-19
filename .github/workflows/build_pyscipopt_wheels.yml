@@ -1,0 +1,130 @@
+name: Build PySCIPOpt wheels
+run-name: Build PySCIPOpt wheels (${{ inputs.build_config }}, ${{ inputs.pyscipopt_ref }})
+
+# Builds PySCIPOpt wheels against a release of this repo:
+#   release -> pyscipopt, debug -> pyscipopt_debug, exact -> pyscipopt_exact
+# PySCIPOpt can call it with `secrets: inherit` to use its PyPI tokens.
+# Windows only works when called from PySCIPOpt (its config hardcodes that repo's path).
+
+on:
+    workflow_call:
+        inputs:
+            pyscipopt_ref: {type: string, required: true, default: master}
+            build_config: {type: string, required: true, default: release}
+            deploy_tag: {type: string, required: false, default: ""}
+            upload_to_pypi: {type: boolean, required: false, default: false}
+            test_pypi: {type: boolean, required: false, default: true}
+    workflow_dispatch:
+        inputs:
+            pyscipopt_ref:
+                type: string
+                description: PySCIPOpt branch, tag or commit
+                required: true
+                default: master
+            build_config:
+                type: choice
+                description: Which package to build
+                required: true
+                default: release
+                options: [release, debug, exact]
+            deploy_tag:
+                type: string
+                description: scipoptsuite-deploy release to build against (empty = PySCIPOpt's default)
+                required: false
+                default: ""
+            upload_to_pypi:
+                type: boolean
+                description: Upload to PyPI
+                required: false
+                default: false
+            test_pypi:
+                type: boolean
+                description: Use Test PyPI
+                required: false
+                default: true
+
+env:
+    SCIP_ARTIFACT_SUFFIX: ${{ inputs.build_config != 'release' && format('-{0}', inputs.build_config) || '' }}
+
+jobs:
+    build_wheels:
+        name: Build wheels on ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                include:
+                    - {os: ubuntu-22.04, arch: x86_64}
+                    - {os: ubuntu-24.04-arm, arch: aarch64}
+                    - {os: macos-15, arch: arm64}
+                    - {os: macos-15-intel, arch: x86_64}
+                    - {os: windows-latest, arch: AMD64}
+        continue-on-error: ${{ matrix.os == 'windows-latest' && github.repository != 'scipopt/PySCIPOpt' }}
+        steps:
+            # PySCIPOpt even when called from another repo
+            - uses: actions/checkout@v4
+              with:
+                  repository: scipopt/PySCIPOpt
+                  ref: ${{ inputs.pyscipopt_ref }}
+
+            # same edit as PySCIPOpt's upgrade_scip.sh
+            - name: Use the chosen scipoptsuite-deploy release
+              if: inputs.deploy_tag != ''
+              shell: bash
+              run: sed -i.bak "s|scipoptsuite-deploy/releases/download/v[0-9.]*/|scipoptsuite-deploy/releases/download/${{ inputs.deploy_tag }}/|" pyproject.toml
+
+            - name: Rename package for variant builds
+              if: inputs.build_config != 'release'
+              run: python scripts/rename_package.py ${{ inputs.build_config }}
+
+            - name: Build wheels
+              uses: pypa/cibuildwheel@v4.3.0
+              env:
+                  CIBW_ARCHS: ${{ matrix.arch }}
+                  CIBW_BEFORE_TEST: "pip install -r {project}/requirements/test.txt"
+                  CIBW_TEST_COMMAND: "pytest {project}/tests"
+
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: wheels-${{ matrix.os }}-${{ matrix.arch }}
+                  path: ./wheelhouse/*.whl
+
+    build_sdist:
+        # debug/exact are wheels only
+        if: inputs.build_config == 'release'
+        name: Build source distribution
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  repository: scipopt/PySCIPOpt
+                  ref: ${{ inputs.pyscipopt_ref }}
+            - run: pipx run build --sdist
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: source-distribution
+                  path: dist/*.tar.gz
+
+    upload_pypi:
+        needs: [build_wheels, build_sdist]
+        if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && inputs.upload_to_pypi }}
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/download-artifact@v4
+              with:
+                  path: dist
+                  merge-multiple: true
+
+            - uses: pypa/gh-action-pypi-publish@release/v1
+              if: ${{ !inputs.test_pypi }}
+              with:
+                  user: __token__
+                  password: ${{ secrets.PYPI_API_TOKEN }}
+                  verbose: true
+
+            - uses: pypa/gh-action-pypi-publish@release/v1
+              if: ${{ inputs.test_pypi }}
+              with:
+                  repository-url: https://test.pypi.org/legacy/
+                  user: __token__
+                  password: ${{ secrets.TESTPYPI_API_TOKEN }}
+                  verbose: true
