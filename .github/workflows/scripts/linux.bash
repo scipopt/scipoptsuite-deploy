@@ -19,15 +19,8 @@ with_lapack_lflags=\"-llapack_pic -lblas -lgfortran -lm\"
 LT_LDFLAGS=-all-static
 LDFLAGS=-static" > $GITHUB_WORKSPACE/scip_install/share/config.site
 
-# deps.tar is restored and saved by the workflow; without it, build the dependencies
-if [ -f $GITHUB_WORKSPACE/deps.tar ]; then
-    tar -xPf $GITHUB_WORKSPACE/deps.tar
-else
-    bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/deps/linux.bash
-    tar -cPf $GITHUB_WORKSPACE/deps.tar /usr/include/boost /usr/lib64/libblas.a $GITHUB_WORKSPACE/metis $GITHUB_WORKSPACE/scip_install
-fi
-
-JOBS=$(nproc)
+# what deps/linux.bash installs, for the dependency cache
+DEPS_PATHS=(/usr/include/boost /usr/lib64/libblas.a $GITHUB_WORKSPACE/metis $GITHUB_WORKSPACE/scip_install)
 SOPLEX_FLAGS=(-DBOOST=true)
 SCIP_FLAGS=(-DCMAKE_VERBOSE_MAKEFILE=1)
 GCG_FLAGS=(-DSHARED=$SHARED -DCMAKE_VERBOSE_MAKEFILE=1)

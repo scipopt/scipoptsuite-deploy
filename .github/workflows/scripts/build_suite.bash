@@ -1,8 +1,18 @@
 # Builds SoPlex, SCIP and GCG into scip_install and zips it, on Linux and macOS.
-# Sourced at the end of the platform scripts, which set JOBS and the extra
+# Sourced at the end of the platform scripts, which set DEPS_PATHS and the extra
 # cmake flags for each one: SOPLEX_FLAGS, SCIP_FLAGS and GCG_FLAGS (arrays).
 
 PREFIX=$GITHUB_WORKSPACE/scip_install
+JOBS=$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+
+# deps.tar is restored and saved by the workflow; without it, build the
+# dependencies with deps/<platform script> and pack them into it
+if [ -f $GITHUB_WORKSPACE/deps.tar ]; then
+    tar -xPf $GITHUB_WORKSPACE/deps.tar
+else
+    bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/deps/$(basename $0)
+    tar -cPf $GITHUB_WORKSPACE/deps.tar "${DEPS_PATHS[@]}"
+fi
 
 # build NAME VERSION CMAKE_FLAGS...: download, build, test and install
 build() {

@@ -26,15 +26,8 @@ with_metis_lflags=\"-L${GITHUB_WORKSPACE}/scip_install/lib -lmetis -lGKlib\"" > 
 
 rm -f /usr/local/lib/libgmp*
 
-# deps.tar is restored and saved by the workflow; without it, build the dependencies
-if [ -f $GITHUB_WORKSPACE/deps.tar ]; then
-    tar -xPf $GITHUB_WORKSPACE/deps.tar
-else
-    bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/deps/macos.bash
-    tar -cPf $GITHUB_WORKSPACE/deps.tar /usr/local/include/boost $GITHUB_WORKSPACE/scip_install
-fi
-
-JOBS=$(sysctl -n hw.ncpu)
+# what deps/macos.bash installs, for the dependency cache
+DEPS_PATHS=(/usr/local/include/boost $GITHUB_WORKSPACE/scip_install)
 SOPLEX_FLAGS=(-DMPFR=false -DBOOST=false)
 SCIP_FLAGS=(-DCMAKE_CXX_FLAGS=-DFlt_Rounds=0 -DBOOST=false)
 # GCG uses Apple's clang, the rest GCC 13 (CC/CXX above)
