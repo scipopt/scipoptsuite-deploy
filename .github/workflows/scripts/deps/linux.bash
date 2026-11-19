@@ -4,9 +4,10 @@ set -e
 cd $GITHUB_WORKSPACE
 mkdir /usr/include/boost
 
-wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz
-tar -xvf $GITHUB_WORKSPACE/boost_1_82_0.tar.gz
-cd boost_1_82_0
+# older Boost doesn't compile with GCC 14 in exact builds
+wget https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.gz
+tar -xvf $GITHUB_WORKSPACE/boost_1_86_0.tar.gz
+cd boost_1_86_0
 ./bootstrap.sh --prefix=/usr/include/boost --with-libraries=program_options,serialization,iostreams,regex
 ./b2 --prefix=/usr/include/boost -j8 install
 cd ..

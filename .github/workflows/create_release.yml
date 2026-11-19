@@ -93,7 +93,19 @@ jobs:
         if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh run download "${{ steps.run.outputs.run_id }}" --dir artifacts
+        run: |
+          gh run download "${{ steps.run.outputs.run_id }}" --dir artifacts
+          for platform in linux linux-arm macos-arm macos-intel windows; do
+              if [[ ! -d "artifacts/$platform" ]]; then
+                  echo "Error: the run has no release build for $platform."
+                  exit 1
+              fi
+              for config in debug exact exact-debug; do
+                  if [[ ! -d "artifacts/$platform-$config" ]]; then
+                      echo "- \`libscip-$platform-$config.zip\`" >> missing.md
+                  fi
+              done
+          done
 
       - name: Compute next release tag
         if: steps.check.outputs.skip != 'true' && steps.pr.outputs.skip != 'true'
@@ -122,12 +134,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           title="SCIP ${{ steps.versions.outputs.scip }} SOPLEX ${{ steps.versions.outputs.soplex }} GCG ${{ steps.versions.outputs.gcg }} IPOPT ${{ steps.versions.outputs.ipopt }}"
+          # skip the copies in merged-artifacts
+          mapfile -t zips < <(find artifacts -name 'libscip-*.zip' -not -path '*/merged-artifacts/*' | sort)
+          printf 'Attaching %s\n' "${zips[@]}"
+          notes=""
+          if [[ -s missing.md ]]; then
+              notes="These debug/exact builds failed and are not in this release:"$'\n\n'"$(cat missing.md)"
+          fi
           gh release create "${{ steps.tag.outputs.tag }}" \
               --title "$title" \
+              --notes "$notes" \
               --target "$GITHUB_SHA" \
-              artifacts/linux/libscip-linux.zip \
-              artifacts/linux-arm/libscip-linux-arm.zip \
-              artifacts/macos-intel/libscip-macos-intel.zip \
-              artifacts/macos-arm/libscip-macos-arm.zip \
-              artifacts/windows/libscip-windows.zip \
+              "${zips[@]}" \
               merged-artifacts.zip

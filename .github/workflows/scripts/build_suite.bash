@@ -14,6 +14,26 @@ else
     tar -cPf $GITHUB_WORKSPACE/deps.tar "${DEPS_PATHS[@]}"
 fi
 
+# exact builds: GMP/MPFR, and Boost's CMake config
+EXACT_FLAGS=()
+if [ "$EXACT" = "ON" ]; then
+    bash -x $GITHUB_WORKSPACE/.github/workflows/scripts/build_gmp_mpfr.bash
+    export GMP_DIR=$PREFIX
+    export MPFR_DIR=$PREFIX
+    if [ "$(uname)" = "Darwin" ]; then
+        # on Intel, brew's link step clashes with the Boost headers from deps, hence || true
+        brew install boost || true
+        BOOST_CMAKE_DIR=$(ls -d "$(brew --prefix boost)"/lib/cmake/Boost-* | head -1)
+        ORIGIN=@loader_path
+    else
+        BOOST_CMAKE_DIR=$(dirname "$(find /usr/include/boost -name BoostConfig.cmake | head -1)")
+        ORIGIN='$ORIGIN'
+    fi
+    # the rpath lets lib/ and bin/ find libgmp/libmpfr
+    EXACT_FLAGS=(-DGMP=true -DMPFR=true -DBOOST=true -DBoost_DIR=$BOOST_CMAKE_DIR
+        "-DCMAKE_INSTALL_RPATH=$ORIGIN;$ORIGIN/../lib" -DEXACTSOLVE=on -DLPSEXACT=spx)
+fi
+
 # build NAME VERSION CMAKE_FLAGS...: download, build, test and install
 build() {
     local name=$1 version=$2
@@ -33,10 +53,10 @@ build() {
     make install
 }
 
-build soplex $SOPLEX_VERSION_FULL -DCMAKE_BUILD_TYPE=Release -DGMP=false -DPAPILO=false "${SOPLEX_FLAGS[@]}"
+build soplex $SOPLEX_VERSION_FULL -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DPAPILO=false "${SOPLEX_FLAGS[@]}" "${EXACT_FLAGS[@]}"
 build scip $SCIP_VERSION_FULL --preset interface -DCMAKE_BUILD_TYPE=$BUILD_MODE -DSHARED=$SHARED \
     -DLPS=spx -DSYM=snauty -DSOPLEX_DIR=$PREFIX -DIPOPT=true -DIPOPT_DIR=$PREFIX -DTPI=tny \
-    -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false "${SCIP_FLAGS[@]}"
+    -DPAPILO=false -DZIMPL=false -DGMP=false -DREADLINE=false "${SCIP_FLAGS[@]}" "${EXACT_FLAGS[@]}"
 build gcg $GCG_VERSION_FULL -DCMAKE_BUILD_TYPE=$BUILD_MODE -DGMP=false -DSYM=none "${GCG_FLAGS[@]}"
 
 # some libraries go to lib64 on Linux

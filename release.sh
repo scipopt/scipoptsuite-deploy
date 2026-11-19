@@ -60,8 +60,9 @@ echo "  2. Create a release-X.Y.Z branch from main"
 echo "  3. Update version defaults in build_binaries.yml, commit, and push"
 echo "  4. Open a PR and trigger the build workflow"
 echo "  5. Docker deploy will auto-trigger after builds succeed"
-echo "  After builds pass, merge the PR. This will auto-create a GitHub release"
+echo "  After the release build passes, merge the PR. This will auto-create a GitHub release"
 echo "  with the build artifacts and auto-trigger the Docker deploy."
+echo "  (debug and exact builds are attached if they succeeded, skipped otherwise)"
 echo ""
 echo "Current versions from ${WORKFLOW}:"
 echo ""
@@ -136,7 +137,7 @@ echo "Creating pull request..."
 PR_URL=$(gh pr create --title "$MSG" --body "Automated release branch created by release.sh" --base main)
 
 echo "Triggering build workflow..."
-gh workflow run build_binaries.yml --ref "$BRANCH"
+gh workflow run build_binaries.yml --ref "$BRANCH" -f debug=true -f exact=true
 
 echo ""
 echo "Done! Release branch '${BRANCH}' created and builds triggered."
