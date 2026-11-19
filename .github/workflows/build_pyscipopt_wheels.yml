@@ -44,7 +44,6 @@ on:
                 default: true
 
 env:
-    SCIP_DEPLOY_TAG: ${{ inputs.deploy_tag }}
     SCIP_ARTIFACT_SUFFIX: ${{ inputs.build_config != 'release' && format('-{0}', inputs.build_config) || '' }}
 
 jobs:
@@ -67,16 +66,20 @@ jobs:
                   repository: scipopt/PySCIPOpt
                   ref: ${{ inputs.pyscipopt_ref }}
 
+            # same edit as PySCIPOpt's upgrade_scip.sh
+            - name: Use the chosen scipoptsuite-deploy release
+              if: inputs.deploy_tag != ''
+              shell: bash
+              run: sed -i.bak "s|scipoptsuite-deploy/releases/download/v[0-9.]*/|scipoptsuite-deploy/releases/download/${{ inputs.deploy_tag }}/|" pyproject.toml
+
             - name: Rename package for variant builds
               if: inputs.build_config != 'release'
               run: python scripts/rename_package.py ${{ inputs.build_config }}
 
             - name: Build wheels
-              uses: pypa/cibuildwheel@v3.2.1
+              uses: pypa/cibuildwheel@v4.3.0
               env:
                   CIBW_ARCHS: ${{ matrix.arch }}
-                  # the Linux container doesn't see the runner's env
-                  CIBW_ENVIRONMENT_PASS_LINUX: SCIP_DEPLOY_TAG SCIP_ARTIFACT_SUFFIX
                   CIBW_BEFORE_TEST: "pip install -r {project}/requirements/test.txt"
                   CIBW_TEST_COMMAND: "pytest {project}/tests"
 
